@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PS70: Intro to Digital Fabrication</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./style.css" rel="stylesheet">
+  <style>
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.15;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav class="navbar navbar-expand-sm">
+  <div class="container-fluid">
+    <h2 class="nav-title">PS70 // INTRO TO DIGITAL FABRICATION</h2>
+    <div class="navbar-nav">
+      <a class="nav-link" href="./index.html">HOME</a>
+      <a class="nav-link" href="./about.html">ABOUT</a>
+      <a class="nav-link" href="./13_finalproject/index.html">FINAL PROJECT</a>
+      <div id="theme-toggle-container" class="theme-toggle-container">
+        <div class="pull-chain">
+          <div class="chain-link"></div>
+          <div class="chain-link"></div>
+          <div class="chain-link"></div>
+          <div class="chain-link"></div>
+          <div class="chain-link"></div>
+          <div class="chain-link"></div>
+          <div class="chain-link"></div>
+          <div class="chain-link"></div>
+        </div>
+        <button id="theme-toggle" class="theme-toggle-ball" aria-label="Toggle theme">
+          <span class="theme-icon">☀</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="textcontainer">
+
+<h2>COURSE DOCUMENTATION</h2>
+
+<h3>WEEKLY ASSIGNMENTS</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>WEEK</th>
+      <th>TOPIC</th>
+      <th>DOCUMENTATION</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>01</td>
+      <td>Introduction & Planning</td>
+      <td><a href="./01_intro/index.html">View →</a></td>
+    </tr>
+    <tr>
+      <td>02</td>
+      <td>2D Design & Cutting</td>
+      <td><a href="./02_2Ddesign/index.html">View →</a></td>
+    </tr>
+    <tr>
+      <td>03</td>
+      <td>Fabrication Techniques</td>
+      <td><a href="./03_fabrication/index.html">View →</a></td>
+    </tr>
+    <tr>
+      <td>04</td>
+      <td>Microcontroller Programming</td>
+      <td><a href="./04_microcontroller/index.html">View →</a></td>
+    </tr>
+    <tr>
+      <td>05</td>
+      <td>3D Design & Printing</td>
+      <td><a href="./05_3Ddesign/index.html">View →</a></td>
+    </tr>
+    <tr>
+      <td>06</td>
+      <td>Electronic Inputs</td>
+      <td><a href="./06_inputs/index.html">View →</a></td>
+    </tr>
+    <tr>
+      <td>07</td>
+      <td>Electronic Outputs</td>
+      <td><a href="./07_outputs/index.html">View →</a></td>
+    </tr>
+    <tr>
+      <td>08</td>
+      <td>CNC Machining</td>
+      <td><a href="./08_cnc/index.html">View →</a></td>
+    </tr>
+    <tr>
+      <td>09</td>
+      <td>IoT & Networking</td>
+      <td><a href="./09_networking/index.html">View →</a></td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>Machine Building</td>
+      <td><a href="./10_machine/index.html">View →</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>FINAL PROJECT</h3>
+
+<p><a href="./13_finalproject/index.html">View Final Project Documentation →</a></p>
+
+<footer class="site-footer">
+  <p>Vlad Cainamisir, inspired by <a href="https://github.com/c2bstewart/PS70" target="_blank">https://github.com/c2bstewart/PS70</a></p>
+</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// Three.js Engineering Background
+const canvas = document.getElementById('bg-canvas');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+camera.position.z = 30;
+
+// Create wireframe geometric shapes
+const shapes = [];
+
+// Icosahedron (complex polyhedron) - LEFT SIDE TOP
+const geo1 = new THREE.IcosahedronGeometry(3, 0);
+const wireframe1 = new THREE.WireframeGeometry(geo1);
+const line1 = new THREE.LineSegments(wireframe1);
+line1.material.color.setHex(0x00d4aa);
+line1.position.set(-35, 10, -5);
+shapes.push(line1);
+scene.add(line1);
+
+// Octahedron - RIGHT SIDE TOP
+const geo2 = new THREE.OctahedronGeometry(2.5, 0);
+const wireframe2 = new THREE.WireframeGeometry(geo2);
+const line2 = new THREE.LineSegments(wireframe2);
+line2.material.color.setHex(0xff9500);
+line2.position.set(35, 8, -8);
+shapes.push(line2);
+scene.add(line2);
+
+// Torus (gear-like) - RIGHT SIDE BOTTOM
+const geo3 = new THREE.TorusGeometry(3, 0.8, 6, 12);
+const wireframe3 = new THREE.WireframeGeometry(geo3);
+const line3 = new THREE.LineSegments(wireframe3);
+line3.material.color.setHex(0x00ff88);
+line3.position.set(33, -14, -10);
+shapes.push(line3);
+scene.add(line3);
+
+// Small dodecahedron - LEFT SIDE BOTTOM
+const geo4 = new THREE.DodecahedronGeometry(2, 0);
+const wireframe4 = new THREE.WireframeGeometry(geo4);
+const line4 = new THREE.LineSegments(wireframe4);
+line4.material.color.setHex(0x00d4aa);
+line4.position.set(-32, -16, -8);
+shapes.push(line4);
+scene.add(line4);
+
+// Tetrahedron - RIGHT SIDE MIDDLE
+const geo5 = new THREE.TetrahedronGeometry(2, 0);
+const wireframe5 = new THREE.WireframeGeometry(geo5);
+const line5 = new THREE.LineSegments(wireframe5);
+line5.material.color.setHex(0xff9500);
+line5.position.set(38, 0, -12);
+shapes.push(line5);
+scene.add(line5);
+
+// Small torus - LEFT SIDE MIDDLE
+const geo6 = new THREE.TorusGeometry(2, 0.5, 8, 16);
+const wireframe6 = new THREE.WireframeGeometry(geo6);
+const line6 = new THREE.LineSegments(wireframe6);
+line6.material.color.setHex(0x00ff88);
+line6.position.set(-38, 2, -10);
+shapes.push(line6);
+scene.add(line6);
+
+// Box - RIGHT SIDE UPPER MIDDLE
+const geo7 = new THREE.BoxGeometry(2, 2, 2);
+const wireframe7 = new THREE.WireframeGeometry(geo7);
+const line7 = new THREE.LineSegments(wireframe7);
+line7.material.color.setHex(0x00d4aa);
+line7.position.set(36, -6, -15);
+shapes.push(line7);
+scene.add(line7);
+
+// Cone - LEFT SIDE UPPER MIDDLE
+const geo8 = new THREE.ConeGeometry(2, 3, 8);
+const wireframe8 = new THREE.WireframeGeometry(geo8);
+const line8 = new THREE.LineSegments(wireframe8);
+line8.material.color.setHex(0xff9500);
+line8.position.set(-36, -8, -12);
+shapes.push(line8);
+scene.add(line8);
+
+// TorusKnot - LEFT TOP UPPER
+const geo9 = new THREE.TorusKnotGeometry(1.5, 0.4, 64, 8);
+const wireframe9 = new THREE.WireframeGeometry(geo9);
+const line9 = new THREE.LineSegments(wireframe9);
+line9.material.color.setHex(0x00ff88);
+line9.position.set(-33, 18, -18);
+shapes.push(line9);
+scene.add(line9);
+
+// Cylinder - RIGHT BOTTOM
+const geo10 = new THREE.CylinderGeometry(1, 1, 3, 8);
+const wireframe10 = new THREE.WireframeGeometry(geo10);
+const line10 = new THREE.LineSegments(wireframe10);
+line10.material.color.setHex(0x00d4aa);
+line10.position.set(34, -20, -14);
+shapes.push(line10);
+scene.add(line10);
+
+// Grid helper (engineering grid) - positioned lower and tilted
+let gridHelper = new THREE.GridHelper(80, 30, 0x00d4aa, 0x666666);
+gridHelper.position.y = -25;
+gridHelper.rotation.x = Math.PI / 4;
+gridHelper.material.opacity = 0.8;
+gridHelper.material.transparent = true;
+scene.add(gridHelper);
+
+// Animation
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Rotate shapes slowly
+  shapes.forEach((shape, i) => {
+    shape.rotation.x += 0.002 * (i + 1);
+    shape.rotation.y += 0.003 * (i + 1);
+  });
+
+  // Subtle camera movement for parallax effect
+  camera.position.x = Math.sin(Date.now() * 0.0001) * 0.5;
+  camera.position.y = Math.cos(Date.now() * 0.00015) * 0.5;
+  camera.lookAt(0, 0, 0);
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+// Handle window resize
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Theme toggle functionality
+const themeToggle = document.getElementById('theme-toggle');
+const themeIcon = document.querySelector('.theme-icon');
+const pullChain = document.querySelector('.pull-chain');
+const html = document.documentElement;
+
+// Check for saved theme preference or default to 'dark'
+const currentTheme = localStorage.getItem('theme') || 'dark';
+html.setAttribute('data-theme', currentTheme);
+themeIcon.textContent = currentTheme === 'dark' ? '☀' : '☾';
+
+// Update Three.js colors based on theme
+function updateThreeJSColors(theme) {
+  const isDark = theme === 'dark';
+  shapes.forEach((shape, i) => {
+    const colors = [0x00d4aa, 0xff9500, 0x00ff88];
+    const lightColors = [0x008c75, 0xd67a00, 0x00b366];
+    const colorIndex = i % 3;
+    const newColor = isDark ? colors[colorIndex] : lightColors[colorIndex];
+    shape.material.color.setHex(newColor);
+  });
+
+  // Update grid colors - both main and secondary lines
+  const mainColor = isDark ? 0x00d4aa : 0x008c75;
+  const secondaryColor = isDark ? 0x666666 : 0x999999;
+  gridHelper.material.color.setHex(mainColor);
+
+  // Recreate grid with new colors
+  scene.remove(gridHelper);
+  const newGrid = new THREE.GridHelper(80, 30, mainColor, secondaryColor);
+  newGrid.position.y = -25;
+  newGrid.rotation.x = Math.PI / 4;
+  newGrid.material.opacity = 0.8;
+  newGrid.material.transparent = true;
+  scene.add(newGrid);
+  gridHelper = newGrid;
+}
+
+// Initial color update
+updateThreeJSColors(currentTheme);
+
+themeToggle.addEventListener('click', () => {
+  const currentTheme = html.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+  html.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  themeIcon.textContent = newTheme === 'dark' ? '☀' : '☾';
+
+  // Update Three.js colors
+  updateThreeJSColors(newTheme);
+
+  // Trigger pull chain animation
+  const container = document.getElementById('theme-toggle-container');
+  if (pullChain && container) {
+    // Add bouncing class for individual link animations
+    pullChain.classList.add('bouncing');
+
+    // Trigger whole container swing animation
+    container.style.animation = 'container-pull-swing 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+
+    // Remove bouncing class and reset animation after completes
+    setTimeout(() => {
+      pullChain.classList.remove('bouncing');
+      container.style.animation = '';
+    }, 1200);
+  }
+});
+
+// Scroll-based chain animation
+let lastScrollY = window.scrollY;
+let scrollTimeout;
+let isScrollBouncing = false;
+
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  const scrollDelta = scrollY - lastScrollY;
+  const container = document.getElementById('theme-toggle-container');
+
+  if (container && pullChain) {
+    const swayAmount = Math.min(Math.abs(scrollDelta) / 5, 15);
+    const direction = scrollDelta > 0 ? 1 : -1;
+    container.style.transform = `rotate(${swayAmount * direction}deg)`;
+
+    // Add bouncing class for significant scroll movements
+    if (Math.abs(scrollDelta) > 10 && !isScrollBouncing) {
+      pullChain.classList.add('bouncing');
+      isScrollBouncing = true;
+
+      setTimeout(() => {
+        pullChain.classList.remove('bouncing');
+        isScrollBouncing = false;
+      }, 1200);
+    }
+
+    // Clear previous timeout
+    clearTimeout(scrollTimeout);
+
+    // Reset with bounce effect
+    scrollTimeout = setTimeout(() => {
+      container.style.transform = 'rotate(0deg)';
+    }, 400);
+  }
+
+  lastScrollY = scrollY;
+});
+</script>
+
+</body>
+</html>
