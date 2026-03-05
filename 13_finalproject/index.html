@@ -47,6 +47,49 @@ A positioning system that can determine the location based on some beacons
 <!-- [Link text](https://example.com) -->
 
 
+# New Idea
+I have been thinking that building a boat might be out of scope. But I would still like to make something that helps me sail better in some way. One thing that always happens to me is that I forget to do something. I once forgot to drop the centerboard, but usually it happens that a rope gets stuck around the corner of my boat and almost flips me. The thing is that I need to look back a lot for this not to happen, and I am usually yapping to friends sitting in the front.
+
+The idea is this device I could put on top of my helmet which records in all directions and it knows what to watch out for - basically it is a copilot of mine. I could use it as well to change the music with some voice commands, and it could give me feedback on how good my technique is. 
+This could be expanded to working in the lab too - maybe I forget to do something and it alerts me I should do it.
+
+<iframe
+    src="https://a360.co/4bboWOL"
+    width="100%"
+    height="500"
+    frameborder="0"
+    allowfullscreen>
+</iframe>
+
+The slots on the sides are for ESP32-CAMs, and the slots on the inside are for 2 speakers so I could hear what the assistant is telling me. I think it would be fun if I could figure out how to do it via bone induction.
+
+I think it would be fun to have a "sticky" version of a camera or some sensor array I could put on the boat - like an accelerometer to tell me what my steepest angle was and if it is optimal.
+
+<img src="render.png" class="img-fluid" />
+<img src="uglyrender.png" class="img-fluid" />
+
+I tried to get a nicer render with gemini - I think ultimately I want to make it look sleek, and I think I can model it around one of the MIT helmets.
+
+This would be a lot of programming, especially because I would need to implement some lightweight processing that figures out if it is worth sending a frame to a central server etc. The idea is obviously still evolving.
+
+As a bill of materials, I would just need
+
+
+- 4 ESP32-CAMs, some ultrawide camera modules (I have a few laying around, but not enough)
+- A 20k mah battery
+- Speaker modules
+- A couple of I2S microphones
+- 4 SD card modules
+- 4 32gb SD cards
+
+
+I would like to have a physical display of all the information I am dealing with, because i cannot have my phone out on the boat
+
+- So a 7 inch display would also be nice, maybe tied to a raspberry pi (and all strapped to the mast)
+- Some physical buttons for this display because touchscreen tends to not work when water gets everywhere.
+- I would like it to display my course along the charles so a gps module would be nice.
+
+
 </xmp>
 </body>
 
