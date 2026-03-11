@@ -44,7 +44,7 @@ Anyway it's a fun trinket.
     allowfullscreen>
 </iframe>
 
-<a download href='boxwithball.stl'>Download my STL file <\a>
+<a download href='boxwithball.stl'>Download my STL file</a>
 
 <p class="margin">   </p>
 
@@ -56,10 +56,26 @@ Anyway it's a fun trinket.
 
 # The 3d scan
 
+I scanned the debugging duck using the scanner in the lab but I can't find the file somehow.
+So I decided to go a bit crazy and see the state of the art research in 3D scene reconstruction - and I got some open source model which is state of the art, rented a GPU and did the reconstruction of my controller.
+
+It ended up being pretty cool, and I think it's quite annoying to run all these things, but I've done it before for some older stuff like Duster. This stuff was more straightforward, and the results seem better. There's a lot of noise, so I guess you would have to clean it up in Blender. 
+
+It's also super cool that this is just like from a video from my phone and doesn't use the lidar or anything like that, so a super cheap device can do this stuff. If you like, it's much better for the reconstruction of large scenes, like my room for example, but for objects it seems like it's struggling a bit.
+
+
 </xmp>
-</body>
+
+<model-viewer
+  src="controller.glb"
+  alt="3D scan of my controller"
+  auto-rotate
+  camera-controls
+  style="width: 100%; height: 500px; background: #1a1a2e; border-radius: 8px; margin: 1rem 0;"
+></model-viewer>
 
 <script src="../strapdown.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 
 </html>
