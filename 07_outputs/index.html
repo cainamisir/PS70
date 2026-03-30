@@ -26,7 +26,286 @@
 
 <p class="margin">   </p>
 
-Add your content here using markdown syntax.
+# I have started making my "paper organizer project"
+
+The main idea is that I write a lot of my notes on papers I read - lots of highlights, side notes etc. And I always lose them and when I want to come back to them, can't find them anymore.
+
+So I built this paper scanner and organizer.
+
+First, I took inspiration from printers and how they roll paper.
+
+<img src="roller.png" class="img-fluid" style="width: 50%;"/>
+
+I 3d printed a converter from the servo motor to a wood cilinder I found in the lab, and wrapped it with some rubber.
+
+<img src="converter.png" class="img-fluid" style="width: 50%;"/>
+
+Some mishaps here: The calipers were not accurate enough so I had to "guesstimate" the diameter of the cylinder until it fit tightly.
+
+I also did try to hot glue it inside, but as some might know, plastic and hot glue don't mix well...
+
+I laser cutted the enclosure out of 6mm plywood and screwed it together with some brackets.
+
+<img src="encosure.png" class="img-fluid" style="width: 50%;"/>
+
+# I then moved on to another part which seemed very scary to me: a gliding mechanism which will have the camera and maybe a paper grabber.
+
+I saw one of Bobby's gliding mechanisms and tried to reverse engineer it - and I'm almost done!
+
+I ended up 3d printing the slider, and then fitting some wheels and attaching them to the aluminum bar.
+
+<img src="slider.png" class="img-fluid" style="width: 50%;"/>
+
+<video controls autoplay loop muted style="width: 50%;">
+  <source src="IMG_9118.MOV" type="video/mp4">
+</video>
+
+## It works surprisingly well! So I got 2 of them, and then uhmmm... ziptied a breadboard with my ESP32-CAM and the motor driver connected.
+
+# So then I got everything running!
+
+## The paper is being fed fine-ish but I have to support it on one side -> Also I need to move the roller more to the side most likely.
+<video controls autoplay loop muted style="width: 50%;">
+  <source src="IMG_9125.MOV" type="video/mp4">
+</video>
+
+
+## Overall, it works pretty well. I have to add the motor and pulley to the top camera chaser, and implement the software to actually scan the page, but that should be fine! Software is easy
+
+<video controls autoplay loop muted style="width: 50%;">
+  <source src="IMG_9127.MOV" type="video/mp4">
+</video>
+# Code:
+
+</xmp>
+
+<pre>
+<code class="language-python">
+  #include "esp_camera.h"
+  #include <WiFi.h>
+  
+  // ===========================
+  // Select camera model in board_config.h
+  // ===========================
+  #include "board_config.h"
+  
+  // ===========================
+  // Enter your WiFi credentials
+  // ===========================
+  const char *ssid = "MAKERSPACE";
+  const char *password = "12345678";
+  
+  // ===========================
+  // Motor Controller Class
+  // ===========================
+  class Motor {
+    private:
+      int pinPWM;
+      int pinDIR;
+      int speed;
+      bool running;
+      unsigned long timer;
+      unsigned long onTime;
+      unsigned long offTime;
+      bool cycling;
+  
+    public:
+      Motor(int pwmPin, int dirPin, int spd = 200)
+        : pinPWM(pwmPin), pinDIR(dirPin), speed(spd),
+          running(false), timer(0), onTime(5000), offTime(5000), cycling(false) {}
+  
+      void begin() {
+        pinMode(pinPWM, OUTPUT);
+        pinMode(pinDIR, OUTPUT);
+        stop();
+      }
+  
+      void forward() {
+        analogWrite(pinPWM, speed);
+        digitalWrite(pinDIR, LOW);
+        running = true;
+        Serial.println("Motor: ON");
+      }
+  
+      void forward(int spd) {
+        speed = spd;
+        forward();
+      }
+  
+      void stop() {
+        digitalWrite(pinPWM, HIGH);
+        digitalWrite(pinDIR, HIGH);
+        delay(50);
+        analogWrite(pinPWM, 0);
+        analogWrite(pinDIR, 0);
+        digitalWrite(pinPWM, LOW);
+        digitalWrite(pinDIR, LOW);
+        running = false;
+        Serial.println("Motor: OFF");
+      }
+  
+      void setSpeed(int spd) {
+        speed = constrain(spd, 0, 255);
+        if (running) forward();
+      }
+  
+      void setTiming(unsigned long on, unsigned long off) {
+        onTime = on;
+        offTime = off;
+      }
+  
+      void startCycle() {
+        cycling = true;
+        forward();
+        timer = millis();
+      }
+  
+      void stopCycle() {
+        cycling = false;
+        stop();
+      }
+  
+      bool isRunning() { return running; }
+      bool isCycling() { return cycling; }
+  
+      void update() {
+        if (!cycling) return;
+  
+        unsigned long now = millis();
+  
+        if (running && (now - timer >= onTime)) {
+          stop();
+          timer = now;
+        } else if (!running && (now - timer >= offTime)) {
+          forward();
+          timer = now;
+        }
+      }
+  };
+  
+  // ===========================
+  // Globals
+  // ===========================
+  Motor motor(D0, D1, 200);  // A1-A → D0, A1-B → D1, speed 200
+  
+  void startCameraServer();
+  void setupLedFlash();
+  
+  void setup() {
+    Serial.begin(115200);
+    Serial.setDebugOutput(true);
+    Serial.println();
+  
+    // Motor
+    motor.begin();
+    motor.setTiming(5000, 5000);  // 5s on, 5s off
+  
+    // Camera
+    camera_config_t config;
+    config.ledc_channel = LEDC_CHANNEL_0;
+    config.ledc_timer = LEDC_TIMER_0;
+    config.pin_d0 = Y2_GPIO_NUM;
+    config.pin_d1 = Y3_GPIO_NUM;
+    config.pin_d2 = Y4_GPIO_NUM;
+    config.pin_d3 = Y5_GPIO_NUM;
+    config.pin_d4 = Y6_GPIO_NUM;
+    config.pin_d5 = Y7_GPIO_NUM;
+    config.pin_d6 = Y8_GPIO_NUM;
+    config.pin_d7 = Y9_GPIO_NUM;
+    config.pin_xclk = XCLK_GPIO_NUM;
+    config.pin_pclk = PCLK_GPIO_NUM;
+    config.pin_vsync = VSYNC_GPIO_NUM;
+    config.pin_href = HREF_GPIO_NUM;
+    config.pin_sccb_sda = SIOD_GPIO_NUM;
+    config.pin_sccb_scl = SIOC_GPIO_NUM;
+    config.pin_pwdn = PWDN_GPIO_NUM;
+    config.pin_reset = RESET_GPIO_NUM;
+    config.xclk_freq_hz = 20000000;
+    config.frame_size = FRAMESIZE_UXGA;
+    config.pixel_format = PIXFORMAT_JPEG;
+    config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
+    config.fb_location = CAMERA_FB_IN_PSRAM;
+    config.jpeg_quality = 12;
+    config.fb_count = 1;
+  
+    if (config.pixel_format == PIXFORMAT_JPEG) {
+      if (psramFound()) {
+        config.jpeg_quality = 10;
+        config.fb_count = 2;
+        config.grab_mode = CAMERA_GRAB_LATEST;
+      } else {
+        config.frame_size = FRAMESIZE_SVGA;
+        config.fb_location = CAMERA_FB_IN_DRAM;
+      }
+    } else {
+      config.frame_size = FRAMESIZE_240X240;
+  #if CONFIG_IDF_TARGET_ESP32S3
+      config.fb_count = 2;
+  #endif
+    }
+  
+  #if defined(CAMERA_MODEL_ESP_EYE)
+    pinMode(13, INPUT_PULLUP);
+    pinMode(14, INPUT_PULLUP);
+  #endif
+  
+    esp_err_t err = esp_camera_init(&config);
+    if (err != ESP_OK) {
+      Serial.printf("Camera init failed with error 0x%x", err);
+      return;
+    }
+  
+    sensor_t *s = esp_camera_sensor_get();
+    if (s->id.PID == OV3660_PID) {
+      s->set_vflip(s, 1);
+      s->set_brightness(s, 1);
+      s->set_saturation(s, -2);
+    }
+    if (config.pixel_format == PIXFORMAT_JPEG) {
+      s->set_framesize(s, FRAMESIZE_QVGA);
+    }
+  
+  #if defined(CAMERA_MODEL_M5STACK_WIDE) || defined(CAMERA_MODEL_M5STACK_ESP32CAM)
+    s->set_vflip(s, 1);
+    s->set_hmirror(s, 1);
+  #endif
+  
+  #if defined(CAMERA_MODEL_ESP32S3_EYE)
+    s->set_vflip(s, 1);
+  #endif
+  
+  #if defined(LED_GPIO_NUM)
+    setupLedFlash();
+  #endif
+  
+    WiFi.begin(ssid, password);
+    WiFi.setSleep(false);
+  
+    Serial.print("WiFi connecting");
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println("");
+    Serial.println("WiFi connected");
+  
+    startCameraServer();
+  
+    Serial.print("Camera Ready! Use 'http://");
+    Serial.print(WiFi.localIP());
+    Serial.println("' to connect");
+  
+    // Start motor cycling
+    motor.startCycle();
+  }
+  
+  void loop() {
+    motor.update();
+    delay(10);
+  }
+</code>
+</pre>
+
 
 <p class="margin">   </p>
 
