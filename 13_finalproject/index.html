@@ -1,11 +1,123 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PS70: Intro to Digital Fabrication</title>
+  <title>PS70 Final Project — Autonomous PDF Scanner</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="../style.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <style>
+    /* Force a clean light theme regardless of strapdown / PS70 defaults */
+    html, body { background: #ffffff !important; color: #1a1a1a !important; }
+    body, p, li, td, th, dt, dd, blockquote {
+      color: #1a1a1a !important;
+    }
+    h1, h2, h3, h4, h5, h6 { color: #0a0a0a !important; }
+    h2 { border-bottom: 1px solid #e1e4e8; padding-bottom: 6px; margin-top: 36px; }
+    h1 { margin-top: 36px; }
+    a { color: #0366d6 !important; }
+    a:hover { color: #0246a8 !important; }
+    .textcontainer { color: #1a1a1a !important; max-width: 980px; margin: 0 auto; padding: 18px 22px 60px; }
+    .navbar { background: #fafbfc !important; border-bottom: 1px solid #e1e4e8; }
+    .nav-title { color: #0a0a0a !important; }
+    .nav-link { color: #0366d6 !important; }
+    blockquote { border-left: 3px solid #d1d5da; color: #586069 !important; padding-left: 12px; }
+    hr { border-color: #e1e4e8; }
+
+    /* Override strapdown's terminal-style code blocks with a clean light theme */
+    pre, pre code, pre.prettyprint, code.prettyprint {
+      background: #fafbfc !important;
+      color: #24292e !important;
+      font-family: ui-monospace, "SF Mono", "Monaco", "Menlo", "Consolas", monospace !important;
+      font-size: 13px !important;
+      line-height: 1.55 !important;
+      text-shadow: none !important;
+    }
+    pre, pre.prettyprint {
+      padding: 14px 16px !important;
+      border-radius: 8px !important;
+      border: 1px solid #e1e4e8 !important;
+      overflow-x: auto !important;
+      margin: 14px 0 !important;
+    }
+    pre code { padding: 0 !important; border: 0 !important; background: transparent !important; }
+    /* Inline code */
+    p code, li code, h1 code, h2 code, h3 code, h4 code, td code {
+      background: #f1f3f5 !important;
+      color: #d63384 !important;
+      padding: 1px 6px !important;
+      border-radius: 4px !important;
+      font-size: 0.88em !important;
+      font-family: ui-monospace, "SF Mono", monospace !important;
+      border: 1px solid #e9ecef !important;
+    }
+    /* Tables */
+    table { border-collapse: collapse; margin: 14px 0; }
+    table th, table td { padding: 8px 12px; border: 1px solid #e1e4e8; }
+    table th { background: #f6f8fa; }
+
+    /* Tabbed code viewer */
+    .code-tabs { margin: 22px 0; }
+    .code-tabs .tab-buttons {
+      display: flex; gap: 2px; flex-wrap: wrap;
+      border-bottom: 1px solid #d1d5da;
+      padding: 0 4px;
+    }
+    .code-tabs .tab-button {
+      padding: 9px 14px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 13px;
+      color: #586069;
+      transition: background 0.1s, color 0.1s;
+    }
+    .code-tabs .tab-button:hover { background: #f3f4f6; color: #24292e; }
+    .code-tabs .tab-button.active {
+      background: #fafbfc;
+      border-color: #d1d5da;
+      color: #24292e;
+      font-weight: 600;
+      margin-bottom: -1px;
+    }
+    .code-tabs .tab-pane { display: none; }
+    .code-tabs .tab-pane.active { display: block; }
+    .code-tabs .tab-meta {
+      color: #586069; font-size: 12px;
+      padding: 8px 14px;
+      background: #fafbfc;
+      border: 1px solid #d1d5da;
+      border-top: none; border-bottom: none;
+      font-family: ui-monospace, monospace;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .code-tabs .tab-meta .copy-btn {
+      background: transparent; border: 1px solid #d1d5da;
+      border-radius: 4px; padding: 3px 10px; font-size: 11px;
+      cursor: pointer; color: #586069;
+    }
+    .code-tabs .tab-meta .copy-btn:hover { background: #f3f4f6; color: #24292e; }
+    .code-tabs .tab-pane pre {
+      margin-top: 0 !important;
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+      max-height: 70vh;
+      overflow: auto;
+    }
+    /* hljs theme tweaks for our light bg */
+    .hljs { background: #fafbfc !important; padding: 0 !important; }
+
+    /* Misc */
+    .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 6px; margin: 18px 0; }
+    .video-wrap iframe, .video-wrap video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    figure { margin: 18px 0; }
+    figcaption { color: #777; font-size: 13px; margin-top: 4px; font-style: italic; }
+  </style>
 </head>
 <body>
 
@@ -22,78 +134,3133 @@
 <xmp style="display:none;">
 <div class="textcontainer">
 
-<h3>Final Project</h3>
+<h3>Final Project — Autonomous PDF Scanner</h3>
 
-<p class="margin">   </p>
+# Demo
 
-# Project proposal
+<div class="video-wrap">
+  <video src="./demo.mp4" controls playsinline preload="metadata"></video>
+</div>
 
-### Autonomous sail drone
-A small scale sailboat that can sail around in a water container autonomously, avoiding obstacles and navigating to waypoints. Would use a window fan to create the wind, or blowdrier.
+# Motivation
 
-### RF detection of drones
-A mesh network of sensors that can triangulate the location of a drone based on its RF emissions. Would use software defined radios (SDRs) to pick up the signals. Combined with acoustic sensors, maybe electromagnetic in closed spaces
+I read a lot of academic papers and I always print them out, highlight with markers, and scribble in the margins. The marked-up paper is more useful to me than the digital one — but my notes live on dead trees while everything else (citations, search, sync between devices) lives on my laptop.
 
-### Electromagnetic based drone navigation in closed spaces.
-A positioning system that can determine the location based on some beacons
+I wanted a machine that closes the loop: **feed it a marked-up paper, and the original PDF on my computer gets the same highlights and the same margin notes baked in, automatically.** No retyping, no scanning to a separate doc, no manual transcription. Place the stack of papers in the feeder, press **Auto-scan**, walk away.
+
+It works.
+
+<figure>
+  <img src="./IMG_9485.jpg" class="img-fluid" alt="Assembled rig">
+  <figcaption>Top-down view of the assembled rig: the laser-cut scanner body, the rainbow CSI ribbon to the camera, the page-feed wheel on the right, and the 3D-printed compute enclosure with the Pi 5 inside (the fan I clipped on top is being held to the side here for the shot).</figcaption>
+</figure>
+
+# What it does, end-to-end
+
+1. **You** put a stack of printed-and-marked-up papers into the page feeder.
+2. **You** click **▶ Auto-scan whole paper** in the browser UI (served from the Raspberry Pi).
+3. The Pi sends an HTTP request over WiFi to the ESP32: "advance one page."
+4. The ESP32 spins a stepper motor with a precise pattern (8700 steps forward, 3500 back) → one page rolls under the camera.
+5. The Pi waits 3 s for the paper to physically settle, then captures a 2304×1296 frame from the IMX708 sensor.
+6. The Pi **identifies** which paper + which page this is, by ORB-matching the snapshot against a pre-ingested library of cached PDF page descriptors.
+7. **Highlight extraction** runs by sampling HSV pixels at the precise locations of every known printed word.
+8. **Handwriting regions** are found by subtracting printed-text bboxes from a binary ink mask.
+9. **TrOCR-small** (int8-quantized) reads each handwriting crop.
+10. **PyMuPDF** stamps the matching highlight + FreeText annotations on a copy of the original PDF, atomically.
+11. A `sync.py` watcher on my Mac polls the Pi every 2 s, validates the annotated PDF (starts with `%PDF`, ends with `%%EOF`), and overwrites the local file in `~/Desktop/Papers/`.
+12. Loop until a blank page is detected → auto-stop.
+
+Total cycle time per page on the Pi 5 CPU is roughly **6–8 seconds** with a warm OCR model — most of which is the 3 s settle wait.
+
+# Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  My Mac (~/Desktop/Papers/*.pdf — the source of truth, sort of)      │
+│                                                                       │
+│     ┌─ Browser ─────────────────┐    ┌─ sync.py (background) ──┐    │
+│     │  http://reader.local:8000 │    │ polls /latest-analysis,│    │
+│     │  • live camera preview    │    │ pulls annotated PDF,   │    │
+│     │  • live annotated PDF     │    │ atomically overwrites  │    │
+│     │  • highlight pills + OCR  │    │ the local file.        │    │
+│     │  • progress / timing log  │    └────────────────────────┘    │
+│     └──────────┬────────────────┘            ▲                      │
+└────────────────│─────────────────────────────│──────────────────────┘
+                 │ HTTP (auto-scan-stream SSE) │ HTTP GET annotated.pdf
+                 ▼                              │
+┌──────────────────────────────────────────────────────────────────────┐
+│  Raspberry Pi 5 (reader.local)                                       │
+│                                                                       │
+│   Picamera2 ──► MJPEG live stream (port 8000)                        │
+│   Flask app  ◄── auto-scan loop:                                     │
+│      1. HTTP POST motor /turn  ──────► ESP32                         │
+│      2. wait 3s (page settles)                                       │
+│      3. capture latest MJPEG frame                                   │
+│      4. ORB-match against pre-cached library (per-paper "lock")      │
+│      5. RANSAC homography → warp into PDF coordinates                │
+│      6. HSV color masking → highlighted word indices                 │
+│      7. Mask out printed-text regions → handwriting regions          │
+│      8. TrOCR-small (int8 quantized) on each crop                    │
+│      9. PyMuPDF: stamp highlights + FreeText annots, atomic write    │
+│     10. SSE event "page_done" → UI refreshes preview                 │
+│     11. loop until find_best_page() returns None (blank page)        │
+└──────────────────────────────────────────────────────────────────────┘
+                                            ▲
+                                            │ HTTP POST /turn
+                                            ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│  ESP32-WROOM-32 (battery-powered, 192.168.0.244:51917)               │
+│                                                                       │
+│   WiFi WebServer ───► /turn  ──► doPageFeed():                       │
+│                                       dir HIGH, 8700 steps forward   │
+│                                       dir LOW,  3500 steps back      │
+│                                                                       │
+│   GPIO 32 → DRV8825 STEP                                               │
+│   GPIO 26 → DRV8825 DIR                                                │
+│   3V3      → DRV8825 VDD,  MS1, MS2, MS3 (1/16 microstep)              │
+│   12V PSU  → DRV8825 VMOT  → NEMA 17 stepper                           │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+# Bill of materials
+
+| Item | Use | Notes / link |
+|---|---|---|
+| [Raspberry Pi 5 (8 GB)](https://www.raspberrypi.com/products/raspberry-pi-5/) | Vision + OCR compute | 4 GB version is tight once TrOCR loads |
+| ~20 mm fan (found in the lab, probably a PC case fan) | Thermal management — clipped over the Pi 5 SoC | Wired to 5 V on the Pi's GPIO header. Without active cooling the Pi 5 throttles at 80 °C. The [official Pi 5 Active Cooler](https://www.raspberrypi.com/products/active-cooler/) is $5 and cleaner if you don't have spare parts. |
+| [Pi 27 W USB-C PSU](https://www.raspberrypi.com/products/27w-power-supply/) | Real 5 V / 5 A power | Most other supplies brown out under load |
+| [Arducam Camera Module 3 (IMX708, 12MP, M12 lens)](https://www.amazon.com/dp/B0C9PYCV9S) | Page capture | 75° diagonal FOV |
+| 15-pin ↔ 22-pin CSI ribbon | Pi 5 has the smaller 22-pin connector | |
+| [ESP32-WROOM-32 dev board](https://www.espressif.com/en/products/socs/esp32) | Wireless motor controller | Any ESP32-WROOM variant works |
+| [DRV8825 stepper driver (red)](https://www.pololu.com/product/2133) | Step/dir → coil currents | Pin-compatible with DRV8825; uses 1/32 microstepping (6400 steps/rev) at max |
+| NEMA 17 stepper motor | Drives the page-feed roller | Whatever NEMA 17 you have; tune the driver Vref to match its rated coil current |
+| 12 V power supply (≥2 A) | Motor power (VMOT) | Wall wart or bench supply |
+| USB-C power bank | ESP32 power (untethered from Pi) | Any 5 V battery |
+| Breadboard, hookup wire, M-F jumpers, paper stand | | |
+
+**Approximate total: $200** (Pi 5 + cooler + PSU + camera + cable ≈ $130; the ESP32 + motor + driver side ≈ $30; misc ≈ $40).
 
 
-<p class="margin">   </p>
 
-<!-- You can add images like this: -->
-<!-- ![image description](./image.png) -->
+# Wiring
 
-<!-- You can add links like this: -->
-<!-- [Link text](https://example.com) -->
+## ESP32 ↔ DRV8825 ↔ NEMA 17
 
+```
+ESP32 GPIO 32  ──▶  DRV8825 STEP
+ESP32 GPIO 26  ──▶  DRV8825 DIR
+ESP32 3V3      ──▶  DRV8825 VDD       ─┐
+ESP32 3V3      ──▶  DRV8825 MS1       ─├─ tie all three MS pins HIGH for 1/16 microstep
+ESP32 3V3      ──▶  DRV8825 MS2       ─│   (without this the motor screams in full-step
+ESP32 3V3      ──▶  DRV8825 MS3       ─┘   mode and stalls at our speed)
+ESP32 GND      ──▶  DRV8825 GND       ─┐
+12 V PSU GND   ──▶  DRV8825 GND       ─┴─ common ground is mandatory
+12 V PSU +     ──▶  DRV8825 VMOT
+DRV8825 RST + SLP                     ─── jumper them together (otherwise driver
+                                         looks alive but never steps)
+DRV8825 1A,1B,2A,2B ──▶ NEMA 17 coils  (one pair per coil — test pairing with a
+                                      multimeter, see "Lessons" below)
+```
 
-# New Idea
-I have been thinking that building a boat might be out of scope. But I would still like to make something that helps me sail better in some way. One thing that always happens to me is that I forget to do something. I once forgot to drop the centerboard, but usually it happens that a rope gets stuck around the corner of my boat and almost flips me. The thing is that I need to look back a lot for this not to happen, and I am usually yapping to friends sitting in the front.
+<figure>
+  <img src="./IMG_9449.jpg" class="img-fluid" alt="ESP32 + DRV8825 wiring">
+  <figcaption>The ESP32-WROOM-32 (right) and the red DRV8825 driver (left, with heatsink) on a breadboard. Yellow + blue + red wires fan out to the motor coils; the thinner jumpers go to STEP / DIR / VDD / MS pins.</figcaption>
+</figure>
 
-The idea is this device I could put on top of my helmet which records in all directions and it knows what to watch out for - basically it is a copilot of mine. I could use it as well to change the music with some voice commands, and it could give me feedback on how good my technique is. 
-This could be expanded to working in the lab too - maybe I forget to do something and it alerts me I should do it.
+### Pin-choice landmines for ESP32-WROOM-32
 
-<iframe
-    src="https://a360.co/4bboWOL"
-    width="100%"
-    height="500"
-    frameborder="0"
-    allowfullscreen>
-</iframe>
-
-The slots on the sides are for ESP32-CAMs, and the slots on the inside are for 2 speakers so I could hear what the assistant is telling me. I think it would be fun if I could figure out how to do it via bone induction.
-
-I think it would be fun to have a "sticky" version of a camera or some sensor array I could put on the boat - like an accelerometer to tell me what my steepest angle was and if it is optimal.
-
-<img src="render.png" class="img-fluid" />
-<img src="uglyrender.png" class="img-fluid" />
-
-I tried to get a nicer render with gemini - I think ultimately I want to make it look sleek, and I think I can model it around one of the MIT helmets.
-
-This would be a lot of programming, especially because I would need to implement some lightweight processing that figures out if it is worth sending a frame to a central server etc. The idea is obviously still evolving.
-
-As a bill of materials, I would just need
-
-
-- 4 ESP32-CAMs, some ultrawide camera modules (I have a few laying around, but not enough)
-- A 20k mah battery
-- Speaker modules
-- A couple of I2S microphones
-- 4 SD card modules
-- 4 32gb SD cards
+| Pin range | Why to avoid |
+|---|---|
+| **GPIO 0, 2, 5, 12, 15** | Strapping pins — driving them wrong at boot can prevent the chip from starting. |
+| **GPIO 6–11** | Wired to on-board SPI flash. Don't touch. |
+| **GPIO 34, 35, 36, 39** | **Input-only.** `digitalWrite(35, HIGH)` is silently ignored. Hit this exact bug once with the DIR pin assigned to GPIO 35 — silent failure, hard to debug. |
+| Safe outputs | 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33 |
 
 
-I would like to have a physical display of all the information I am dealing with, because i cannot have my phone out on the boat
+# Paper feeder mechanics
 
-- So a 7 inch display would also be nice, maybe tied to a raspberry pi (and all strapped to the mast)
-- Some physical buttons for this display because touchscreen tends to not work when water gets everywhere.
-- I would like it to display my course along the charles so a gps module would be nice.
+The page-feed motor + roller can't actually hold a stack of papers up at the right height by itself — as the stack gets shorter (we've fed several pages through), the top sheet drops and stops making contact with the drive roller.
+
+The fix I used is dumb and effective: a **set of springs underneath the paper stack**, with the stack resting on a flat platen. The springs push the platen (and the whole paper stack) upward against an overhead stop. As the top sheet feeds away, the stack thins, the springs decompress and push the platen up by the thickness of that sheet, and the new top page lands at the same height as the previous one. Constant top-of-stack height with no electronics, no encoders, and almost no friction.
+
+The roller is positioned just below that fixed top height. Each `turn` from the ESP32 drives the roller; the top sheet rolls off, and the spring-loaded platen pops the next sheet up into place. The 3-second `settle_ms` wait in the auto-scan loop is enough time for the spring/paper system to come to rest after a feed.
+
+The "roller" itself is a stack of **three LEGO wheel rims** mounted on the stepper shaft. Two were real LEGO parts I had lying around; the third I 3D-printed to match — easiest way to extend the roller width to span the full page. The rubber tire profile on the LEGO rim grips paper *very* well, way better than I expected. Cheap, fast, and effective enough that I never bothered swapping them for a "proper" roller.
+
+The whole assembly is rough-and-ready — a printed page-feeder mechanism would be the obvious next upgrade — but with the springs tuned (just enough force to lift the current stack, not so much that the roller can't peel a sheet off), it's been completely reliable for stacks of ≤20 sheets.
 
 
+
+<figure>
+  <img src="./IMG_9450.jpg" class="img-fluid" alt="Spring-loaded paper platen">
+  <figcaption>Looking down into the scanner body: nine coil springs sit between the floor of the box and a flat plywood platen. The paper stack rests on top of that platen. As pages feed off, the springs decompress and push the next sheet up to the same height.</figcaption>
+</figure>
+
+## The page-feed pattern (and the short backward kick)
+
+Tuning the actual stepper command per page took longer than I expected. The naïve approach — "spin the roller forward by N steps until exactly one page comes out" — almost worked, but the LEGO-rim roller is grippy enough that it would consistently pull the **next** sheet partially out from under the top one too. By the time the top page rolled off, the second page was already a few millimeters out and would end up positioned diagonally for the next capture.
+
+The fix is the two-phase pattern that's hard-coded in the firmware:
+
+```cpp
+void doPageFeed() {
+  // Forward: roll the top sheet off the stack (8700 steps ≈ one page width)
+  digitalWrite(DIR_PIN, HIGH);
+  doSteps(forwardSteps);   // 8700
+  // Backward: short reverse kick — pushes the partially-grabbed second
+  // sheet back UNDER the stack instead of letting it stay caught above.
+  digitalWrite(DIR_PIN, LOW);
+  doSteps(backwardSteps);  // 3500
+}
+```
+
+The exact numbers (8700 fwd, 3500 back) were tuned empirically using the serial commands (`turn 200`, `turn 500`, etc.) until each `turn` reliably advanced exactly one page and left the next page squared up against the roller's bottom edge. Without the backward kick, ~30% of feeds would carry two sheets through; with it, the failure rate dropped to nearly zero.
+
+<figure style="max-width: 720px; margin: 18px 0;">
+  <div class="video-wrap"><video src="./demo-short.mp4" controls playsinline preload="metadata"></video></div>
+  <figcaption>One page rolling — the full pattern in action: forward to roll the top sheet off, then a short backward kick to seat the next sheet cleanly under the rollers for the next cycle.</figcaption>
+</figure>
+
+# Enclosures
+
+There are two enclosures in this build, made very differently.
+
+## The main scanner enclosure (laser-cut + bandsaw)
+
+The big body that holds the paper feeder, the spring-loaded platen, the camera mount, and the slot the compute stack clips into is **mostly laser-cut from sheet stock** — flat panels with slots/tabs that join into a rigid box. A few extra pieces were **cut on the bandsaw** later as I was iterating on the design: it was faster to grab some stock and bandsaw an adjustment than to redraw the cut file and re-run the laser. The whole thing is rigid enough that the paper-camera geometry stays consistent across moves, which is the point.
+
+
+
+## The compute enclosure (3D-printed)
+
+<figure>
+  <img src="./IMG_9483.jpg" class="img-fluid" alt="3D-printed compute enclosure">
+  <figcaption>The 3D-printed compute enclosure clipped onto the side of the scanner body. The Raspberry Pi 5 is visible through the front face; the white cylinder above is one of the battery packs; the fan in the foreground (held by hand) clips onto the top of this enclosure to cool the Pi.</figcaption>
+</figure>
+
+Separate from the main body, the **electronics live in a small 3D-printed enclosure** I designed in Fusion 360. Five stacked rows, top-to-bottom: **battery → ESP32 → battery → Raspberry Pi 5 → fan**. The two batteries flank the ESP32 so the motor side stays power-isolated from the Pi side; the Pi 5 sits below with its fan exhausting downward.
+
+The compute enclosure **clips onto the side of the main laser-cut scanner body**, so power, compute, motor, and camera all move together as one rigid unit — pull it off, set it down on another desk, snap it back on, and the geometry between the camera and the paper feeder is preserved.
+
+The CAD model for the compute enclosure is live below (Fusion 360 viewer — rotate, zoom, explode).
+
+<div class="video-wrap">
+  <iframe src="https://a360.co/4dqZOVq" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
+</div>
+
+If the embed doesn't load, <a href="https://a360.co/4dqZOVq" target="_blank">open the CAD model in a new tab</a>.
+
+# The pipeline, in detail
+
+Below are the key snippets that make the whole thing work; **the full source for every file is in the next section**.
+
+## Camera capture
+
+`Picamera2` runs a single 2304×1296 main stream encoded as MJPEG at q=85. I never call `capture_array` while recording is live — that re-configures the camera pipeline and can lock up the SoC. Instead I grab the most-recent MJPEG frame from the encoder buffer.
+
+```python
+cam.configure(cam.create_video_configuration(
+    main={"size": (2304, 1296)},
+    raw={"size": (4608, 2592)},
+))
+encoder = MJPEGEncoder(bitrate=80_000_000)
+encoder.q = 85
+cam.start_recording(encoder, FileOutput(out))
+
+cam.set_controls({
+    "ScalerCrop":         (0, 0, 4608, 2592),   # full sensor area, no FOV cut
+    "AfMode":             controls.AfModeEnum.Continuous,
+    "Sharpness":          2.0,                   # crisper edges for OCR
+    "NoiseReductionMode": controls.draft.NoiseReductionModeEnum.HighQuality,
+})
+```
+
+## Page identification (which paper + which page)
+
+The clever part. At PDF-ingest time, every page is rendered at 300 DPI and **ORB descriptors + keypoint coordinates** are pre-computed and cached to disk. At capture time, matching is two-stage:
+
+1. **Cheap descriptor match** across the whole library → keep top 5 candidates by good-match count.
+2. **RANSAC homography verification** on each candidate → pick the page with the most inliers.
+
+```python
+def find_best_page(snap_bgr, library_iter, min_inliers=25, top_k=5):
+    snap_kp, snap_des = orb.detectAndCompute(snap_gray, None)
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+
+    # Stage 1
+    raw_scores = []
+    for digest, name, page, ref_path, ref_des, kp_path in library_iter:
+        matches = bf.match(snap_des, ref_des)
+        score = sum(1 for m in matches if m.distance < 60)
+        raw_scores.append((score, digest, name, page, ref_path, kp_path, ref_des))
+    candidates = sorted(raw_scores, reverse=True)[:top_k]
+
+    # Stage 2 — RANSAC on cached keypoints
+    best = None
+    for raw, digest, name, page, ref_path, kp_path, ref_des in candidates:
+        ref_kp_pts = np.load(kp_path)
+        matches = bf.match(snap_des, ref_des)
+        src = np.float32([snap_kp[m.queryIdx].pt for m in matches[:300]]).reshape(-1,1,2)
+        dst = np.float32([ref_kp_pts[m.trainIdx]   for m in matches[:300]]).reshape(-1,1,2)
+        H, mask = cv2.findHomography(src, dst, cv2.RANSAC, 5.0)
+        inliers = int(mask.sum()) if mask is not None else 0
+        if best is None or inliers > best[0]:
+            best = (inliers, raw, digest, name, page)
+    return best if best and best[0] >= min_inliers else None
+```
+
+A per-paper **lock** kicks in after the first match: subsequent captures only search within the current paper's pages (often ~10 pages, not the full 100+ in the library), trying `last_page + 1` first as a hot-path. Drops typical identification time from ~10 s to ~0.5 s on the 2nd+ page.
+
+When `find_best_page` returns `None`, that's the **blank-page-end-of-stack** signal that stops the auto-scan loop.
+
+References: [OpenCV ORB tutorial](https://docs.opencv.org/4.x/d1/d89/tutorial_py_orb.html), [OpenCV homography + RANSAC](https://docs.opencv.org/4.x/d1/de0/tutorial_py_feature_homography.html).
+
+## Highlight extraction (no OCR needed)
+
+Because the homography is exact, **I already know the bounding box of every printed word** from the PyMuPDF ingest. Highlight detection becomes a per-word HSV check:
+
+```python
+HIGHLIGHT_COLORS = {
+    "yellow": [((18,  70, 140), ( 40, 255, 255))],
+    "green":  [((40,  70, 110), ( 85, 255, 255))],
+    "blue":   [((80,  25, 170), (115, 200, 255))],  # baby blue: low S, high V
+    "pink":   [((140, 60, 130), (170, 255, 255))],
+    "orange": [((5,  100, 130), ( 18, 255, 255))],
+    "red":    [((0,   35, 150), ( 10, 255, 255)),   # H wraps around 0/180
+               ((165, 35, 150), (180, 255, 255))],
+}
+```
+
+For each word's rect, if a color mask covers >25% of its area, that word **index** (not text) is added to the highlighted set. Tracking by index, not text, is what stops a single false positive on "AI" from cascading to every "AI" on the page.
+
+## Handwriting detection
+
+Inverse trick: **subtract the known printed-text regions from a binary ink mask**, and whatever remains is a candidate handwriting region.
+
+```python
+ink = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, ...)
+for w in words:
+    ink[w.y-pad : w.y+w.h+pad, w.x-pad : w.x+w.w+pad] = 0
+line_mask = cv2.dilate(ink, np.ones((1, line_width), np.uint8))
+# connected components → line bounding boxes
+```
+
+All pixel thresholds scale with image height so the detection behaves the same regardless of DPI. Aspect-ratio cap rejects underlines and page rules; density check rejects sparse noise.
+
+## Handwriting OCR
+
+`microsoft/trocr-small-handwritten` (60 MB), int8-quantized in-place. Smaller than Florence-2-base and survives PyTorch's dynamic quantization cleanly.
+
+```python
+torch.quantization.quantize_dynamic(
+    model, {torch.nn.Linear}, dtype=torch.qint8, inplace=True
+)
+...
+with torch.no_grad():
+    pixel_values = processor(images=pil, return_tensors="pt").pixel_values
+    ids = model.generate(pixel_values, max_length=64, num_beams=1)
+```
+
+Each crop is sanitized after decoding (control bytes stripped, non-Latin-1 rejected) and **cached by `(digest, page, box)`** so repeat captures of the same page are instant.
+
+## PDF annotation, atomic write
+
+PyMuPDF's `add_highlight_annot` and `add_freetext_annot`. The FreeText placement clamps each annotation rect to fit within the page bounds and shuffles down to avoid overlapping previously-placed annotations. The output is written atomically (temp file + `replace`) so the Mac watcher can never read a half-written file.
+
+```python
+out_bytes = doc.tobytes()
+tmp = annotated_path.with_suffix(".pdf.tmp")
+tmp.write_bytes(out_bytes)
+tmp.replace(annotated_path)
+```
+
+# On performance: latency, throttling, and the OCR-model rodeo
+
+This was the messiest part of the project — and the part with the most lessons. Before any of the code on this page worked end-to-end at the speed you see in the demo, I'd cycled through several OCR models and several Pi-5 power-management hacks. The journey is worth documenting because the trade-offs are universal for anyone trying to run a vision-language model on a small computer.
+
+## Handwriting OCR models I tried, in order
+
+| Attempt | Model | Size | Per-crop time (throttled Pi 5) | Outcome |
+|---|---|---|---|---|
+| 1 | [TrOCR-small handwritten](https://huggingface.co/microsoft/trocr-small-handwritten) | ~60 MB | ~2-3 s | Worked, decent on neat print-style handwriting, **~65–75% on cursive.** |
+| 2 | [TrOCR-base handwritten](https://huggingface.co/microsoft/trocr-base-handwritten) | ~250 MB | ~5-10 s | Slightly better than small; **3-4× slower.** Marginal accuracy improvement for the latency cost. |
+| 3 | [Florence-2-base](https://huggingface.co/microsoft/Florence-2-base) (Microsoft VLM) | ~230 MB | ~25-30 s | Top quality on cursive, BUT… (see below). |
+| 4 (final) | TrOCR-small + **int8 dynamic quantization** | ~60 MB | ~1-2 s | Where we landed. |
+
+### Why Florence-2 fell off
+
+Florence-2 was supposed to be the upgrade. It's a small vision-language model with a dedicated `<OCR>` task token; on a desktop GPU it crushes TrOCR. On the Pi 5 CPU, it took **30 seconds per handwriting crop** even with greedy decoding and `max_new_tokens=64`. With 2–3 handwriting regions per page, that's a full minute of OCR per page on top of everything else.
+
+Worse, it doesn't play nice with `torch.quantization.quantize_dynamic`. The error I got was a weirdly-typo'd `OCR: quantization failed: unknown architecure` (sic — the missing "t" is a clue the message comes from Florence-2's bundled modeling code, not from torch itself). Per-Linear-module quantization with try/except also bailed silently. Without quantization, no speedup, so the 30-second per-crop number is the floor on this hardware.
+
+Florence-2 also has compatibility issues with newer `transformers` releases. Loading it raised:
+
+```
+AttributeError: 'Florence2LanguageConfig' object has no attribute 'forced_bos_token_id'
+```
+
+I patched that line by replacing `self.forced_bos_token_id` with `getattr(self, 'forced_bos_token_id', None)` in the cached `configuration_florence2.py`, only to hit the next:
+
+```
+AttributeError: RobertaTokenizer has no attribute additional_special_tokens.
+                Did you mean: 'add_special_tokens'?
+```
+
+At that point it was clearly going to be a game of whack-a-mole with each transformers release, so I pinned `transformers==4.45.2` and Florence-2 finally loaded. That fixed it. The 30 s/crop latency did not.
+
+**Decision: revert to TrOCR-small and make it as fast as possible.**
+
+### Making TrOCR fast
+
+Three optimizations stacked on TrOCR-small, in order of impact:
+
+1. **`num_beams=1` (greedy decode)** — TrOCR defaults to beam search. Beams ≥3 multiply the decoder cost by the beam width. For 5-to-10-token margin notes, greedy is fine.
+2. **`max_new_tokens=64`** — was 256 by default. Generation is auto-regressive, so the time scales with output length.
+3. **`torch.quantization.quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8, inplace=True)`** — TrOCR's architecture is "boring" enough (standard transformer encoder + standard transformer decoder) that PyTorch's dynamic quantization works out of the box. **~2× speedup** on the language decoder. Accuracy drop on neat handwriting was imperceptible.
+
+Result: **~1–2 seconds per crop** once the model is warm, down from ~3–5 s unquantized.
+
+Plus a `(digest, page, box)` cache so repeated captures of the same page during testing/iteration are instant.
+
+## Per-stage timing visible in the UI
+
+To debug all of the above I built a live per-stage timing log into the auto-scan UI. The Pi emits Server-Sent Events as it processes each page; the browser appends each event to a scrollable log with the per-stage delta and cumulative time. A typical scan looks like:
+
+```
+[ 0.00s  +0.00s] motor_turn  — Telling motor to advance page 1
+[ 3.11s  +3.11s] settle      — Waiting 3000ms for paper to settle
+[ 3.11s  +0.00s] capture     — Capturing page #1
+[ 3.16s  +0.05s] identify    — Matching (locked)
+[ 4.05s  +0.89s] match_found — Era of Experience · page 1 (inliers 144)
+[ 4.18s  +0.13s] align       — Aligning snapshot to PDF page
+[ 5.25s  +1.07s] aligned     — inliers 122
+[ 5.25s  +0.00s] highlights  — Detecting highlights
+[ 5.61s  +0.36s] highlights_done — 4 highlighted word(s) across 1 color(s)
+[ 6.37s  +0.76s] hw_detected — 1 region(s)
+[ 6.37s  +0.00s] ocr         — region 1/1 (495×213px)
+[ 7.92s  +1.55s] ocr_done    — 'so insightful'
+[ 8.10s  +0.18s] annotate    — Writing highlights and notes to annotated PDF
+[ 8.27s  +0.17s] page_done   — page #1 annotated
+```
+
+Once I could see each stage's actual cost, the optimization targets were obvious — and I went from ~67 s total down to ~8 s.
+
+## The Pi-5 throttling saga
+
+For about half of the development time, the Pi 5 was either crashing mid-analyze or running with severe throttles. Here's the chronology:
+
+**Symptom:** during analyze, the Pi would briefly stop responding to network. `ssh` would time out, `ping` would partially fail. The Pi would either recover after ~30 s or hard-reset entirely. No useful log entries — `journalctl` was non-persistent on default Pi OS install, so post-mortems were impossible.
+
+**First hypothesis: heat.** Temperature peaked at 62 °C idle and presumably much higher under load. I clipped a **random ~20 mm fan I found in the lab** (probably from a PC) over the Pi 5 SoC and wired it to the Pi's 5 V + GND GPIO pins. Crude, but idle temp dropped from 62 °C to ~37 °C and *most* of the crashes stopped. (The [official Pi 5 Active Cooler](https://www.raspberrypi.com/products/active-cooler/) does the same thing more elegantly for $5.)
+
+**Second hypothesis: power.** I was running the Pi off a 5 V / 3 A USB-C charger. The Pi 5 actually wants 5 V / 5 A (27 W); under the 3 A supply it would brown out during CPU spikes — which look identical to thermal shutdown from the outside. The trick is that `vcgencmd get_throttled` returns `0x50000` (under-voltage + throttling occurred), which I only noticed days in.
+
+While waiting for the official 27 W PSU to arrive, I stacked three software mitigations:
+
+```bash
+# 1. Pin the Flask app to cores 0,1 only (halves peak current draw)
+taskset -p -c 0,1 $(pgrep -f "ocrenv.*app.py")
+
+# 2. Persistently cap CPU max frequency: 2.4 GHz → 1.5 GHz (~30% less peak power)
+echo "arm_freq=1500" | sudo tee -a /boot/firmware/config.txt
+sudo reboot
+
+# 3. Also set persistent journaling so the next crash leaves a forensic trail
+sudo mkdir -p /var/log/journal
+sudo systemd-tmpfiles --create --prefix /var/log/journal
+sudo systemctl restart systemd-journald
+```
+
+Combined, those three got the peak current draw down by maybe 70%. The crashes stopped — but **analyze time went from ~8 s to ~30+ s per page**, because the OCR is exactly the kind of workload that benefits from running on all 4 cores at full clock.
+
+Once the proper 27 W supply showed up, **I reversed every one of those throttles**:
+
+```bash
+# undo the freq cap permanently
+sudo sed -i '/^arm_freq=/d' /boot/firmware/config.txt
+# bump the live frequency back to 2400 MHz right now
+echo 2400000 | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq
+# restart the app WITHOUT the taskset pin
+pkill -f app.py
+nohup /home/vlad/ocrenv/bin/python -u app.py > /tmp/app.log 2>&1 &
+```
+
+Back to 2.4 GHz, all 4 cores, no crashes, ~8 s per page. **The lesson:** the throttling hacks were a worthwhile band-aid while debugging, but the real fix was the right PSU. If you're building a Pi 5 project that pushes the CPU, the official supply is not optional.
+
+
+# Demo screenshots
+
+<figure>
+  <img src="./screenshot-ui-running.png" class="img-fluid" alt="UI mid-scan">
+  <figcaption>PLACEHOLDER: full UI screenshot during an auto-scan — live camera (left), annotated PDF render (right), timing log with per-stage events, highlight pills and handwriting OCR results below.</figcaption>
+</figure>
+
+<figure>
+  <img src="./screenshot-debug-overlay.png" class="img-fluid" alt="Debug overlay">
+  <figcaption>PLACEHOLDER: the debug overlay — orange word boxes (every printed word's known position), colored outlines (detected highlights), red boxes (handwriting regions), green page-bounds rectangle.</figcaption>
+</figure>
+
+<figure>
+  <img src="./screenshot-highlights.png" class="img-fluid" alt="Before / after">
+  <figcaption>PLACEHOLDER: a side-by-side — physical page with blue + red highlights and a hand-written margin note, next to the annotated PDF in Preview showing the same highlights and the OCR'd text inserted at the margin location.</figcaption>
+</figure>
+
+# Source code
+
+All five files used in the project, with syntax highlighting. Click a tab to switch.
+
+<div id="source-tabs-mount"></div>
+
+The UI template (`ocr-notes/templates/index.html`) is ~600 lines of HTML + CSS + vanilla JS — mostly markup, included in the `index.html` tab above. All code for the project is on this page; nothing is hosted externally.
+
+File locations on my machine, for reference:
+
+- Pi-side Python (`app.py`, `pipeline.py`, `source.py`): `/Users/vlad/Projects/rpi-flash/ocr-notes/`
+- ESP32 firmware: `/Users/vlad/Projects/ocresp32/firmware/motor/motor.ino`
+- Mac sync watcher: `/Users/vlad/Projects/rpi-flash/sync.py`
+
+# Lessons learned
+
+This is the section I wish someone had written before I started.
+
+### Power
+- A Raspberry Pi 5 needs **5 V / 5 A** sustained. Phone chargers, generic 5 V/2 A wall warts, and most laptop USB-C ports will brown out during CPU + camera + encode spikes. The kernel just resets, nothing in the log. Once I switched to the official 27 W PSU all the random "crashes" stopped instantly.
+
+### Heat
+- Without active cooling, the Pi 5 hits **80 °C and thermal-throttles** during sustained inference. I used a random ~20 mm fan I found in the lab (probably from a PC) wired to the GPIO 5 V pin, which dropped sustained temps by 25+ °C. The [official Pi 5 Active Cooler](https://www.raspberrypi.com/products/active-cooler/) is $5 and tidier. Either way, active cooling is mandatory.
+
+### Camera Module 3 (Arducam IMX708)
+- Continuous AF (`AfMode=Continuous`) is what made it actually focus.
+- 75° diagonal FOV is **narrower than most webcams**. The camera needs ~20 cm clearance above an A4 page; the [wide variant](https://www.arducam.com/arducam-12mp-imx708-120-dfov-wide-angle-fixed-focus-hdr-mipi-camera-module-for-raspberry-pi.html) (102°) would let the rig be shorter.
+
+### ESP32 pin disasters
+- **GPIO 35 is input-only** on ESP32-WROOM-32. `digitalWrite(35, ...)` is silently ignored — no error, just nothing happens. Stepper DIR pin had to move to GPIO 26.
+- **GPIO 0** held LOW at boot = the chip enters download mode and waits for a flash. Mine kept landing there because I'd accidentally left a jumper on it.
+- The DRV8825's **SLP and RST pins must be bridged together** (or both pulled HIGH). If they float LOW the driver looks alive (LED on, current chops audibly) but never actually steps.
+
+### Stepper motor + the dead 12 V PSU
+- **The actual root cause of half the motor-side bugs was a dying 12 V power supply.** It killed an ESP32 outright (the chip got hot enough to burn me when I touched it) and damaged a couple of jumper wires in ways I couldn't see. Symptoms were all over the place: motor not stepping, motor buzzing without turning, ESP32 boot-looping, intermittent serial. **Kassia helped me swap the PSU and replace every wire on the motor side, and the whole thing started working immediately.** Lesson: when a setup is misbehaving in three different ways at once, suspect upstream power before you suspect any one of the symptoms.
+- **MS1/MS2/MS3 all tied HIGH** for 1/32 microstepping on DRV8825. Floating = full step = unbearable grinding noise and the motor stalls at our step rate.
+- Steppers **cannot start at high speed from rest**. At 100 µs half-period from a dead stop the motor just buzzes. I briefly added an acceleration ramp; the simpler answer was to just keep the cruise speed modest.
+
+### Python / model environment
+- Pi OS Bookworm/Trixie's system Python is PEP 668 externally-managed. `pip install` needs `--break-system-packages` or a venv. I used a venv with `--system-site-packages` so apt-installed cv2 / Picamera2 / NumPy are inherited and only `torch` + `transformers` get pip-installed on top.
+- I tried `microsoft/Florence-2-base` first but its bundled `configuration_florence2.py` is incompatible with newer transformers releases (`AttributeError: 'Florence2LanguageConfig' object has no attribute 'forced_bos_token_id'`) — and each monkey-patch revealed the next issue. **Settled on TrOCR-small + int8 quantization:** smaller, runs at the speed budget, no architectural drama.
+
+### Networking
+- **mDNS** is the gift that makes Pi ↔ ESP32 ↔ Mac discovery trivial — `reader.local`, `ocresp32-motor.local` — until you hit a network with client isolation (where nothing `.local` resolves between clients). I have a hard-coded IP fallback for that case.
+- Picked an **uncommon port (51917)** for the ESP32 web server so randos on shared/public WiFi can't trigger page turns by hitting `:80`.
+
+### File sync race conditions
+- The Pi serves the annotated PDF, the Mac polls every 2 s, **validates** that the bytes start with `%PDF-` and end with `%%EOF` within the last 1 KB, and only then atomically replaces the local file. Without these checks, a single Pi crash mid-write would corrupt my source-of-truth PDFs.
+- `.pdf.orig` backup is taken on the first overwrite, so it's always one `cp` away from being restored.
+
+# External resources I leaned on
+
+- **Picamera2** [official documentation](https://github.com/raspberrypi/picamera2) and [user guide](https://datasheets.raspberrypi.com/camera/picamera2-manual.pdf)
+- [DRV8825 stepper driver datasheet (TI)](https://www.ti.com/lit/ds/symlink/drv8825.pdf) · [Pololu carrier product page](https://www.pololu.com/product/2133)
+- [ESP32-WROOM-32 pin reference (Random Nerd Tutorials)](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
+- [OpenCV ORB / RANSAC / homography tutorial](https://docs.opencv.org/4.x/d1/de0/tutorial_py_feature_homography.html)
+- [PyMuPDF documentation](https://pymupdf.readthedocs.io/) (the `add_highlight_annot` and `add_freetext_annot` APIs)
+- [Microsoft TrOCR](https://huggingface.co/microsoft/trocr-small-handwritten) on Hugging Face
+- [PyTorch dynamic quantization tutorial](https://pytorch.org/tutorials/recipes/recipes/dynamic_quantization.html)
+- [USB Gadget Mode on Pi 5](https://www.raspberrypi.com/news/usb-gadget-mode-in-raspberry-pi-os-ssh-over-usb/) — used during the initial flashing setup
+- [ESP32 mDNS library docs](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/mdns.html)
+
+# What I'd do differently / next steps
+
+- **Pi AI Kit (Hailo-8L)** ([info](https://www.raspberrypi.com/news/ai-kit-available-now/)) — would let OCR run on the NPU at ~30 ms/crop instead of TrOCR's ~1–2 s/crop on the CPU. Obvious upgrade.
+- **A purpose-built page feeder** — the spring-loaded platen + roller works but a proper friction-feed mechanism (like the one in a cheap document scanner) would be more compact and more reliable.
+- **Wide-FOV camera module** — Camera Module 3 Wide (102° diagonal) would let the rig be much smaller.
+- **Multi-paper batch mode.** Today the stop condition is "blank page = done"; for stacks separated by blank sheets I'd want to keep going and produce a separate annotated PDF per paper.
+- **Voice-note annotations.** Mic on the Pi + Whisper-tiny → spoken margin notes typed into the PDF at the cursor position.
+
+# Code locations
+
+All code is embedded on this page in the tabs above. The local paths on my machine, for reference:
+
+- **Pi:** `/Users/vlad/Projects/rpi-flash/ocr-notes/` (deployed to `vlad@reader.local:~/ocr-notes/`)
+- **ESP32:** `/Users/vlad/Projects/ocresp32/firmware/motor/motor.ino`
+- **Mac sync:** `/Users/vlad/Projects/rpi-flash/sync.py`
+
+
+
+</div>
 </xmp>
+
+<script type="text/plain" id="src-motor">
+// ESP32-WROOM dev board → STEP/DIR motor driver → NEMA 17
+//
+// Wiring (this sketch assumes):
+//   ESP32 GPIO 32 ──▶ driver STEP
+//   ESP32 GPIO 33 ──▶ driver DIR
+//   ESP32 3V3     ──▶ driver VDD (logic)
+//   ESP32 GND     ──▶ driver GND (logic) — and tie to motor PSU GND too
+//   ext PSU       ──▶ driver VMOT (12V typical for NEMA 17)
+//   driver coils A1/A2 B1/B2 ──▶ motor wires
+//   driver ENABLE: tie to GND (active-low) if your driver needs it; or wire
+//   it to another GPIO if you want to disable the motor between turns to
+//   keep it cool.
+//
+// Pin choice notes for ESP32-WROOM:
+//   AVOID for STEP/DIR: 0, 2, 5, 12, 15 (strapping pins — wrong level at
+//   boot can prevent the chip from starting up). 6-11 (connected to SPI
+//   flash). 34-39 (input-only, can't drive STEP/DIR).
+//   SAFE: 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33.
+//
+// Set the driver's current limit with the on-board trimpot BEFORE first
+// power-up — otherwise you'll cook either the driver or the coils.
+//
+// Arduino IDE setup:
+//   Board: "ESP32 Dev Module" (under esp32 package)
+//   Most defaults are fine. Pick the right Port (your CP2102 / CH340 device).
+//   115200 baud in Serial Monitor.
+//
+// Serial commands (type + Enter):
+//   turn          — rotate STEPS_PER_TURN (default = one page)
+//   turn N        — rotate N steps
+//   dir 0|1       — set direction (0 = LOW, 1 = HIGH)
+//   speed N       — set step pulse half-period in microseconds
+//   status        — print current settings
+
+#include <WiFi.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include "../ocresp32/secrets.h"   // pulls WIFI_SSID / WIFI_PASSWORD
+
+#define MDNS_HOSTNAME "ocresp32-motor"
+
+#define STEP_PIN 32
+#define DIR_PIN  26
+
+// Port in the high range — unlikely to be scanned on a shared network.
+WebServer server(51917);
+
+// MS1/MS2/MS3 all tied HIGH on the driver = max microstepping.
+//   A4988  : 1/16  microsteps  → 3200 pulses per full revolution
+//   DRV8825: 1/32  microsteps  → 6400 pulses per full revolution
+// If you have a DRV8825, change stepsPerTurn to 6400.
+//
+// Tune empirically: type "turn" and adjust until one command rotates
+// the page-feeder by exactly one page.
+// One "turn" = feed forward, then nudge backward (e.g. page advance + settle).
+int  forwardSteps   = 8700;    // dir 0 (LOW)
+int  backwardSteps  = 3500;     // dir 0 (LOW)
+int  stepDelayMicro = 100;     // half-period in us; smaller = faster
+bool currentDir     = false;
+
+// Continuous spin pattern: stepping for SPIN_ON_MS, idle for SPIN_OFF_MS, repeat.
+bool          spinning      = false;
+unsigned long spinPhaseAt   = 0;
+bool          spinActive    = true;     // true = stepping, false = paused
+unsigned long spinOnMs      = 3000;
+unsigned long spinOffMs     = 1000;
+
+void setMotorPins() {
+  pinMode(STEP_PIN, OUTPUT);
+  pinMode(DIR_PIN, OUTPUT);
+  digitalWrite(STEP_PIN, LOW);
+  digitalWrite(DIR_PIN, currentDir ? HIGH : LOW);
+}
+
+void doSteps(long steps) {
+  for (long i = 0; i < steps; i++) {
+    digitalWrite(STEP_PIN, LOW);
+    delayMicroseconds(stepDelayMicro);
+    digitalWrite(STEP_PIN, HIGH);
+    delayMicroseconds(stepDelayMicro);
+  }
+}
+
+void doTurn(long steps) {
+  digitalWrite(DIR_PIN, currentDir ? HIGH : LOW);
+  delayMicroseconds(50);
+  doSteps(steps);
+}
+
+void doPageFeed() {
+  // forward = dir 1 (HIGH), backward = dir 0 (LOW)
+  digitalWrite(DIR_PIN, HIGH);
+  delayMicroseconds(50);
+  doSteps(forwardSteps);
+  digitalWrite(DIR_PIN, LOW);
+  delayMicroseconds(50);
+  doSteps(backwardSteps);
+}
+
+void printStatus() {
+  Serial.printf("[motor] step=GPIO%d dir=GPIO%d dir_state=%s fwd=%d back=%d step_delay_us=%d\n",
+                STEP_PIN, DIR_PIN, currentDir ? "HIGH" : "LOW",
+                forwardSteps, backwardSteps, stepDelayMicro);
+}
+
+void handleCommand(String cmd) {
+  cmd.trim();
+  cmd.toLowerCase();
+  if (cmd.length() == 0) return;
+
+  if (cmd == "turn") {
+    Serial.printf("[motor] page-feed: %d fwd → %d back (delay=%dus)\n",
+                  forwardSteps, backwardSteps, stepDelayMicro);
+    doPageFeed();
+    Serial.println("[motor] done");
+  } else if (cmd.startsWith("turn ")) {
+    long n = cmd.substring(5).toInt();
+    if (n <= 0) {
+      Serial.println("[motor] usage: turn N (N > 0)");
+      return;
+    }
+    Serial.printf("[motor] turn %ld steps...\n", n);
+    doTurn(n);
+    Serial.println("[motor] done");
+  } else if (cmd.startsWith("dir ")) {
+    int d = cmd.substring(4).toInt();
+    currentDir = (d != 0);
+    digitalWrite(DIR_PIN, currentDir ? HIGH : LOW);
+    Serial.printf("[motor] dir = %s\n", currentDir ? "HIGH" : "LOW");
+  } else if (cmd.startsWith("speed ")) {
+    int s = cmd.substring(6).toInt();
+    if (s < 50 || s > 10000) {
+      Serial.println("[motor] speed must be 50..10000 us");
+      return;
+    }
+    stepDelayMicro = s;
+    Serial.printf("[motor] step_delay_us = %d\n", stepDelayMicro);
+  } else if (cmd == "spin") {
+    spinning = true;
+    spinActive = true;
+    spinPhaseAt = millis();
+    digitalWrite(DIR_PIN, currentDir ? HIGH : LOW);
+    Serial.printf("[motor] spin pattern: %lu ms on / %lu ms off\n", spinOnMs, spinOffMs);
+  } else if (cmd.startsWith("spin ")) {
+    int sp = cmd.indexOf(' ', 5);
+    if (sp < 0) {
+      Serial.println("[motor] usage: spin ON_MS OFF_MS  (e.g. 'spin 3000 1000')");
+      return;
+    }
+    long on  = cmd.substring(5, sp).toInt();
+    long off = cmd.substring(sp + 1).toInt();
+    if (on <= 0 || off < 0) {
+      Serial.println("[motor] usage: spin ON_MS OFF_MS  (ON > 0, OFF >= 0)");
+      return;
+    }
+    spinOnMs = on;
+    spinOffMs = off;
+    spinning = true;
+    spinActive = true;
+    spinPhaseAt = millis();
+    digitalWrite(DIR_PIN, currentDir ? HIGH : LOW);
+    Serial.printf("[motor] spin pattern: %lu ms on / %lu ms off\n", spinOnMs, spinOffMs);
+  } else if (cmd == "stop") {
+    spinning = false;
+    digitalWrite(STEP_PIN, LOW);
+    Serial.println("[motor] stopped");
+  } else if (cmd == "status") {
+    printStatus();
+    if (spinning) {
+      Serial.printf("[motor] spinning: phase=%s on=%lu off=%lu\n",
+                    spinActive ? "ON" : "OFF", spinOnMs, spinOffMs);
+    }
+  } else if (cmd == "help" || cmd == "?") {
+    Serial.println("[motor] commands: turn / turn N / spin / spin ON_MS OFF_MS / stop / dir 0|1 / speed N / status");
+  } else {
+    Serial.printf("[motor] unknown: '%s'  (try: help)\n", cmd.c_str());
+  }
+}
+
+void handleTurnHttp() {
+  Serial.println("[http] /turn requested");
+  doPageFeed();
+  server.send(200, "application/json", "{\"ok\":true}");
+}
+
+void handleStatusHttp() {
+  String body = "{\"ok\":true,\"step_pin\":" + String(STEP_PIN) +
+                ",\"dir_pin\":" + String(DIR_PIN) +
+                ",\"fwd\":" + String(forwardSteps) +
+                ",\"back\":" + String(backwardSteps) +
+                ",\"speed_us\":" + String(stepDelayMicro) + "}";
+  server.send(200, "application/json", body);
+}
+
+void setup() {
+  Serial.begin(115200);
+  delay(300);
+  setMotorPins();
+  Serial.println();
+  Serial.println("[motor] ESP32-WROOM stepper controller ready");
+
+  Serial.printf("[wifi] connecting to %s ...\n", WIFI_SSID);
+  WiFi.mode(WIFI_STA);
+  WiFi.setSleep(false);   // disable WiFi power save (helps association on busy APs)
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  unsigned long t0 = millis();
+  int round = 0;
+  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 60000) {
+    delay(250); Serial.print(".");
+    if ((millis() - t0) > 20000 * (round + 1)) {
+      round++;
+      Serial.printf("\n[wifi] still trying (round %d)\n", round);
+      WiFi.disconnect();
+      delay(500);
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    }
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf("\n[wifi] ip=%s\n", WiFi.localIP().toString().c_str());
+    if (MDNS.begin(MDNS_HOSTNAME)) {
+      MDNS.addService("http", "tcp", 80);
+      Serial.printf("[mdns] advertising as %s.local\n", MDNS_HOSTNAME);
+    } else {
+      Serial.println("[mdns] failed to start");
+    }
+    server.on("/turn", HTTP_POST, handleTurnHttp);
+    server.on("/turn", HTTP_GET,  handleTurnHttp);    // convenience for curl
+    server.on("/status", handleStatusHttp);
+    server.on("/", []() { server.send(200, "text/plain", "ocresp32 motor: POST /turn"); });
+    server.begin();
+    Serial.println("[http] server on :51917, POST /turn to advance");
+  } else {
+    Serial.println("\n[wifi] connect timed out — serial-only mode");
+  }
+
+  Serial.println("[motor] type 'turn' to advance one page, 'help' for more");
+  printStatus();
+}
+
+// Tolerant line reader: handles \n, \r, \r\n, or no line ending at all
+// (dispatches after IDLE_DISPATCH_MS of no input).
+static String inputBuf = "";
+static unsigned long lastByteAt = 0;
+const unsigned long IDLE_DISPATCH_MS = 200;
+
+void loop() {
+  server.handleClient();
+
+  // 1) Drain Serial input (non-blocking).
+  while (Serial.available()) {
+    char c = (char)Serial.read();
+    lastByteAt = millis();
+    if (c == '\n' || c == '\r') {
+      if (inputBuf.length() > 0) {
+        handleCommand(inputBuf);
+        inputBuf = "";
+      }
+    } else {
+      inputBuf += c;
+      if (inputBuf.length() > 64) inputBuf = "";   // overflow guard
+    }
+  }
+  if (inputBuf.length() > 0 && (millis() - lastByteAt) > IDLE_DISPATCH_MS) {
+    handleCommand(inputBuf);
+    inputBuf = "";
+  }
+
+  // 2) Run the spin pattern, if active.
+  if (spinning) {
+    unsigned long now = millis();
+    if (spinActive) {
+      // emit one pulse, then check if we should switch to off-phase
+      digitalWrite(STEP_PIN, LOW);
+      delayMicroseconds(stepDelayMicro);
+      digitalWrite(STEP_PIN, HIGH);
+      delayMicroseconds(stepDelayMicro);
+      if (now - spinPhaseAt >= spinOnMs) {
+        spinActive = false;
+        spinPhaseAt = now;
+      }
+    } else {
+      if (now - spinPhaseAt >= spinOffMs) {
+        spinActive = true;
+        spinPhaseAt = now;
+      }
+    }
+  }
+}
+
+</script>
+
+<script type="text/plain" id="src-source">
+"""Extract word-level bounding boxes from a PDF + cache a reference rendering.
+
+Cached under sources/<sha1>/ — reference PNG + JSON word boxes per page.
+The word list is the ground truth that the snapshot pipeline aligns against;
+no OCR is needed for the printed text.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+from dataclasses import asdict, dataclass
+from pathlib import Path
+
+import cv2
+import numpy as np
+import pymupdf
+
+SOURCES_DIR = Path(__file__).parent / "sources"
+SOURCES_DIR.mkdir(exist_ok=True)
+
+RENDER_DPI = 300  # reference image DPI (higher = sharper warp output for OCR)
+ORB_FEATURES = 2000  # per-page descriptor budget
+
+
+@dataclass
+class Word:
+    text: str
+    x: int      # reference-image pixel coords
+    y: int
+    w: int
+    h: int
+
+
+def _hash_bytes(b: bytes) -> str:
+    return hashlib.sha1(b).hexdigest()[:16]
+
+
+def ingest_pdf(pdf_bytes: bytes, original_name: str = "") -> dict:
+    digest = _hash_bytes(pdf_bytes)
+    pdf_dir = SOURCES_DIR / digest
+    manifest_path = pdf_dir / "manifest.json"
+    if manifest_path.exists():
+        return json.loads(manifest_path.read_text())
+
+    pdf_dir.mkdir(parents=True, exist_ok=True)
+    (pdf_dir / "source.pdf").write_bytes(pdf_bytes)
+
+    doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
+    pages = []
+    scale = RENDER_DPI / 72.0
+    orb = cv2.ORB_create(nfeatures=ORB_FEATURES)
+    for i, page in enumerate(doc):
+        pix = page.get_pixmap(matrix=pymupdf.Matrix(scale, scale), alpha=False)
+        ref_path = pdf_dir / f"page-{i+1:03d}.png"
+        pix.save(str(ref_path))
+
+        words = []
+        for w in page.get_text("words"):
+            x0, y0, x1, y1, text, *_ = w
+            words.append(Word(
+                text=text,
+                x=int(x0 * scale),
+                y=int(y0 * scale),
+                w=int((x1 - x0) * scale),
+                h=int((y1 - y0) * scale),
+            ))
+        (pdf_dir / f"page-{i+1:03d}.json").write_text(
+            json.dumps([asdict(w) for w in words], ensure_ascii=False)
+        )
+
+        # Pre-compute ORB descriptors + keypoints for fast page identification
+        ref_gray = cv2.imread(str(ref_path), cv2.IMREAD_GRAYSCALE)
+        kp, des = orb.detectAndCompute(ref_gray, None)
+        if des is None:
+            des = np.zeros((0, 32), dtype=np.uint8)
+            kp = []
+        np.save(pdf_dir / f"page-{i+1:03d}.npy", des)
+        # Keypoint coords as Nx2 float32 (we don't need angle/octave for homography)
+        kp_pts = np.array([k.pt for k in kp], dtype=np.float32) if kp else np.zeros((0, 2), np.float32)
+        np.save(pdf_dir / f"page-{i+1:03d}-kp.npy", kp_pts)
+
+        pages.append({
+            "index": i,
+            "ref_image": ref_path.name,
+            "words_json": f"page-{i+1:03d}.json",
+            "descriptors": f"page-{i+1:03d}.npy",
+            "width": pix.width,
+            "height": pix.height,
+            "word_count": len(words),
+        })
+
+    manifest = {
+        "digest": digest,
+        "name": original_name or f"document_{digest}",
+        "pages": pages,
+    }
+    manifest_path.write_text(json.dumps(manifest, indent=2))
+    return manifest
+
+
+def load_page(digest: str, page_index: int):
+    pdf_dir = SOURCES_DIR / digest
+    manifest = json.loads((pdf_dir / "manifest.json").read_text())
+    page = manifest["pages"][page_index]
+    ref = cv2.imread(str(pdf_dir / page["ref_image"]), cv2.IMREAD_COLOR)
+    words_raw = json.loads((pdf_dir / page["words_json"]).read_text())
+    words = [Word(**w) for w in words_raw]
+    return ref, words
+
+
+def scan_directory(path: Path) -> dict:
+    """Ingest every *.pdf in `path` that isn't already in the library.
+
+    Returns {'added': [...], 'skipped': N, 'total_on_disk': N}.
+    """
+    added = []
+    skipped = 0
+    path = Path(path)
+    if not path.is_dir():
+        return {"added": [], "skipped": 0, "total_on_disk": 0, "error": f"not a directory: {path}"}
+    pdfs = sorted(path.glob("*.pdf"))
+    for pdf in pdfs:
+        try:
+            data = pdf.read_bytes()
+        except OSError:
+            continue
+        digest = _hash_bytes(data)
+        if (SOURCES_DIR / digest / "manifest.json").exists():
+            skipped += 1
+            continue
+        manifest = ingest_pdf(data, original_name=pdf.stem)
+        added.append({"name": pdf.stem, "digest": manifest["digest"], "pages": len(manifest["pages"])})
+    return {"added": added, "skipped": skipped, "total_on_disk": len(pdfs)}
+
+
+def list_pdfs() -> list[dict]:
+    out = []
+    for d in SOURCES_DIR.iterdir():
+        if not d.is_dir():
+            continue
+        mp = d / "manifest.json"
+        if not mp.exists():
+            continue
+        m = json.loads(mp.read_text())
+        out.append({
+            "digest": m["digest"],
+            "name": m.get("name", m["digest"]),
+            "pages": len(m["pages"]),
+        })
+    out.sort(key=lambda x: x["name"])
+    return out
+
+
+def descriptors_for_digest(digest, predicted_first=None):
+    """Yield (digest, name, page_index, ref_path, descriptors, kp_path) for
+    one paper's pages. If predicted_first is given, yield that page first,
+    then the rest (so a hot-path match can short-circuit)."""
+    pdf_dir = SOURCES_DIR / digest
+    mp = pdf_dir / "manifest.json"
+    if not mp.exists():
+        return
+    m = json.loads(mp.read_text())
+    name = m.get("name", digest)
+    pages = list(m["pages"])
+    orb = cv2.ORB_create(nfeatures=ORB_FEATURES)
+    if predicted_first is not None:
+        pages.sort(key=lambda p: (p["index"] != predicted_first, p["index"]))
+    for page in pages:
+        i = page["index"]
+        des_path = pdf_dir / page.get("descriptors", f"page-{i+1:03d}.npy")
+        kp_path = pdf_dir / f"page-{i+1:03d}-kp.npy"
+        ref_path = pdf_dir / page["ref_image"]
+        if not des_path.exists() or not kp_path.exists():
+            ref = cv2.imread(str(ref_path), cv2.IMREAD_GRAYSCALE)
+            kp, des = orb.detectAndCompute(ref, None)
+            if des is None:
+                des = np.zeros((0, 32), dtype=np.uint8); kp = []
+            np.save(des_path, des)
+            kp_pts = np.array([k.pt for k in kp], dtype=np.float32) if kp else np.zeros((0, 2), np.float32)
+            np.save(kp_path, kp_pts)
+        else:
+            des = np.load(des_path)
+        yield digest, name, i, str(ref_path), des, str(kp_path)
+
+
+def all_page_descriptors():
+    """Yield (digest, name, page_index, ref_image_path, descriptors_array)
+    for every cached page.
+
+    The ref_image_path enables a second-stage RANSAC re-verification when
+    descriptor matching surfaces ambiguous top candidates.
+    """
+    orb = cv2.ORB_create(nfeatures=ORB_FEATURES)
+    for d in SOURCES_DIR.iterdir():
+        if not d.is_dir():
+            continue
+        mp = d / "manifest.json"
+        if not mp.exists():
+            continue
+        m = json.loads(mp.read_text())
+        digest = m["digest"]
+        name = m.get("name", digest)
+        for page in m["pages"]:
+            i = page["index"]
+            des_path = d / page.get("descriptors", f"page-{i+1:03d}.npy")
+            ref_path = d / page["ref_image"]
+            kp_path = d / f"page-{i+1:03d}-kp.npy"
+            if not des_path.exists() or not kp_path.exists():
+                ref = cv2.imread(str(ref_path), cv2.IMREAD_GRAYSCALE)
+                kp, des = orb.detectAndCompute(ref, None)
+                if des is None:
+                    des = np.zeros((0, 32), dtype=np.uint8); kp = []
+                np.save(des_path, des)
+                kp_pts = np.array([k.pt for k in kp], dtype=np.float32) if kp else np.zeros((0, 2), np.float32)
+                np.save(kp_path, kp_pts)
+            else:
+                des = np.load(des_path)
+            yield digest, name, i, str(ref_path), des, str(kp_path)
+
+</script>
+
+<script type="text/plain" id="src-pipeline">
+"""Snapshot → align to reference → highlight check + handwriting region crops.
+
+Pipeline:
+  1. ORB feature matching: snapshot ↦ reference homography.
+  2. Warp snapshot into reference coordinate space.
+  3. Sample HSV at each known printed-word box to detect highlights (exact).
+  4. Mask out known printed-text regions; the remaining ink is handwriting.
+  5. Group into line-shaped boxes; emit base64 JPEG crops for each.
+"""
+from __future__ import annotations
+
+import base64
+
+import cv2
+import numpy as np
+from PIL import Image
+
+from source import Word
+
+_OCR = None
+_OCR_CACHE: dict = {}  # (digest, page, key) → text
+
+
+def _get_ocr():
+    """Lazy-load TrOCR-small handwritten (~60 MB), quantized to int8."""
+    global _OCR
+    if _OCR is None:
+        import torch
+        from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+        torch.set_num_threads(2)
+        name = "microsoft/trocr-small-handwritten"
+        processor = TrOCRProcessor.from_pretrained(name)
+        model = VisionEncoderDecoderModel.from_pretrained(name)
+        try:
+            torch.quantization.quantize_dynamic(
+                model, {torch.nn.Linear}, dtype=torch.qint8, inplace=True
+            )
+            n_q = sum(1 for m in model.modules()
+                      if "DynamicQuantizedLinear" in type(m).__name__)
+            print(f"OCR: TrOCR-small quantized ({n_q} Linear → int8)", flush=True)
+        except Exception as e:
+            print(f"OCR: quantization failed: {e}", flush=True)
+        model.eval()
+        _OCR = (processor, model)
+    return _OCR
+
+
+def ocr_handwriting_crop(bgr_crop):
+    try:
+        import torch
+        if bgr_crop is None or bgr_crop.size == 0:
+            return ""
+        h, w = bgr_crop.shape[:2]
+        if w < 100 or h < 22:
+            return ""
+        pil = Image.fromarray(cv2.cvtColor(bgr_crop, cv2.COLOR_BGR2RGB))
+        processor, model = _get_ocr()
+        with torch.no_grad():
+            pixel_values = processor(images=pil, return_tensors="pt").pixel_values
+            ids = model.generate(pixel_values, max_length=64, num_beams=1)
+        raw = processor.batch_decode(ids, skip_special_tokens=True)[0].strip()
+        # Strip stray non-printable / non-Latin-1 bytes the model sometimes emits
+        clean = _clean_text(raw)
+        # Reject if the cleaned output is mostly noise
+        if len(clean) < 2 or sum(1 for c in clean if c.isalpha()) < 1:
+            return ""
+        return clean
+    except Exception as e:
+        return f"[ocr-error: {type(e).__name__}: {e}]"
+
+
+def ocr_with_cache(bgr_crop, cache_key=None):
+    if cache_key is not None and cache_key in _OCR_CACHE:
+        return _OCR_CACHE[cache_key]
+    text = ocr_handwriting_crop(bgr_crop)
+    if cache_key is not None and text and not text.startswith("[ocr-error"):
+        _OCR_CACHE[cache_key] = text
+    return text
+
+# HSV ranges per highlight color. Each entry can be a single (lo, hi) or
+# a list of multiple ranges (red wraps around H=0/180 so it needs two).
+HIGHLIGHT_COLORS = {
+    "yellow": [((18, 70, 140),  (40, 255, 255))],
+    "green":  [((40, 70, 110),  (85, 255, 255))],
+    # Baby-blue / light cyan: very low saturation, very high value.
+    "blue":   [((80, 25, 170),  (115, 200, 255))],
+    "pink":   [((140, 60, 130), (170, 255, 255))],
+    "orange": [((5, 100, 130),  (18, 255, 255))],
+    # Red wraps around H=0; OR the two hue strips together below.
+    "red":    [((0,   35, 150), (10, 255, 255)),
+               ((165, 35, 150), (180, 255, 255))],
+}
+
+
+def _downscale(img, max_side=1200):
+    h, w = img.shape[:2]
+    s = max_side / max(h, w)
+    if s >= 1.0:
+        return img, 1.0
+    return cv2.resize(img, (int(w * s), int(h * s))), s
+
+
+def find_best_page(snap_bgr, library_iter, min_inliers=25, top_k=5):
+    """Identify which page from the library best matches the snapshot.
+
+    Two-stage:
+      1. Fast descriptor-only "good match count" → keep top_k candidates.
+      2. For each top candidate, re-run ORB on the reference image and compute
+         a RANSAC homography. Score by RANSAC inlier count — far more reliable
+         than raw match count because it requires geometric consistency.
+
+    Returns {digest, name, page, inliers, raw_score} or None if best inlier
+    count < min_inliers.
+    """
+    snap_gray = cv2.cvtColor(snap_bgr, cv2.COLOR_BGR2GRAY)
+    orb = cv2.ORB_create(nfeatures=2000)
+    snap_kp, snap_des = orb.detectAndCompute(snap_gray, None)
+    if snap_des is None or len(snap_des) < 30:
+        return None
+
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+
+    # Stage 1: raw match count
+    raw_scores = []  # list of (score, digest, name, page, ref_path, kp_path, ref_des)
+    for item in library_iter:
+        # Support old (5-tuple) and new (6-tuple with kp_path) signatures
+        if len(item) == 6:
+            digest, name, page, ref_path, ref_des, kp_path = item
+        else:
+            digest, name, page, ref_path, ref_des = item
+            kp_path = None
+        if ref_des is None or len(ref_des) < 30:
+            continue
+        matches = bf.match(snap_des, ref_des)
+        score = sum(1 for m in matches if m.distance < 60)
+        raw_scores.append((score, digest, name, page, ref_path, kp_path, ref_des))
+
+    if not raw_scores:
+        return None
+    raw_scores.sort(reverse=True, key=lambda x: x[0])
+    candidates = raw_scores[:top_k]
+
+    # Stage 2: RANSAC verification on top_k candidates, using cached keypoints
+    best = None  # (inliers, raw_score, digest, name, page)
+    for raw_score, digest, name, page, ref_path, kp_path, ref_des2 in candidates:
+        if kp_path:
+            ref_kp_pts = np.load(kp_path)
+        else:
+            ref_gray = cv2.imread(ref_path, cv2.IMREAD_GRAYSCALE)
+            if ref_gray is None: continue
+            ref_kp, ref_des2 = orb.detectAndCompute(ref_gray, None)
+            if ref_des2 is None or len(ref_des2) < 20: continue
+            ref_kp_pts = np.array([k.pt for k in ref_kp], dtype=np.float32)
+        matches = bf.match(snap_des, ref_des2)
+        if len(matches) < 20:
+            continue
+        good = sorted(matches, key=lambda m: m.distance)[:300]
+        src = np.float32([snap_kp[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+        dst = np.float32([ref_kp_pts[m.trainIdx] for m in good]).reshape(-1, 1, 2)
+        H, mask = cv2.findHomography(src, dst, cv2.RANSAC, 5.0)
+        inliers = int(mask.sum()) if mask is not None else 0
+        if best is None or inliers > best[0]:
+            best = (inliers, raw_score, digest, name, page)
+
+    if best is None or best[0] < min_inliers:
+        return None
+    return {
+        "digest": best[2], "name": best[3], "page": best[4],
+        "inliers": best[0], "raw_score": best[1],
+    }
+
+
+def align_to_reference(ref_bgr, snap_bgr):
+    """Compute homography from snapshot → reference coords and warp the
+    snapshot into an expanded canvas that contains BOTH the reference page
+    bounds and everything the snapshot saw (margins, side notes, etc).
+
+    Returns (warped, inliers, offset_xy, H_translated). H_translated maps
+    snapshot pixels → warped-canvas pixels; invert it to project warped-coord
+    boxes back to the original (sharper) snapshot for OCR cropping.
+    """
+    ref_gray = cv2.cvtColor(ref_bgr, cv2.COLOR_BGR2GRAY)
+    snap_gray = cv2.cvtColor(snap_bgr, cv2.COLOR_BGR2GRAY)
+
+    orb = cv2.ORB_create(nfeatures=4000)
+    kp1, des1 = orb.detectAndCompute(snap_gray, None)
+    kp2, des2 = orb.detectAndCompute(ref_gray, None)
+    if des1 is None or des2 is None or len(kp1) < 20 or len(kp2) < 20:
+        return None, 0, (0, 0), None
+
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+    matches = bf.match(des1, des2)
+    matches = sorted(matches, key=lambda m: m.distance)
+    if len(matches) < 30:
+        return None, len(matches), (0, 0), None
+
+    top = matches[: min(300, len(matches))]
+    src = np.float32([kp1[m.queryIdx].pt for m in top]).reshape(-1, 1, 2)
+    dst = np.float32([kp2[m.trainIdx].pt for m in top]).reshape(-1, 1, 2)
+    H, mask = cv2.findHomography(src, dst, cv2.RANSAC, 5.0)
+    if H is None:
+        return None, len(matches), (0, 0), None
+    inliers = int(mask.sum()) if mask is not None else 0
+
+    h_ref, w_ref = ref_gray.shape
+    h_snap, w_snap = snap_gray.shape
+
+    corners = np.float32([[0, 0], [w_snap, 0], [w_snap, h_snap], [0, h_snap]]).reshape(-1, 1, 2)
+    projected = cv2.perspectiveTransform(corners, H)
+    xs, ys = projected[:, 0, 0], projected[:, 0, 1]
+    min_x = int(np.floor(min(0.0, float(xs.min()))))
+    min_y = int(np.floor(min(0.0, float(ys.min()))))
+    max_x = int(np.ceil(max(float(w_ref), float(xs.max()))))
+    max_y = int(np.ceil(max(float(h_ref), float(ys.max()))))
+
+    T = np.array([[1.0, 0.0, -min_x], [0.0, 1.0, -min_y], [0.0, 0.0, 1.0]])
+    H_translated = T @ H  # maps snapshot pixels → warped-canvas pixels
+    new_w = max_x - min_x
+    new_h = max_y - min_y
+    warped = cv2.warpPerspective(snap_bgr, H_translated, (new_w, new_h))
+    offset = (-min_x, -min_y)
+    return warped, inliers, offset, H_translated
+
+
+def highlight_mask(bgr):
+    hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
+    out = {}
+    for name, ranges in HIGHLIGHT_COLORS.items():
+        m = None
+        for (lo, hi) in ranges:
+            partial = cv2.inRange(hsv, np.array(lo, np.uint8), np.array(hi, np.uint8))
+            m = partial if m is None else cv2.bitwise_or(m, partial)
+        m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
+        if cv2.countNonZero(m) > 300:
+            out[name] = m
+    return out
+
+
+def _clean_text(s: str) -> str:
+    """Strip control chars + any byte that won't survive a Latin-1 round-trip."""
+    if not s:
+        return ""
+    return "".join(c for c in s if (32 <= ord(c) < 127) or (160 <= ord(c) < 256)).strip()
+
+
+def _is_printable_word(s: str) -> bool:
+    """Skip words that are mostly control characters, CID escape strings, or
+    PDF-encoding garbage. Stricter than before — 95% ASCII printable required."""
+    t = s.strip()
+    if not t or len(t) > 60:
+        return False
+    ascii_print = sum(1 for c in t if 32 <= ord(c) < 127)
+    if ascii_print < len(t) * 0.95:
+        return False
+    # Words that are mostly punctuation/digits/single chars are also noise
+    has_letter = any(c.isalpha() for c in t)
+    if not has_letter and len(t) < 3:
+        return False
+    return True
+
+
+def find_highlighted(words, masks, offset=(0, 0), min_coverage=0.25):
+    """For each detected color, return a list of {idx, text} for the SPECIFIC
+    word instances under that color (not just text strings — otherwise a single
+    short-word hit like "AI" cascades to every "AI" on the page)."""
+    dx, dy = offset
+    out = {color: [] for color in masks}
+    for idx, w in enumerate(words):
+        if not _is_printable_word(w.text):
+            continue
+        x, y = w.x + dx, w.y + dy
+        for color, mask in masks.items():
+            roi = mask[y:y + w.h, x:x + w.w]
+            if roi.size == 0:
+                continue
+            if cv2.countNonZero(roi) / roi.size > min_coverage:
+                out[color].append({"idx": idx, "text": _clean_text(w.text)})
+                break
+    return {c: v for c, v in out.items() if v}
+
+
+def extract_handwriting_boxes(warped_bgr, words, offset=(0, 0)):
+    """Detect handwriting regions.
+
+    All pixel thresholds scale with image height so the detection behaves
+    the same regardless of the reference render DPI.
+    """
+    dx, dy = offset
+    gray = cv2.cvtColor(warped_bgr, cv2.COLOR_BGR2GRAY)
+    H = gray.shape[0]
+    # 'unit' approximates a single line-height of typical body text at any DPI.
+    unit = max(20.0, H / 90.0)
+
+    block = int(unit) | 1  # odd
+    ink = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY_INV, blockSize=block, C=10,
+    )
+
+    pad = int(unit * 0.55)
+    for w in words:
+        x1 = max(0, w.x + dx - pad)
+        y1 = max(0, w.y + dy - pad)
+        x2 = min(ink.shape[1], w.x + dx + w.w + pad)
+        y2 = min(ink.shape[0], w.y + dy + w.h + pad)
+        ink[y1:y2, x1:x2] = 0
+
+    border = int(unit * 0.4)
+    ink[:border, :] = 0
+    ink[-border:, :] = 0
+    ink[:, :border] = 0
+    ink[:, -border:] = 0
+
+    ink = cv2.morphologyEx(ink, cv2.MORPH_CLOSE, np.ones((2, 2), np.uint8))
+    dilate_w = max(20, int(unit * 1.4))
+    line_mask = cv2.dilate(ink, np.ones((1, dilate_w), np.uint8))
+    line_mask = cv2.morphologyEx(line_mask, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
+
+    min_area = int(unit * unit * 1.5)
+    min_w = int(unit * 1.6)
+    min_h = int(unit * 0.75)
+    max_h = int(unit * 4.0)
+    n, _, stats, _ = cv2.connectedComponentsWithStats(line_mask)
+    boxes = []
+    for i in range(1, n):
+        x, y, w, h, area = stats[i]
+        if area < min_area or w < min_w or h < min_h or h > max_h:
+            continue
+        # Super wide-and-thin shapes are usually underlines, rules, or stray
+        # mark — not handwriting. Reject if aspect ratio is extreme.
+        if w / max(h, 1) > 25:
+            continue
+        roi = ink[y:y+h, x:x+w]
+        density = float(roi.sum()) / (255.0 * roi.size + 1e-9)
+        if density < 0.025 or density > 0.6:
+            continue
+        boxes.append((int(x), int(y), int(w), int(h)))
+    boxes.sort(key=lambda b: (b[1], b[0]))
+    return boxes
+
+
+def crop_to_b64_jpeg(bgr, box, pad=6, quality=92):
+    x, y, w, h = box
+    x1 = max(0, x - pad)
+    y1 = max(0, y - pad)
+    x2 = min(bgr.shape[1], x + w + pad)
+    y2 = min(bgr.shape[0], y + h + pad)
+    crop = bgr[y1:y2, x1:x2]
+    return b64_jpeg(crop, quality=quality)
+
+
+def b64_jpeg(bgr, quality=92):
+    if bgr is None or bgr.size == 0:
+        return None
+    ok, buf = cv2.imencode(".jpg", bgr, [cv2.IMWRITE_JPEG_QUALITY, quality])
+    if not ok:
+        return None
+    return "data:image/jpeg;base64," + base64.b64encode(buf.tobytes()).decode()
+
+
+def make_debug_overlay(warped, words, hw_boxes, highlights_per_word, offset=(0, 0)):
+    """Render overlay: orange=source words, colored outline=highlighted,
+    red=handwriting regions, plus a green outline of the original page bounds."""
+    dx, dy = offset
+    overlay = warped.copy()
+    # Outline original page bounds in green so we can see where margins start
+    if words:
+        page_w = max(w.x + w.w for w in words) + dx
+        page_h = max(w.y + w.h for w in words) + dy
+        cv2.rectangle(overlay, (dx, dy), (page_w, page_h), (0, 220, 0), 2)
+    # Source word boxes (orange)
+    for w in words:
+        cv2.rectangle(overlay, (w.x + dx, w.y + dy),
+                      (w.x + dx + w.w, w.y + dy + w.h),
+                      (255, 200, 0), 1)
+    # Outline highlighted words
+    color_bgr = {
+        "yellow": (0, 220, 220), "green": (0, 200, 0),
+        "blue": (255, 180, 80), "pink": (180, 100, 220),
+        "orange": (0, 140, 220), "red": (50, 50, 230),
+    }
+    for color, entries in highlights_per_word.items():
+        idx_set = {e["idx"] for e in entries if isinstance(e, dict) and "idx" in e}
+        for i, w in enumerate(words):
+            if i not in idx_set:
+                continue
+            cv2.rectangle(overlay,
+                          (w.x + dx - 1, w.y + dy - 1),
+                          (w.x + dx + w.w + 1, w.y + dy + w.h + 1),
+                          color_bgr.get(color, (0, 255, 0)), 2)
+    # Handwriting boxes in red
+    for (x, y, w, h) in hw_boxes:
+        cv2.rectangle(overlay, (x, y), (x + w, y + h), (0, 0, 255), 2)
+    out = cv2.addWeighted(warped, 0.55, overlay, 0.45, 0)
+    max_w = 1400
+    h0, w0 = out.shape[:2]
+    if w0 > max_w:
+        scale = max_w / w0
+        out = cv2.resize(out, (max_w, int(h0 * scale)))
+    ok, buf = cv2.imencode(".jpg", out, [cv2.IMWRITE_JPEG_QUALITY, 85])
+    if not ok:
+        return None
+    import base64
+    return "data:image/jpeg;base64," + base64.b64encode(buf.tobytes()).decode()
+
+
+def crop_from_snapshot(snap_bgr, warped_box, H_warp, pad=8):
+    """Project a warped-coord box back to snapshot coords (via inverse
+    homography) and crop from the native snapshot — much sharper than
+    cropping from the interpolated warped image.
+    """
+    x, y, w, h = warped_box
+    corners = np.float32([
+        [x - pad, y - pad],
+        [x + w + pad, y - pad],
+        [x + w + pad, y + h + pad],
+        [x - pad, y + h + pad],
+    ]).reshape(-1, 1, 2)
+    H_inv = np.linalg.inv(H_warp)
+    snap_pts = cv2.perspectiveTransform(corners, H_inv).reshape(-1, 2)
+    xs, ys = snap_pts[:, 0], snap_pts[:, 1]
+    x1 = max(0, int(np.floor(xs.min())))
+    y1 = max(0, int(np.floor(ys.min())))
+    x2 = min(snap_bgr.shape[1], int(np.ceil(xs.max())))
+    y2 = min(snap_bgr.shape[0], int(np.ceil(ys.max())))
+    if x2 <= x1 or y2 <= y1:
+        return None
+    return snap_bgr[y1:y2, x1:x2]
+
+
+def analyze(snap_bytes, ref_bgr, words, max_lines=10, debug=True, do_ocr=True):
+    arr = np.frombuffer(snap_bytes, np.uint8)
+    snap = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+    if snap is None:
+        return {"error": "could not decode snapshot"}
+
+    warped, inliers, offset, H_warp = align_to_reference(ref_bgr, snap)
+    if warped is None:
+        return {"error": "could not align snapshot to reference — make sure the right page is under the camera, well-lit, and roughly aligned"}
+
+    masks = highlight_mask(warped)
+    highlights = find_highlighted(words, masks, offset=offset)
+    boxes = extract_handwriting_boxes(warped, words, offset=offset)
+
+    handwriting = []
+    for b in boxes[:max_lines]:
+        x, y, w, h = b
+        pad = 8
+        x1 = max(0, x - pad); y1 = max(0, y - pad)
+        x2 = min(warped.shape[1], x + w + pad); y2 = min(warped.shape[0], y + h + pad)
+        crop = warped[y1:y2, x1:x2]
+        if crop is None or crop.size == 0:
+            continue
+        img = b64_jpeg(crop, quality=92)
+        text = ocr_with_cache(crop, cache_key=tuple(b)) if do_ocr else None
+        entry = {"box": list(b)}
+        if img: entry["image"] = img
+        if text: entry["text"] = text
+        handwriting.append(entry)
+
+    out = {
+        "highlights": highlights,
+        "handwriting": handwriting,
+        "stats": {
+            "alignment_inliers": inliers,
+            "colors_seen": list(masks.keys()),
+            "handwriting_regions": len(boxes),
+            "canvas_offset": list(offset),
+            "warped_size": [warped.shape[1], warped.shape[0]],
+        },
+    }
+    if debug:
+        out["debug_overlay"] = make_debug_overlay(warped, words, boxes, highlights, offset=offset)
+    return out
+
+</script>
+
+<script type="text/plain" id="src-app">
+"""Single Flask app: live camera + PDF source + capture/analyze.
+
+Serves:
+  /                 — main UI
+  /pdfs             — JSON list of cached PDFs
+  /upload-pdf       — POST a PDF (multipart, field 'pdf')
+  /scan             — POST {} → ingest any new PDFs from ~/papers/
+  /set-source       — POST {digest, page}
+  /reference.png    — current source page reference image
+  /stream.mjpg      — live MJPEG from CSI camera
+  /analyze          — capture frame, run pipeline, return JSON
+  /auto-analyze     — capture, identify page across library, then analyze
+"""
+from __future__ import annotations
+
+import io
+import os
+import threading
+import time
+from pathlib import Path
+
+import cv2
+import numpy as np
+import urllib.request
+from flask import (Flask, Response, abort, jsonify, render_template, request,
+                   send_file)
+from libcamera import controls
+from picamera2 import Picamera2
+from picamera2.encoders import MJPEGEncoder
+from picamera2.outputs import FileOutput
+
+# ESP32 motor controller (HTTP) — set via env or default to mDNS
+MOTOR_URL = os.environ.get("MOTOR_URL", "http://192.168.0.244:51917")
+
+import pipeline
+import source
+
+app = Flask(__name__)
+
+STATE = {"digest": None, "manifest": None, "page": 0}
+
+# Most recent analyze result, exposed to the Mac sync watcher
+LATEST = {"timestamp": 0, "result": None}
+
+# After the first match, lock onto the paper so subsequent captures skip
+# the cross-library search. Cleared via /unlock-paper or stale after 10 min.
+LOCK = {"digest": None, "last_page": None, "name": None, "at": 0}
+LOCK_TTL = 600  # seconds
+
+# Directory the user rsyncs PDFs into.
+PAPERS_DIR = Path(os.environ.get("PAPERS_DIR", str(Path.home() / "papers")))
+
+
+# ---- Camera ----------------------------------------------------------------
+
+class _StreamOutput(io.BufferedIOBase):
+    """Holds the latest MJPEG frame for the live stream."""
+    def __init__(self):
+        self.frame = None
+        self.cond = threading.Condition()
+
+    def write(self, buf):
+        with self.cond:
+            self.frame = buf
+            self.cond.notify_all()
+
+
+def _start_camera():
+    cam = Picamera2()
+    cam.configure(cam.create_video_configuration(
+        main={"size": (2304, 1296)},
+        raw={"size": (4608, 2592)},
+    ))
+    out = _StreamOutput()
+    # q=85 = ~3× smaller frames than q=95, so the software JPEG encoder on the
+    # pinned 2-core Pi 5 keeps up with a higher framerate. Still looks crisp
+    # for a preview. (Analyze pipeline doesn't depend on stream quality —
+    # capture_full_quality_jpeg pulls the same frames.)
+    encoder = MJPEGEncoder(bitrate=80_000_000)
+    encoder.q = 85
+    cam.start_recording(encoder, FileOutput(out))
+    # Settings tuned for document/OCR capture:
+    #   - Full-sensor scaler crop (no FOV cut)
+    #   - Continuous AF (re-locks as page moves)
+    #   - Sharpness 2.0: crisper text edges
+    #   - HighQuality noise reduction: cleaner background, smoother strokes
+    #   - HDR off: HDR softens edges, bad for text
+    cam.set_controls({
+        "ScalerCrop": (0, 0, 4608, 2592),
+        "AfMode": controls.AfModeEnum.Continuous,
+        "AfSpeed": controls.AfSpeedEnum.Fast,
+        "Sharpness": 2.0,
+        "NoiseReductionMode": controls.draft.NoiseReductionModeEnum.HighQuality,
+    })
+    return cam, out
+
+
+CAM, CAM_OUT = _start_camera()
+CAPTURE_LOCK = threading.Lock()
+
+
+def latest_jpeg() -> bytes | None:
+    """Get the most recent MJPEG frame from the live stream."""
+    with CAM_OUT.cond:
+        if CAM_OUT.frame is None:
+            CAM_OUT.cond.wait(timeout=2.0)
+        return CAM_OUT.frame
+
+
+def capture_full_quality_jpeg() -> bytes | None:
+    return latest_jpeg()
+
+
+# ---- Routes ----------------------------------------------------------------
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/pdfs")
+def pdfs():
+    return jsonify(source.list_pdfs())
+
+
+@app.route("/scan", methods=["POST"])
+def scan():
+    """Ingest any new PDFs from PAPERS_DIR (defaults to ~/papers)."""
+    return jsonify(source.scan_directory(PAPERS_DIR))
+
+
+@app.route("/upload-pdf", methods=["POST"])
+def upload_pdf():
+    f = request.files.get("pdf")
+    if not f:
+        return jsonify({"error": "no pdf field"}), 400
+    name = f.filename or ""
+    manifest = source.ingest_pdf(f.read(), original_name=name)
+    return jsonify(manifest)
+
+
+@app.route("/set-source", methods=["POST"])
+def set_source():
+    body = request.json or {}
+    digest = body.get("digest")
+    page = int(body.get("page", 0))
+    if not digest:
+        return jsonify({"error": "missing digest"}), 400
+    manifest_path = source.SOURCES_DIR / digest / "manifest.json"
+    if not manifest_path.exists():
+        return jsonify({"error": "unknown digest"}), 404
+    import json
+    manifest = json.loads(manifest_path.read_text())
+    if not (0 <= page < len(manifest["pages"])):
+        return jsonify({"error": "page out of range"}), 400
+    STATE["digest"] = digest
+    STATE["manifest"] = manifest
+    STATE["page"] = page
+    return jsonify({"digest": digest, "page": page, "pages": len(manifest["pages"]), "name": manifest.get("name")})
+
+
+@app.route("/reference.png")
+def reference_png():
+    if not STATE["digest"]:
+        abort(404)
+    page = STATE["manifest"]["pages"][STATE["page"]]
+    return send_file(source.SOURCES_DIR / STATE["digest"] / page["ref_image"], mimetype="image/png")
+
+
+@app.route("/stream.mjpg")
+def stream_mjpg():
+    def gen():
+        while True:
+            frame = latest_jpeg()
+            if frame is None:
+                break
+            yield (b"--FRAME\r\nContent-Type: image/jpeg\r\nContent-Length: "
+                   + str(len(frame)).encode() + b"\r\n\r\n" + frame + b"\r\n")
+    return Response(gen(), mimetype="multipart/x-mixed-replace; boundary=FRAME")
+
+
+@app.route("/analyze", methods=["POST"])
+def analyze():
+    if not STATE["digest"]:
+        return jsonify({"error": "select a PDF source first"}), 400
+
+    jpg = capture_full_quality_jpeg()
+    if jpg is None:
+        return jsonify({"error": "capture failed"}), 500
+
+    ref, words = source.load_page(STATE["digest"], STATE["page"])
+
+    t0 = time.time()
+    result = pipeline.analyze(jpg, ref, words)
+    result["elapsed_sec"] = round(time.time() - t0, 2)
+    result["page"] = STATE["page"]
+    result["page_total"] = len(STATE["manifest"]["pages"])
+    return jsonify(result)
+
+
+def _apply_annotations(digest: str, page_index: int, highlights: dict,
+                       handwriting: list, offset: tuple) -> bytes:
+    """Apply annotations to the (cached) annotated PDF for this digest.
+
+    Builds incrementally: each call adds new annotations to the existing
+    annotated.pdf (or starts from source.pdf the first time). Returns the
+    updated PDF bytes and writes them to disk.
+    """
+    import pymupdf
+
+    pdf_dir = source.SOURCES_DIR / digest
+    annotated_path = pdf_dir / "annotated.pdf"
+    source_path = pdf_dir / "source.pdf"
+    base_path = annotated_path if annotated_path.exists() else source_path
+    if not base_path.exists():
+        raise FileNotFoundError(f"no PDF for digest {digest}")
+
+    _, words = source.load_page(digest, page_index)
+    scale = source.RENDER_DPI / 72.0
+
+    color_rgb = {
+        "yellow": (1.0, 0.95, 0.30),
+        "green":  (0.55, 0.92, 0.40),
+        "blue":   (0.55, 0.85, 1.00),  # baby blue
+        "pink":   (1.00, 0.55, 0.80),
+        "orange": (1.00, 0.65, 0.30),
+        "red":    (1.00, 0.45, 0.45),
+    }
+
+    doc = pymupdf.open(str(base_path))
+    page = doc[page_index]
+
+    for color, entries in (highlights or {}).items():
+        rgb = color_rgb.get(color, (1.0, 0.95, 0.30))
+        # entries can be the new shape [{idx, text}] or legacy [text]
+        idxs = []
+        for e in entries:
+            if isinstance(e, dict) and "idx" in e:
+                idxs.append(e["idx"])
+        idx_set = set(idxs)
+        for i, w in enumerate(words):
+            if i not in idx_set:
+                continue
+            rect = pymupdf.Rect(w.x / scale, w.y / scale,
+                                (w.x + w.w) / scale, (w.y + w.h) / scale)
+            hl = page.add_highlight_annot(rect)
+            hl.set_colors(stroke=rgb)
+            hl.update()
+
+    def sanitize_text(s: str) -> str:
+        if not s:
+            return ""
+        # Drop control chars and any byte that won't round-trip through Latin-1
+        # (PyMuPDF FreeText needs encodable characters).
+        clean = "".join(c for c in s if (c == "\n" or 32 <= ord(c) < 127 or 160 <= ord(c) < 256))
+        clean = clean.strip()
+        return clean[:200]
+
+    dx, dy = offset
+    page_rect = page.rect  # PDF page bounds in points
+    FONT_SIZE = 8
+    CHAR_W_PT = FONT_SIZE * 0.55  # rough Helvetica char width estimate
+    MARGIN = 18  # keep annotations within the page's natural whitespace margin
+
+    # Existing FreeText/Text annotation rects (from prior captures on this page)
+    placed_rects = []
+    for existing in page.annots() or []:
+        try:
+            placed_rects.append(pymupdf.Rect(existing.rect))
+        except Exception:
+            pass
+
+    def rects_overlap(a, b):
+        return not (a.x1 <= b.x0 or b.x1 <= a.x0 or a.y1 <= b.y0 or b.y1 <= a.y0)
+
+    def find_free_slot(target):
+        """Shift `target` rect downward until it doesn't intersect any
+        previously placed rect. Wrap to top if it overflows the page."""
+        step = target.height + 2
+        max_iters = 60
+        rect = pymupdf.Rect(target)
+        for _ in range(max_iters):
+            if not any(rects_overlap(rect, p) for p in placed_rects):
+                return rect
+            rect = pymupdf.Rect(rect.x0, rect.y0 + step, rect.x1, rect.y1 + step)
+            if rect.y1 > page_rect.height - MARGIN:
+                # Wrap to top of page in the same column
+                rect = pymupdf.Rect(rect.x0, MARGIN, rect.x1, MARGIN + target.height)
+        return rect  # give up, place anyway
+
+    for h in handwriting or []:
+        text = sanitize_text(h.get("text") or "")
+        if not text or text.startswith("[ocr-error"):
+            continue
+        x, y, ww, hh = h.get("box", [0, 0, 0, 0])
+        rx = x - dx
+        ry = y - dy
+        # Center of the original handwriting region, in PDF points
+        cx = (rx + ww / 2) / scale
+        cy = (ry + hh / 2) / scale
+        # Size the rect for the OCR'd text so it never overflows the box
+        w_pt = min(page_rect.width - 2 * MARGIN,
+                   max(50.0, len(text) * CHAR_W_PT + 14))
+        h_pt = max(16.0, FONT_SIZE * 2.0)
+        # Clamp the center so the whole rect stays inside the page
+        safe_cx = max(MARGIN + w_pt / 2, min(page_rect.width - MARGIN - w_pt / 2, cx))
+        safe_cy = max(MARGIN + h_pt / 2, min(page_rect.height - MARGIN - h_pt / 2, cy))
+        target = pymupdf.Rect(safe_cx - w_pt / 2, safe_cy - h_pt / 2,
+                              safe_cx + w_pt / 2, safe_cy + h_pt / 2)
+        rect = find_free_slot(target)
+        annot = page.add_freetext_annot(rect, text, fontsize=FONT_SIZE,
+                                        text_color=(0.7, 0.1, 0.1))
+        annot.update()
+        placed_rects.append(rect)
+
+    out_bytes = doc.tobytes()
+    doc.close()
+    # Atomic write: write to a sibling temp file, then rename. Prevents
+    # sync.py (or any other reader) from seeing a partial PDF.
+    tmp = annotated_path.with_suffix(".pdf.tmp")
+    tmp.write_bytes(out_bytes)
+    tmp.replace(annotated_path)
+    return out_bytes
+
+
+@app.route("/export-annotated", methods=["POST"])
+def export_annotated():
+    body = request.json or {}
+    digest = body.get("digest") or STATE.get("digest")
+    page_index = int(body.get("page", STATE.get("page", 0)))
+    if not digest:
+        return jsonify({"error": "no source selected"}), 400
+    try:
+        pdf_bytes = _apply_annotations(
+            digest, page_index,
+            body.get("highlights", {}),
+            body.get("handwriting", []),
+            tuple(body.get("offset", [0, 0])),
+        )
+    except FileNotFoundError as e:
+        return jsonify({"error": str(e)}), 404
+    name = "annotated"
+    mp = source.SOURCES_DIR / digest / "manifest.json"
+    if mp.exists():
+        import json as _json
+        name = _json.loads(mp.read_text()).get("name", name)
+    return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf",
+                     as_attachment=True,
+                     download_name=f"{name}.pdf")
+
+
+@app.route("/annotated/<digest>.pdf")
+def serve_annotated(digest):
+    """Return the current annotated PDF for a digest (or source if no
+    annotations yet). Used by the Mac sync watcher."""
+    pdf_dir = source.SOURCES_DIR / digest
+    annotated = pdf_dir / "annotated.pdf"
+    source_pdf = pdf_dir / "source.pdf"
+    path = annotated if annotated.exists() else source_pdf
+    if not path.exists():
+        abort(404)
+    return send_file(str(path), mimetype="application/pdf",
+                     as_attachment=False)
+
+
+@app.route("/annotated-preview/<digest>/<int:page>.png")
+def annotated_preview(digest, page):
+    """Render a page of the current annotated PDF (with highlights + notes
+    baked in) as a PNG for in-UI display."""
+    import pymupdf
+    pdf_dir = source.SOURCES_DIR / digest
+    annotated = pdf_dir / "annotated.pdf"
+    source_pdf = pdf_dir / "source.pdf"
+    path = annotated if annotated.exists() else source_pdf
+    if not path.exists():
+        abort(404)
+    doc = pymupdf.open(str(path))
+    if page < 0 or page >= len(doc):
+        doc.close()
+        abort(404)
+    pix = doc[page].get_pixmap(matrix=pymupdf.Matrix(2.0, 2.0), alpha=False, annots=True)
+    png_bytes = pix.tobytes("png")
+    doc.close()
+    return Response(png_bytes, mimetype="image/png",
+                    headers={"Cache-Control": "no-cache"})
+
+
+@app.route("/latest-analysis")
+def latest_analysis():
+    return jsonify(LATEST)
+
+
+@app.route("/lock-status")
+def lock_status():
+    now = time.time()
+    active = LOCK["digest"] and (now - LOCK["at"]) < LOCK_TTL
+    return jsonify({
+        "active": bool(active),
+        "digest": LOCK["digest"] if active else None,
+        "name": LOCK["name"] if active else None,
+        "last_page": LOCK["last_page"] if active else None,
+        "age_sec": round(now - LOCK["at"], 1) if active else None,
+    })
+
+
+@app.route("/unlock-paper", methods=["POST"])
+def unlock_paper():
+    LOCK["digest"] = None
+    LOCK["last_page"] = None
+    LOCK["name"] = None
+    LOCK["at"] = 0
+    return jsonify({"active": False})
+
+
+def _motor_turn(timeout=30):
+    """POST /turn to the ESP32 motor controller. Blocks until it responds."""
+    req = urllib.request.Request(MOTOR_URL.rstrip("/") + "/turn", method="POST")
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read()
+
+
+# Global flag so a separate request can stop a running scan
+SCAN_STOP = threading.Event()
+
+
+@app.route("/scan-stop", methods=["POST"])
+def scan_stop():
+    SCAN_STOP.set()
+    return jsonify({"stopping": True})
+
+
+@app.route("/auto-scan-stream", methods=["POST"])
+def auto_scan_stream():
+    """Loop: motor turns one page → wait → capture+analyze → repeat.
+    Stops when the captured page doesn't match the library (i.e. blank page,
+    end of paper), or when user POSTs /scan-stop, or after a safety cap."""
+    import json as _json
+
+    def sse(obj): return f"data: {_json.dumps(obj)}\n\n"
+
+    SCAN_STOP.clear()
+    body = request.json or {}
+    settle_ms   = int(body.get("settle_ms", 3000))  # wait after turn before capture
+    max_pages   = int(body.get("max_pages", 50))    # safety cap
+    skip_first  = bool(body.get("skip_first_turn", False))  # skip turning before page 1
+
+    def generate():
+        t_scan_start = time.time()
+        last_event_t = [t_scan_start]
+        def event(stage, msg=None, **extra):
+            now = time.time()
+            payload = {"stage": stage, "msg": msg,
+                       "dt": round(now - last_event_t[0], 3),
+                       "t":  round(now - t_scan_start, 3)}
+            payload.update(extra)
+            last_event_t[0] = now
+            print(f"[scan +{payload['dt']:.2f}s] {stage}" + (f": {msg}" if msg else ""), flush=True)
+            return sse(payload)
+
+        try:
+            for page_idx in range(max_pages):
+                if SCAN_STOP.is_set():
+                    yield event("stopped", "Aborted by user"); return
+
+                # Turn the page (skip turning before the very first capture)
+                if not (skip_first and page_idx == 0):
+                    yield event("motor_turn", f"Telling motor to advance page {page_idx+1}")
+                    try:
+                        _motor_turn(timeout=30)
+                    except Exception as e:
+                        yield event("error", f"Motor request failed: {e}"); return
+                    yield event("settle", f"Waiting {settle_ms}ms for paper to settle")
+                    time.sleep(settle_ms / 1000.0)
+
+                # Capture
+                yield event("capture", f"Capturing page #{page_idx+1}")
+                jpg = capture_full_quality_jpeg()
+                if jpg is None:
+                    yield event("error", "Capture failed"); return
+                arr = np.frombuffer(jpg, np.uint8)
+                snap = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+
+                # Identify (locked path if lock active)
+                now = time.time()
+                locked = (LOCK["digest"] and (now - LOCK["at"]) < LOCK_TTL)
+                yield event("identify",
+                            f"Matching{' (locked)' if locked else ''}")
+                if locked:
+                    predicted = (LOCK["last_page"] + 1) if LOCK["last_page"] is not None else None
+                    match = pipeline.find_best_page(
+                        snap,
+                        source.descriptors_for_digest(LOCK["digest"], predicted_first=predicted),
+                    )
+                    if match is None:
+                        match = pipeline.find_best_page(snap, source.all_page_descriptors())
+                else:
+                    match = pipeline.find_best_page(snap, source.all_page_descriptors())
+
+                if match is None:
+                    yield event("blank_or_done",
+                                f"No match on page #{page_idx+1} — assuming blank/end. Stopping.")
+                    yield event("done", f"scan complete after {page_idx} page(s)",
+                                pages_scanned=page_idx)
+                    return
+
+                # Update lock state
+                LOCK["digest"] = match["digest"]
+                LOCK["name"] = match["name"]
+                LOCK["last_page"] = match["page"]
+                LOCK["at"] = time.time()
+                yield event("match_found",
+                            f"{match['name']} · page {match['page']+1} (inliers {match['inliers']})",
+                            matched=match)
+
+                # Full analyze (highlights + handwriting + annotate)
+                ref, words = source.load_page(match["digest"], match["page"])
+                warped, inliers, offset, H_warp = pipeline.align_to_reference(ref, snap)
+                if warped is None:
+                    yield event("warn", "Alignment failed on this page, continuing")
+                    continue
+
+                masks = pipeline.highlight_mask(warped)
+                highlights = pipeline.find_highlighted(words, masks, offset=offset)
+                boxes = pipeline.extract_handwriting_boxes(warped, words, offset=offset)
+                yield event("hw_detected", f"{len(boxes)} handwriting region(s)")
+
+                handwriting = []
+                for i, b in enumerate(boxes[:8]):
+                    x, y, w, h = b
+                    pad = 8
+                    x1 = max(0, x - pad); y1 = max(0, y - pad)
+                    x2 = min(warped.shape[1], x + w + pad); y2 = min(warped.shape[0], y + h + pad)
+                    crop = warped[y1:y2, x1:x2]
+                    if crop is None or crop.size == 0:
+                        continue
+                    yield event("ocr", f"page #{page_idx+1} region {i+1}/{min(len(boxes), 8)}")
+                    text = pipeline.ocr_with_cache(
+                        crop, cache_key=(match["digest"], match["page"]) + tuple(b))
+                    entry = {"box": list(b)}
+                    img = pipeline.b64_jpeg(crop, quality=92)
+                    if img: entry["image"] = img
+                    if text: entry["text"] = text
+                    handwriting.append(entry)
+
+                try:
+                    _apply_annotations(
+                        match["digest"], match["page"],
+                        highlights, handwriting, offset,
+                    )
+                except Exception as e:
+                    yield event("warn", f"Annotation step failed: {e}")
+
+                # Build the same debug overlay the single-page analyze emits.
+                overlay = pipeline.make_debug_overlay(
+                    warped, words, boxes, highlights, offset=offset)
+                page_result = {
+                    "matched": match,
+                    "highlights": highlights,
+                    "handwriting": handwriting,
+                    "stats": {"alignment_inliers": inliers,
+                              "handwriting_regions": len(boxes),
+                              "colors_seen": list(masks.keys()),
+                              "canvas_offset": list(offset)},
+                    "debug_overlay": overlay,
+                    "page": match["page"],
+                    "elapsed_sec": round(time.time() - t_scan_start, 2),
+                }
+                LATEST["timestamp"] = time.time()
+                LATEST["result"] = {
+                    "matched": match,
+                    "highlights": highlights,
+                    "handwriting": [{"box": h.get("box"), "text": h.get("text")} for h in handwriting],
+                    "stats": page_result["stats"],
+                }
+                yield event("page_done",
+                            f"page #{page_idx+1} ({match['name']} p{match['page']+1}) annotated",
+                            result=page_result)
+
+            yield event("done", f"Reached safety cap ({max_pages} pages)",
+                        pages_scanned=max_pages)
+        except Exception as e:
+            yield event("error", f"{type(e).__name__}: {e}")
+
+    return Response(generate(), mimetype="text/event-stream",
+                    headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+@app.route("/auto-analyze-stream", methods=["POST"])
+def auto_analyze_stream():
+    """Stream pipeline progress as Server-Sent Events; final event has the
+    full analysis result."""
+    import json as _json
+
+    def sse(obj):
+        return f"data: {_json.dumps(obj)}\n\n"
+
+    def generate():
+        t0 = time.time()
+        last = [t0]
+
+        def event(stage, msg=None, **extra):
+            now = time.time()
+            payload = {"stage": stage, "msg": msg,
+                       "dt": round(now - last[0], 3),
+                       "t": round(now - t0, 3)}
+            payload.update(extra)
+            last[0] = now
+            line = f"[+{payload['dt']:.2f}s] {stage}" + (f": {msg}" if msg else "")
+            print(line, flush=True)
+            return sse(payload)
+
+        try:
+            if not source.list_pdfs():
+                yield event("error", "Library is empty")
+                return
+
+            yield event("capture", "Capturing frame from camera")
+            jpg = capture_full_quality_jpeg()
+            if jpg is None:
+                yield event("error", "Capture failed"); return
+
+            yield event("decode", "Decoding image")
+            arr = np.frombuffer(jpg, np.uint8)
+            snap = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+            if snap is None:
+                yield event("error", "Could not decode snapshot"); return
+
+            # Use the lock + next-page prediction if available
+            now = time.time()
+            locked = (LOCK["digest"] and (now - LOCK["at"]) < LOCK_TTL)
+            t_match = time.time()
+            match = None
+            if locked:
+                predicted = (LOCK["last_page"] + 1) if LOCK["last_page"] is not None else None
+                yield event("identify",
+                            f"Locked on {LOCK['name']}. Trying page {predicted+1 if predicted is not None else '?'} first")
+                match = pipeline.find_best_page(
+                    snap,
+                    source.descriptors_for_digest(LOCK["digest"], predicted_first=predicted),
+                )
+                if match is None:
+                    yield event("identify", "No match in locked paper; falling back to full library")
+            if match is None:
+                if not locked:
+                    yield event("identify", "Matching against full library")
+                match = pipeline.find_best_page(snap, source.all_page_descriptors())
+                if match is not None:
+                    LOCK["digest"] = match["digest"]
+                    LOCK["name"] = match["name"]
+            t_match = time.time() - t_match
+            if match is None:
+                yield event("error", "Couldn't confidently match the page"); return
+
+            # Update lock state with the latest match
+            LOCK["digest"] = match["digest"]
+            LOCK["name"] = match["name"]
+            LOCK["last_page"] = match["page"]
+            LOCK["at"] = time.time()
+
+            yield event("match_found",
+                        f"{match['name']} · page {match['page']+1} (inliers {match['inliers']})",
+                        matched=match, locked=True)
+
+            ref, words = source.load_page(match["digest"], match["page"])
+
+            yield event("align", "Aligning snapshot to PDF page")
+            warped, inliers, offset, H_warp = pipeline.align_to_reference(ref, snap)
+            if warped is None:
+                yield event("error", "Alignment failed"); return
+            yield event("aligned", f"inliers {inliers}")
+
+            yield event("highlights", "Detecting highlights")
+            masks = pipeline.highlight_mask(warped)
+            highlights = pipeline.find_highlighted(words, masks, offset=offset)
+            yield event("highlights_done",
+                        f"{sum(len(v) for v in highlights.values())} highlighted word(s) across {len(highlights)} color(s)")
+
+            yield event("hw_detect", "Detecting handwriting regions")
+            boxes = pipeline.extract_handwriting_boxes(warped, words, offset=offset)
+            yield event("hw_detected", f"{len(boxes)} region(s)")
+
+            handwriting = []
+            max_lines = 10
+            for i, b in enumerate(boxes[:max_lines]):
+                x, y, w, h = b
+                pad = 8
+                x1 = max(0, x - pad); y1 = max(0, y - pad)
+                x2 = min(warped.shape[1], x + w + pad); y2 = min(warped.shape[0], y + h + pad)
+                crop = warped[y1:y2, x1:x2]
+                if crop is None or crop.size == 0:
+                    continue
+                img = pipeline.b64_jpeg(crop, quality=92)
+                cache_key = (match["digest"], match["page"]) + tuple(b)
+                cached = cache_key in pipeline._OCR_CACHE
+                yield event("ocr",
+                            f"region {i+1}/{min(len(boxes), max_lines)} ({w}×{h}px){' [cached]' if cached else ''}")
+                text = pipeline.ocr_with_cache(crop, cache_key=cache_key)
+                entry = {"box": list(b)}
+                if img: entry["image"] = img
+                if text: entry["text"] = text
+                handwriting.append(entry)
+                yield event("ocr_done", f"region {i+1}: {text[:50]!r}")
+
+            yield event("debug_overlay", "Building debug overlay")
+            overlay = pipeline.make_debug_overlay(warped, words, boxes, highlights, offset=offset)
+
+            yield event("annotate", "Writing highlights and notes to annotated PDF")
+            try:
+                _apply_annotations(
+                    match["digest"], match["page"],
+                    highlights, handwriting, offset,
+                )
+            except Exception as e:
+                yield event("warn", f"Annotation step failed: {e}")
+
+            result = {
+                "matched": match,
+                "highlights": highlights,
+                "handwriting": handwriting,
+                "stats": {
+                    "alignment_inliers": inliers,
+                    "colors_seen": list(masks.keys()),
+                    "handwriting_regions": len(boxes),
+                    "canvas_offset": list(offset),
+                    "warped_size": [warped.shape[1], warped.shape[0]],
+                },
+                "debug_overlay": overlay,
+                "elapsed_sec": round(time.time() - t0, 2),
+                "match_sec": round(t_match, 2),
+                "page": match["page"],
+            }
+            LATEST["timestamp"] = time.time()
+            LATEST["result"] = {
+                "matched": match,
+                "highlights": highlights,
+                "handwriting": [{"box": h.get("box"), "text": h.get("text")} for h in handwriting],
+                "stats": result["stats"],
+            }
+            yield event("done", f"total {round(time.time() - t0, 2)}s", result=result)
+        except Exception as e:
+            yield event("error", f"{type(e).__name__}: {e}")
+
+    return Response(generate(), mimetype="text/event-stream",
+                    headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+@app.route("/auto-analyze", methods=["POST"])
+def auto_analyze():
+    """Capture, identify which page across the whole library, then analyze."""
+    if not source.list_pdfs():
+        return jsonify({"error": "library is empty — upload at least one PDF"}), 400
+
+    jpg = capture_full_quality_jpeg()
+    if jpg is None:
+        return jsonify({"error": "capture failed"}), 500
+
+    arr = np.frombuffer(jpg, np.uint8)
+    snap = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+
+    t0 = time.time()
+    match = pipeline.find_best_page(snap, source.all_page_descriptors())
+    t_match = time.time() - t0
+    if match is None:
+        return jsonify({"error": "couldn't confidently match the page to any uploaded paper"}), 200
+
+    ref, words = source.load_page(match["digest"], match["page"])
+    t1 = time.time()
+    result = pipeline.analyze(jpg, ref, words)
+    result["elapsed_sec"] = round(time.time() - t0, 2)
+    result["match_sec"] = round(t_match, 2)
+    result["analyze_sec"] = round(time.time() - t1, 2)
+    result["matched"] = match
+
+    # Apply annotations to cached annotated.pdf so the Mac sync watcher
+    # picks them up automatically.
+    try:
+        _apply_annotations(
+            match["digest"], match["page"],
+            result.get("highlights", {}),
+            result.get("handwriting", []),
+            tuple(result.get("stats", {}).get("canvas_offset", (0, 0))),
+        )
+    except Exception as e:
+        result["annotation_error"] = str(e)
+
+    # Trim heavy fields before stashing for /latest-analysis
+    LATEST["timestamp"] = time.time()
+    LATEST["result"] = {
+        "matched": match,
+        "highlights": result.get("highlights", {}),
+        "handwriting": [{"box": h.get("box"), "text": h.get("text")} for h in result.get("handwriting", [])],
+        "stats": {k: v for k, v in result.get("stats", {}).items() if k != "debug_overlay"},
+    }
+    return jsonify(result)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, threaded=True)
+
+</script>
+
+<script type="text/plain" id="src-sync">
+"""Watch the Pi for new analyses; mirror the annotated PDFs into ~/Desktop/Papers/.
+
+Usage: python3 sync.py
+"""
+from __future__ import annotations
+
+import hashlib
+import shutil
+import time
+from pathlib import Path
+
+import urllib.request
+import json
+
+PI_BASE = "http://reader.local:8000"
+PAPERS_DIR = Path.home() / "Desktop" / "Papers"
+POLL_INTERVAL = 2.0
+
+last_seen_ts = 0.0
+
+
+def http_get(path: str, *, json_resp: bool = False, timeout: float = 15.0):
+    with urllib.request.urlopen(PI_BASE + path, timeout=timeout) as r:
+        data = r.read()
+    return json.loads(data) if json_resp else data
+
+
+def find_local_pdf(name: str) -> Path | None:
+    """Find a PDF in PAPERS_DIR matching 'name' (Imager strips the .pdf extension)."""
+    candidates = list(PAPERS_DIR.glob(f"{name}.pdf"))
+    if candidates:
+        return candidates[0]
+    # Fuzzier match — names sometimes differ in punctuation
+    for p in PAPERS_DIR.glob("*.pdf"):
+        if p.stem.lower() == name.lower():
+            return p
+    for p in PAPERS_DIR.glob("*.pdf"):
+        if name.lower() in p.stem.lower() or p.stem.lower() in name.lower():
+            return p
+    return None
+
+
+def main():
+    global last_seen_ts
+    PAPERS_DIR.mkdir(exist_ok=True)
+    print(f"Watching {PI_BASE}, mirroring to {PAPERS_DIR}")
+    while True:
+        try:
+            info = http_get("/latest-analysis", json_resp=True, timeout=5)
+            ts = float(info.get("timestamp") or 0.0)
+            if ts <= last_seen_ts or not info.get("result"):
+                time.sleep(POLL_INTERVAL); continue
+
+            result = info["result"]
+            match = result.get("matched") or {}
+            digest = match.get("digest")
+            name = match.get("name")
+            if not digest or not name:
+                last_seen_ts = ts  # nothing actionable; don't retry forever
+                time.sleep(POLL_INTERVAL); continue
+
+            target = find_local_pdf(name)
+            if target is None:
+                print(f"  ! no local PDF matching {name!r} in {PAPERS_DIR}")
+                last_seen_ts = ts
+                time.sleep(POLL_INTERVAL); continue
+
+            pdf_bytes = http_get(f"/annotated/{digest}.pdf", timeout=60)
+
+            # Validate: must start with %PDF and end with %%EOF (within the
+            # last 1 KB). Truncated downloads from the Pi crash mid-transfer
+            # would silently corrupt the local file otherwise.
+            if not pdf_bytes.startswith(b"%PDF"):
+                print(f"  ! reject: response doesn't start with %PDF — retry");
+                time.sleep(POLL_INTERVAL); continue
+            tail = pdf_bytes[-1024:]
+            if b"%%EOF" not in tail:
+                print(f"  ! reject: PDF missing %%EOF (truncated, {len(pdf_bytes)} bytes) — retry");
+                time.sleep(POLL_INTERVAL); continue
+
+            digest_local = hashlib.sha1(pdf_bytes).hexdigest()[:8]
+            current = hashlib.sha1(target.read_bytes()).hexdigest()[:8]
+            if digest_local == current:
+                last_seen_ts = ts
+                continue  # no-op
+
+            backup = target.with_suffix(".pdf.orig")
+            if not backup.exists():
+                shutil.copy2(target, backup)
+            tmp = target.with_suffix(".pdf.tmp")
+            tmp.write_bytes(pdf_bytes)
+            tmp.replace(target)
+            last_seen_ts = ts  # only advance on real success
+            print(f"  ✓ updated {target.name}  (matched page {match.get('page', 0)+1})")
+        except urllib.error.URLError as e:
+            print(f"  pi unreachable: {e}")
+        except Exception as e:
+            print(f"  err: {type(e).__name__}: {e}")
+        time.sleep(POLL_INTERVAL)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nbye")
+
+</script>
+
+<script type="text/plain" id="src-html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Note Reader</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #fafafa;
+      --bg-panel: #fff;
+      --bg-elev: #f4f4f6;
+      --fg: #1a1a1f;
+      --fg-muted: #71717a;
+      --border: #e4e4e7;
+      --accent: #0070f3;
+      --accent-fg: #fff;
+      --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+      --radius: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0a0a0f;
+        --bg-panel: #16161c;
+        --bg-elev: #1f1f27;
+        --fg: #fafafa;
+        --fg-muted: #a1a1aa;
+        --border: #2a2a32;
+        --shadow: none;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { background: var(--bg); color: var(--fg); }
+    body {
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      margin: 0;
+      padding: 28px 20px 80px;
+      max-width: 1320px;
+      margin-inline: auto;
+    }
+    h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 4px; }
+    .sub { color: var(--fg-muted); margin: 0 0 24px; font-size: 15px; }
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .panel-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .step-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--accent); color: var(--accent-fg);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600;
+      flex-shrink: 0;
+    }
+    .panel-head h2 { font-size: 15px; font-weight: 600; margin: 0; }
+    .panel-head .hint { color: var(--fg-muted); font-size: 13px; margin-left: auto; }
+
+    /* PDF library list */
+    .pdf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .pdf-card {
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      background: var(--bg-elev);
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .pdf-card:hover { border-color: var(--accent); }
+    .pdf-card.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+    .pdf-card .name { font-weight: 500; font-size: 14px; word-break: break-word; }
+    .pdf-card .meta { color: var(--fg-muted); font-size: 12px; }
+    .upload-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    input[type=file] { font-size: 13px; }
+
+    /* Cameras side-by-side */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .frame {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    .frame-label {
+      position: absolute; top: 8px; left: 8px; z-index: 2;
+      background: rgba(0,0,0,0.6); color: white;
+      padding: 3px 8px; border-radius: 999px;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.02em; text-transform: uppercase;
+    }
+    .frame { display: flex; flex-direction: column; }
+    .frame img { display: block; width: 100%; height: auto; max-height: 42vh; object-fit: contain; }
+    /* Live feed (rotated 90° CW). Height capped at 42vh so the sticky
+       camera panel doesn't push the buttons off-screen. */
+    .live-wrap {
+      position: relative; width: 100%;
+      height: 42vh;
+      overflow: hidden; background: #000;
+    }
+    .live-wrap img {
+      position: absolute; top: 50%; left: 50%;
+      height: 177.78%; width: auto;
+      transform: translate(-50%, -50%) rotate(90deg);
+      transform-origin: center center;
+    }
+
+    /* Action button */
+    button {
+      font: inherit; font-weight: 500;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    button.primary { background: var(--accent); color: var(--accent-fg); }
+    button.primary:hover { filter: brightness(1.08); }
+    button.secondary { background: var(--bg-elev); color: var(--fg); border-color: var(--border); }
+    button.secondary:hover { background: var(--border); }
+    button:disabled { opacity: 0.5; cursor: default; filter: none; }
+    .action-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .status-text { color: var(--fg-muted); font-size: 13px; }
+    .err { color: #d62828; }
+
+    /* Results */
+    .highlight-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      margin: 2px 4px 2px 0;
+      color: #1a1a1f;
+      font-weight: 500;
+    }
+    .pill-yellow { background: #fff59d; }
+    .pill-pink { background: #f8bbd0; }
+    .pill-green { background: #c8e6c9; }
+    .pill-blue { background: #bbdefb; }
+    .pill-orange { background: #ffe0b2; }
+    .pill-red { background: #ffcdd2; }
+
+    .hw-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 14px;
+      margin-top: 4px;
+    }
+    .hw-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .hw-card .img-wrap {
+      background: #fff;
+      padding: 12px;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 80px;
+    }
+    .hw-card img {
+      max-width: 100%;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+    .hw-card .ocr-text {
+      padding: 10px 14px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-panel);
+      min-height: 38px;
+      display: flex; align-items: center;
+    }
+
+    .results-h3 {
+      font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--fg-muted); font-weight: 600;
+      margin: 20px 0 10px;
+    }
+    .results-h3:first-child { margin-top: 0; }
+
+    .debug-img {
+      max-width: 100%;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .status-strip {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 12px;
+      color: var(--fg-muted);
+      margin-bottom: 14px;
+    }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: var(--bg-panel); color: var(--fg);
+      margin-right: 6px; font-size: 12px;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 16px 12px 60px; }
+      .compare { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Note Reader</h1>
+  <p class="sub">Point the camera at a printed page → extract highlights and handwritten notes back into the source PDF.</p>
+
+  <!-- 1. Source -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="step-num">1</span>
+      <h2>Source paper</h2>
+      <span class="hint" id="pdfStatus"></span>
+    </div>
+    <div id="pdfGrid" class="pdf-grid"></div>
+    <div class="upload-row">
+      <input type="file" id="pdfFile" accept="application/pdf">
+      <button class="secondary" id="rescanBtn" type="button">Rescan ~/papers/</button>
+    </div>
+  </div>
+
+  <!-- 2. Camera + reference -->
+  <div class="panel" style="position: sticky; top: 0; z-index: 10; background: var(--bg-panel); max-height: 55vh; overflow: hidden;">
+    <div class="panel-head">
+      <span class="step-num">2</span>
+      <h2>Camera + reference</h2>
+      <span class="hint" id="srcInfo"></span>
+    </div>
+    <div class="compare" style="max-height: 45vh;">
+      <div class="frame">
+        <span class="frame-label">Live</span>
+        <div class="live-wrap"><img src="/stream.mjpg" alt="Live"></div>
+      </div>
+      <div class="frame" id="pdfPanel">
+        <span class="frame-label">PDF page (with edits)</span>
+        <img id="refImg" alt="Annotated reference" style="width: 100%; height: auto; background: #fff; display: none;">
+        <div id="refPlaceholder" style="background: var(--bg-elev); color: var(--fg-muted); padding: 60px 20px; text-align: center; font-size: 14px;">
+          Capture a page to see it here with your highlights &amp; notes.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Action -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="step-num">3</span>
+      <h2>Capture</h2>
+    </div>
+    <div class="action-row">
+      <button class="primary" id="goAuto">Capture &amp; auto-detect page</button>
+      <button class="secondary" id="go">Use selected page</button>
+      <button class="primary" id="autoScanBtn" style="background:#10a37f;">▶ Auto-scan whole paper</button>
+      <button class="secondary" id="autoScanStopBtn" style="display:none;">■ Stop scan</button>
+      <span id="lockBadge" style="display:none; margin-left:auto;">
+        <span class="badge" id="lockText">🔒 locked</span>
+        <button class="secondary" id="unlockBtn" style="padding: 4px 10px; font-size: 12px;">Unlock</button>
+      </span>
+    </div>
+    <div id="progress" class="status-strip" style="margin-top: 14px; display: none;">
+      <span id="progressDot" style="display: inline-block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin-right: 8px; animation: pulse 1.2s infinite;"></span>
+      <span id="progressMsg">Starting…</span>
+    </div>
+    <div id="logBox" class="status-strip" style="margin-top: 10px; display: none; max-height: 220px; overflow-y: auto; line-height: 1.4;"></div>
+    <div id="status" class="status-text" style="margin-top: 10px;"></div>
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.75); }
+    }
+  </style>
+
+  <!-- 4. Results -->
+  <div class="panel" id="results" hidden>
+    <div class="panel-head">
+      <span class="step-num">4</span>
+      <h2>Results</h2>
+      <button class="secondary" id="exportBtn" style="margin-left: auto;">Download annotated PDF</button>
+    </div>
+    <div id="resultsBody"></div>
+  </div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let CURRENT = null;  // {digest, name, pages, page}
+
+async function refreshPdfs() {
+  const r = await fetch('/pdfs');
+  const items = await r.json();
+  const grid = $('pdfGrid');
+  grid.innerHTML = '';
+  if (!items.length) {
+    grid.innerHTML = '<div class="status-text" style="grid-column: 1/-1;">No PDFs uploaded yet — pick one below or rescan.</div>';
+    return;
+  }
+  for (const it of items) {
+    const card = document.createElement('div');
+    card.className = 'pdf-card' + (CURRENT && CURRENT.digest === it.digest ? ' active' : '');
+    card.innerHTML = `<span class="name">${esc(it.name)}</span><span class="meta">${it.pages} page${it.pages>1?'s':''}</span>`;
+    card.onclick = () => selectPdf(it.digest, 0);
+    grid.appendChild(card);
+  }
+  // Auto-select first PDF on first load so the preview panel isn't empty
+  if (!CURRENT && items.length) await selectPdf(items[0].digest, 0);
+}
+
+function refreshAnnotatedPreview() {
+  if (!CURRENT) return;
+  const img = $('refImg');
+  const ph = $('refPlaceholder');
+  img.src = `/annotated-preview/${CURRENT.digest}/${CURRENT.page}.png?t=` + Date.now();
+  img.style.display = 'block';
+  if (ph) ph.style.display = 'none';
+}
+
+function setCurrentFromMatch(matched) {
+  if (!matched) return;
+  CURRENT = CURRENT || {};
+  CURRENT.digest = matched.digest;
+  CURRENT.name = matched.name;
+  CURRENT.page = matched.page;
+  refreshAnnotatedPreview();
+  $('srcInfo').textContent = `${matched.name} · page ${matched.page+1}`;
+}
+async function selectPdf(digest, page) {
+  const r = await fetch('/set-source', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ digest, page })});
+  const data = await r.json();
+  if (data.error) { $('pdfStatus').innerHTML = `<span class="err">${esc(data.error)}</span>`; return; }
+  CURRENT = { digest, name: data.name, pages: data.pages, page };
+  refreshAnnotatedPreview();
+  $('srcInfo').textContent = `${data.name} · page ${page+1}/${data.pages}`;
+  refreshPdfs();
+}
+
+$('pdfFile').onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  $('pdfStatus').textContent = 'Parsing PDF...';
+  const fd = new FormData(); fd.append('pdf', f);
+  const r = await fetch('/upload-pdf', { method: 'POST', body: fd });
+  const data = await r.json();
+  if (data.error) { $('pdfStatus').innerHTML = `<span class="err">${esc(data.error)}</span>`; return; }
+  $('pdfStatus').textContent = `Parsed ${data.pages.length} pages.`;
+  await refreshPdfs();
+  await selectPdf(data.digest, 0);
+};
+
+$('rescanBtn').onclick = async () => {
+  $('pdfStatus').textContent = 'Scanning ~/papers/...';
+  const r = await fetch('/scan', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+  const data = await r.json();
+  $('pdfStatus').textContent = `Added ${(data.added||[]).length}, skipped ${data.skipped||0}.`;
+  await refreshPdfs();
+};
+
+function setProgress(msg, visible = true) {
+  $('progress').style.display = visible ? 'block' : 'none';
+  if (msg) $('progressMsg').textContent = msg;
+}
+
+function logReset() {
+  const box = $('logBox');
+  box.innerHTML = '';
+  box.style.display = 'block';
+}
+function logEvent(p) {
+  const box = $('logBox');
+  const dt = p.dt !== undefined ? `+${p.dt.toFixed(2)}s` : '';
+  const t = p.t !== undefined ? `${p.t.toFixed(2)}s` : '';
+  const stage = p.stage || '?';
+  const msg = p.msg || '';
+  const color = p.stage === 'error' ? 'var(--err, #d62828)' :
+                p.stage === 'warn' ? '#c47f00' :
+                'var(--fg-muted)';
+  const line = document.createElement('div');
+  line.style.color = color;
+  line.innerHTML = `<span style="color: var(--fg-muted); opacity: 0.7;">[${t.padStart(6,' ')} ${dt.padStart(7,' ')}]</span> <strong style="color: var(--fg);">${esc(stage)}</strong>${msg ? ' — ' + esc(msg) : ''}`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function runStream(endpoint) {
+  $('go').disabled = true; $('goAuto').disabled = true;
+  $('status').textContent = '';
+  logReset();
+  setProgress('Capturing frame…', true);
+  try {
+    const r = await fetch(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+    if (!r.ok || !r.body) throw new Error(`HTTP ${r.status}`);
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      let idx;
+      while ((idx = buf.indexOf('\n\n')) >= 0) {
+        const event = buf.slice(0, idx); buf = buf.slice(idx + 2);
+        if (!event.startsWith('data: ')) continue;
+        const payload = JSON.parse(event.slice(6));
+        logEvent(payload);
+        // As soon as a match is known, point the preview at that page
+        if (payload.matched) setCurrentFromMatch(payload.matched);
+        // After annotations are written, fetch the freshly-annotated render
+        if (payload.stage === 'page_done' || payload.stage === 'annotate') {
+          if (CURRENT) refreshAnnotatedPreview();
+        }
+        // Render the per-page debug overlay + highlights as each page finishes
+        if (payload.stage === 'page_done' && payload.result) {
+          renderResults(payload.result);
+        }
+        if (payload.stage === 'done') {
+          setProgress(null, false);
+          if (payload.result) renderResults(payload.result);
+          if (payload.result && payload.result.matched) setCurrentFromMatch(payload.result.matched);
+          if (CURRENT) refreshAnnotatedPreview();
+        } else if (payload.stage === 'error') {
+          setProgress(null, false);
+          $('status').innerHTML = `<span class="err">${esc(payload.msg)}</span>`;
+        } else {
+          setProgress(payload.msg || payload.stage);
+        }
+      }
+    }
+  } catch (e) {
+    setProgress(null, false);
+    $('status').innerHTML = `<span class="err">${esc(e.message)}</span>`;
+  } finally {
+    $('go').disabled = false; $('goAuto').disabled = false;
+  }
+}
+
+async function runAnalyze(endpoint) {
+  $('go').disabled = true; $('goAuto').disabled = true;
+  setProgress('Capturing and analyzing…');
+  try {
+    const r = await fetch(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+    const data = await r.json();
+    setProgress(null, false);
+    renderResults(data);
+    setCurrentFromMatch(data.matched);
+  } catch (e) {
+    setProgress(null, false);
+    $('status').innerHTML = `<span class="err">${esc(e.message)}</span>`;
+  } finally { $('go').disabled = false; $('goAuto').disabled = false; }
+}
+$('go').onclick = () => runAnalyze('/analyze');
+$('goAuto').onclick = () => runStream('/auto-analyze-stream');
+
+$('autoScanBtn').onclick = async () => {
+  $('autoScanBtn').style.display = 'none';
+  $('autoScanStopBtn').style.display = 'inline-block';
+  $('go').disabled = true; $('goAuto').disabled = true;
+  await runStream('/auto-scan-stream');
+  $('autoScanBtn').style.display = 'inline-block';
+  $('autoScanStopBtn').style.display = 'none';
+  $('go').disabled = false; $('goAuto').disabled = false;
+};
+$('autoScanStopBtn').onclick = async () => {
+  await fetch('/scan-stop', { method: 'POST' });
+};
+
+function renderResults(d) {
+  const card = $('results'); card.hidden = false;
+  if (d.error) {
+    $('resultsBody').innerHTML = `<span class="err">${esc(d.error)}</span>`;
+    $('status').textContent = '';
+    return;
+  }
+  window._lastResult = d;
+
+  const bits = [];
+  bits.push(`<span class="badge">${d.elapsed_sec}s</span>`);
+  if (d.matched) bits.push(`<span class="badge">${esc(d.matched.name)} · p${d.matched.page+1}</span>`);
+  bits.push(`<span class="badge">align ${d.stats?.alignment_inliers ?? 0}</span>`);
+  bits.push(`<span class="badge">hw regions ${d.stats?.handwriting_regions ?? 0}</span>`);
+  $('status').innerHTML = bits.join(' ');
+
+  let html = '';
+  if (d.matched) {
+    html += `<p class="status-text" style="margin: 0 0 8px;">Auto-detected: <strong style="color: var(--fg);">${esc(d.matched.name)}</strong>, page ${d.matched.page+1}</p>`;
+  }
+  html += '<h3 class="results-h3">Highlighted</h3>';
+  if (d.highlights && Object.keys(d.highlights).length) {
+    html += '<div>';
+    for (const [color, entries] of Object.entries(d.highlights)) {
+      for (const e of entries) {
+        const txt = (typeof e === 'string') ? e : (e && e.text) || '';
+        html += `<span class="highlight-pill pill-${color}">${esc(txt)}</span>`;
+      }
+    }
+    html += '</div>';
+  } else {
+    html += '<p class="status-text">None detected.</p>';
+  }
+
+  html += `<h3 class="results-h3">Handwritten regions ${d.handwriting?.length ? '· ' + d.handwriting.length : ''}</h3>`;
+  if (d.handwriting && d.handwriting.length) {
+    html += '<div class="hw-grid">';
+    for (const h of d.handwriting) {
+      html += '<div class="hw-card">';
+      if (h.image) html += `<div class="img-wrap"><img src="${h.image}"></div>`;
+      html += `<div class="ocr-text">${h.text ? esc(h.text) : '<span class="status-text">(no OCR text)</span>'}</div>`;
+      html += '</div>';
+    }
+    html += '</div>';
+  } else {
+    html += '<p class="status-text">None detected.</p>';
+  }
+
+  if (d.debug_overlay) {
+    html += '<h3 class="results-h3">Debug overlay</h3>';
+    html += '<p class="status-text" style="margin: -4px 0 8px;">Green = page bounds · orange = source words · colored outlines = detected highlights · red = handwriting regions</p>';
+    html += `<img class="debug-img" src="${d.debug_overlay}">`;
+  }
+
+  $('resultsBody').innerHTML = html;
+}
+
+$('exportBtn').onclick = async () => {
+  const d = window._lastResult; if (!d) return;
+  const btn = $('exportBtn');
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Generating...';
+  try {
+    const body = {
+      digest: d.matched?.digest || (CURRENT && CURRENT.digest),
+      page: d.matched?.page ?? d.page ?? 0,
+      highlights: d.highlights || {},
+      handwriting: d.handwriting || [],
+      offset: d.stats?.canvas_offset || [0, 0],
+    };
+    const r = await fetch('/export-annotated', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    if (!r.ok) throw new Error('export failed: ' + r.status);
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = (d.matched?.name || 'annotated') + '-p' + ((body.page ?? 0)+1) + '.pdf';
+    a.click(); URL.revokeObjectURL(url);
+    btn.textContent = orig;
+  } catch (e) { btn.textContent = 'Error: ' + e.message; }
+  finally { btn.disabled = false; }
+};
+
+refreshPdfs();
+
+async function refreshLockStatus() {
+  try {
+    const r = await fetch('/lock-status');
+    const s = await r.json();
+    const badge = $('lockBadge'); const text = $('lockText');
+    if (s.active) {
+      badge.style.display = 'inline';
+      text.textContent = `🔒 ${s.name} · next: page ${(s.last_page ?? -1) + 2}`;
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch (e) {}
+}
+$('unlockBtn').onclick = async () => {
+  await fetch('/unlock-paper', { method: 'POST' });
+  refreshLockStatus();
+};
+refreshLockStatus();
+setInterval(refreshLockStatus, 5000);
+<\/script>
+</body>
+</html>
+
+</script>
+
 </body>
 
 <script src="../strapdown.js"></script>
+
+<script>
+const SOURCE_FILES = [
+  {name: "motor.ino", desc: "ESP32 firmware (Arduino C++)", lang: "cpp", srcId: "src-motor"},
+  {name: "source.py", desc: "PDF ingest + cached descriptors", lang: "python", srcId: "src-source"},
+  {name: "pipeline.py", desc: "Image processing + handwriting OCR", lang: "python", srcId: "src-pipeline"},
+  {name: "app.py", desc: "Flask server (capture, analyze, orchestrate)", lang: "python", srcId: "src-app"},
+  {name: "sync.py", desc: "Mac sync watcher", lang: "python", srcId: "src-sync"},
+  {name: "templates/index.html", desc: "Browser UI (HTML + CSS + vanilla JS)", lang: "html", srcId: "src-html"}
+];
+
+function escapeHtml(s) {
+  return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+function buildSourceTabs() {
+  const mount = document.getElementById('source-tabs-mount');
+  if (!mount) return;
+  const buttons = SOURCE_FILES.map((f, i) =>
+    `<button class="tab-button${i===0?' active':''}" data-target="pane-${i}">${f.name}</button>`
+  ).join('');
+  const panes = SOURCE_FILES.map((f, i) => {
+    const el = document.getElementById(f.srcId);
+    let code = el ? el.textContent : '(missing)';
+    code = code.replace(/<\\\/script>/g, '<' + '/script>');  // restore escaped closers
+    return `<div class="tab-pane${i===0?' active':''}" id="pane-${i}">
+      <div class="tab-meta">
+        <span>${f.desc}</span>
+        <button class="copy-btn" data-copy="${f.srcId}">Copy</button>
+      </div>
+      <pre><code class="language-${f.lang}">${escapeHtml(code)}</code></pre>
+    </div>`;
+  }).join('');
+  mount.innerHTML = `<div class="code-tabs"><div class="tab-buttons">${buttons}</div>${panes}</div>`;
+
+  mount.querySelectorAll('.tab-button').forEach(b => {
+    b.onclick = () => {
+      mount.querySelectorAll('.tab-button').forEach(x => x.classList.remove('active'));
+      mount.querySelectorAll('.tab-pane').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      document.getElementById(b.dataset.target).classList.add('active');
+    };
+  });
+  mount.querySelectorAll('.copy-btn').forEach(b => {
+    b.onclick = async () => {
+      const el = document.getElementById(b.dataset.copy);
+      let txt = el ? el.textContent : '';
+      txt = txt.replace(/<\\\/script>/g, '<' + '/script>');
+      try { await navigator.clipboard.writeText(txt); b.textContent = 'Copied!'; }
+      catch (e) { b.textContent = 'Copy failed'; }
+      setTimeout(() => b.textContent = 'Copy', 1500);
+    };
+  });
+  if (window.hljs) {
+    document.querySelectorAll('#source-tabs-mount pre code').forEach(el => hljs.highlightElement(el));
+  }
+}
+
+// Strapdown rewrites the body asynchronously after load — wait until our mount exists.
+function waitForMount(attempt) {
+  if (document.getElementById('source-tabs-mount')) { buildSourceTabs(); return; }
+  if ((attempt || 0) > 50) return;
+  setTimeout(() => waitForMount((attempt || 0) + 1), 100);
+}
+window.addEventListener('load', () => waitForMount(0));
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
 
 </html>

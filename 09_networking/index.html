@@ -3,9 +3,266 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PS70: Intro to Digital Fabrication</title>
+  <title>PS70 // Week 9: Networking</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="../style.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    video {
+      max-width: 100%;
+      width: 700px;
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-cyan);
+      display: block;
+      margin: 0 auto;
+    }
+    .figure {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .figure img {
+      max-width: 480px;
+      width: 100%;
+      display: block;
+      margin: 0 auto;
+    }
+    .figure.wide img {
+      max-width: 700px;
+    }
+    .figure-row {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 30px 0;
+    }
+    .figure-row .figure {
+      flex: 1;
+      min-width: 280px;
+      max-width: 420px;
+      margin: 0;
+    }
+    .stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      color: var(--text-tertiary);
+      margin: 30px 0;
+      padding: 24px;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-orange);
+    }
+    .stack .node {
+      padding: 8px 16px;
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      background-color: var(--bg-primary);
+    }
+    .stack .node.alt {
+      border-color: var(--accent-orange);
+      color: var(--accent-orange);
+    }
+    .stack .node.out {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+    .stack .arrow {
+      color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .specs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .spec {
+      padding: 16px;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-cyan);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+    }
+    .spec .k {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+    .spec .v {
+      color: var(--accent-green);
+      font-size: 14px;
+    }
+    .codecaption {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 24px 0 8px;
+    }
+    .tabs {
+      margin: 30px 0;
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-cyan);
+      background-color: var(--bg-secondary);
+    }
+    .tab-buttons {
+      display: flex;
+      background-color: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--border-color);
+      border-top: 2px solid transparent;
+      color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .tab-btn:last-child {
+      border-right: none;
+    }
+    .tab-btn:hover {
+      color: var(--text-tertiary);
+      background-color: var(--bg-tertiary);
+    }
+    .tab-btn.active {
+      color: var(--accent-cyan);
+      border-top-color: var(--accent-cyan);
+      background-color: var(--bg-secondary);
+    }
+    .tab-btn[data-tab="receiver"].active {
+      color: var(--accent-orange);
+      border-top-color: var(--accent-orange);
+    }
+    .tab-btn[data-tab="main"].active {
+      color: var(--accent-green);
+      border-top-color: var(--accent-green);
+    }
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+    .tab-panel pre {
+      margin: 0;
+      border: none;
+      max-height: 600px;
+      overflow: auto;
+      padding-left: 24px;
+    }
+    .tab-panel pre::before {
+      display: none;
+    }
+    /* Override global code/pre color — drop the bright green */
+    code, pre, pre code {
+      color: var(--text-primary);
+    }
+
+    /* Strip the cyan border boxes from inline <code> (the ones inside paragraphs)
+       and the redundant ones on the inner <code> of <pre>. Keep only a subtle
+       accent strip on the <pre> itself. */
+    :not(pre) > code {
+      border: none;
+      background-color: var(--code-bg);
+      color: var(--accent-cyan);
+      padding: 1px 6px;
+      border-radius: 2px;
+    }
+    pre {
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-cyan);
+    }
+    pre code {
+      border: none;
+      padding: 0;
+      background: transparent;
+    }
+    /* Hide the "&gt;" prompt prefix on <pre> blocks — it overlaps highlighted code */
+    pre::before {
+      display: none;
+    }
+    pre {
+      padding-left: 20px;
+    }
+
+    /* ---------- Syntax-highlighting theme (uses site palette) ---------- */
+    .hljs {
+      background: transparent;
+      color: var(--text-primary);
+    }
+    /* Comments — muted gray, italic */
+    .hljs-comment,
+    .hljs-quote {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    /* Keywords (if/while/int/void/def/import/return) — orange */
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-literal,
+    .hljs-doctag,
+    .hljs-section {
+      color: var(--accent-orange);
+    }
+    /* Preprocessor (#include) and decorators — orange */
+    .hljs-meta,
+    .hljs-meta-keyword {
+      color: var(--accent-orange);
+    }
+    /* Strings — soft green */
+    .hljs-string,
+    .hljs-regexp,
+    .hljs-addition,
+    .hljs-attribute,
+    .hljs-meta-string,
+    .hljs-template-variable {
+      color: var(--accent-green);
+    }
+    /* Numbers, built-ins, types, classes — cyan */
+    .hljs-number,
+    .hljs-built_in,
+    .hljs-symbol,
+    .hljs-type,
+    .hljs-class,
+    .hljs-formula,
+    .hljs-link,
+    .hljs-bullet {
+      color: var(--accent-cyan);
+    }
+    /* Function names, titles — bright white/black so they stand out */
+    .hljs-name,
+    .hljs-title,
+    .hljs-title.class_,
+    .hljs-title.function_ {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    /* Params, variables — default text color (no extra coloring) */
+    .hljs-params,
+    .hljs-variable {
+      color: var(--text-primary);
+    }
+    .hljs-deletion { color: #d97070; }
+    .hljs-emphasis { font-style: italic; }
+    .hljs-strong   { font-weight: 600; }
+  </style>
 </head>
 <body>
 
@@ -19,28 +276,970 @@
   </div>
 </nav>
 
-<xmp style="display:none;">
 <div class="textcontainer">
 
-<h3>Week 9: Networking</h3>
+  <h1>Week 9 // Networking</h1>
+  <p style="color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 1px; text-transform: uppercase;">
+    Long-range, sound-triggered audio recorder over LoRa
+  </p>
 
-<p class="margin">   </p>
+  <p>
+    For the networking assignment I wanted to skip WiFi entirely and use <strong>LoRa radio</strong>. The idea: a battery-friendly node that sleeps until it hears a loud sound, records ~10 seconds of audio, and beams the recording over the air to a base station that writes it out as a <code>.wav</code> on my laptop.
+  </p>
 
-Add your content here using markdown syntax.
+  <p>
+    Two ESP32 boards (Heltec WiFi LoRa 32 V3, with an SX1262 radio onboard), one sound sensor, one I2S microphone, one microSD card, and a Python script.
+  </p>
 
-<p class="margin">   </p>
+  <div class="figure">
+    <img src="enclosure.png" alt="Sender packaged in a black enclosure with the LoRa antenna sticking out of the top.">
+    <div class="caption">The finished sender — a black enclosure with the LoRa antenna poking through the top. Sits on a desk, sleeps until something nearby gets loud.</div>
+  </div>
 
-<!-- You can add images like this: -->
-<!-- ![image description](./image.png) -->
+  <div class="specs">
+    <div class="spec"><div class="k">MCU</div><div class="v">ESP32-S3 (Heltec V3)</div></div>
+    <div class="spec"><div class="k">Radio</div><div class="v">SX1262 — FSK 915 MHz</div></div>
+    <div class="spec"><div class="k">Bitrate</div><div class="v">300 kbps @ +22 dBm</div></div>
+    <div class="spec"><div class="k">Audio</div><div class="v">16 kHz mono, IMA ADPCM</div></div>
+    <div class="spec"><div class="k">Input</div><div class="v">HW-484 sound sensor + I2S mic</div></div>
+    <div class="spec"><div class="k">Output</div><div class="v">.wav on host via USB serial</div></div>
+  </div>
 
-<!-- You can add links like this: -->
-<!-- [Link text](https://example.com) -->
+  <h2>The System</h2>
 
+  <div class="stack">
+    <div class="node">Sound event</div>
+    <div class="arrow">↓</div>
+    <div class="node">HW-484 wakes ESP32 from deep sleep</div>
+    <div class="arrow">↓</div>
+    <div class="node">I2S microphone @ 16 kHz</div>
+    <div class="arrow">↓</div>
+    <div class="node alt">IMA ADPCM compression (~4:1) → SD card</div>
+    <div class="arrow">↓</div>
+    <div class="node alt">SX1262 FSK transmit @ 300 kbps, +22 dBm</div>
+    <div class="arrow">↓ (over the air, 915 MHz)</div>
+    <div class="node alt">SX1262 FSK receiver</div>
+    <div class="arrow">↓</div>
+    <div class="node">USB serial @ 921600 baud (hex)</div>
+    <div class="arrow">↓</div>
+    <div class="node out">main.py → hq_audio.wav</div>
+  </div>
 
-</xmp>
+  <div class="figure">
+    <img src="breadboard-overhead.png" alt="Overhead shot of the sender prototype on a breadboard with the LoRa antenna attached.">
+    <div class="caption">Sender on the bench before going into the enclosure — Heltec V3 in the middle, HW-484 sensor up top, mic, SD card adapter, and jumper wires.</div>
+  </div>
+
+  <h2>Demo</h2>
+
+  <div class="figure wide">
+    <video controls autoplay loop muted playsinline>
+      <source src="demo.mp4" type="video/mp4">
+    </video>
+    <div class="caption">Live capture: sound triggers the sender, packets stream into the receiver, WAV drops on the laptop.</div>
+  </div>
+
+  <h2>Sender</h2>
+
+  <p>
+    The sender (<a href="./sender.ino"><code>sender.ino</code></a>) spends almost all of its life in <strong>deep sleep</strong>. The HW-484's digital output is wired to a wakeup-capable GPIO, configured as an <code>ext0</code> wakeup source on a HIGH edge. When the room gets loud enough to cross the HW-484's threshold (set by a potentiometer on the module), the ESP32 boots.
+  </p>
+
+  <p>On wake it:</p>
+  <ol>
+    <li>Opens the I2S microphone at 16 kHz, 32-bit samples, mono.</li>
+    <li>Records 10 s into a buffer, shifting the 32-bit word back down to 16-bit.</li>
+    <li>Compresses every two samples into one byte using <strong>IMA ADPCM</strong> (4 bits per sample, ~4:1 compression). This matters because raw 16 kHz / 16-bit PCM is 32 KB/s — way too much to push over LoRa in a reasonable time.</li>
+    <li>Writes the compressed audio to <code>/hq&lt;n&gt;.adpcm</code> on the SD card.</li>
+    <li>Initializes the SX1262 in <strong>FSK mode</strong> at 300 kbps with +22 dBm output, then streams the file out in 250-byte packets, sandwiched between a <code>START|filename|size</code> header (sent 10× for robustness) and an <code>END</code> footer (sent 5×).</li>
+    <li>Goes back to deep sleep.</li>
+  </ol>
+
+  <h3>Deep sleep and the wake-up path</h3>
+
+  <p>
+    The whole project only makes sense if the node can sit untouched for days on a small battery. Active recording + transmit pulls 100s of mA, but the ESP32-S3's deep-sleep current is in the tens of µA — so the trick is to stay asleep almost always and only wake when something interesting happens.
+  </p>
+
+  <p>
+    I use ESP-IDF's <code>ext0</code> wakeup source, which arms a single RTC-capable GPIO as a level-sensitive trigger. The HW-484 sensor's digital output is wired to <code>GPIO 2</code> (an RTC GPIO on the S3, required for <code>ext0</code>) and the threshold pot on the module is tuned so quiet rooms read LOW and loud noises pull it HIGH. When that line goes HIGH, the chip boots from reset.
+  </p>
+
+  <blockquote>
+    Tuning the HW-484's threshold pot turned out to be a project of its own — I had to turn the little screw on top <strong>more than 30 full rotations</strong> before the digital output started doing anything useful. The pot is a multi-turn trimmer, so each rotation only nudges the threshold a tiny amount, and from a fresh module it's nowhere near the audio range you actually care about. If you ever pick one of these up and it seems "dead," it's probably just miles away from its trip point.
+  </blockquote>
+
+  <div class="figure">
+    <img src="hw484-closeup.png" alt="Close-up of the HW-484 sound sensor module showing the microphone and the blue trim-pot.">
+    <div class="caption">The HW-484 module — the blue cube is the trim-pot I had to back off by more than 30 turns before the digital output would trigger on anything quieter than a hand clap an inch away.</div>
+  </div>
+
+  <div class="codecaption">// sender.ino — enter deep sleep, armed on sound</div>
+<pre><code>void enterDeepSleep() {
+  Serial.flush();
+  delay(100);
+  esp_sleep_enable_ext0_wakeup((gpio_num_t)HW484_DO, 1);  // wake on HIGH
+  esp_deep_sleep_start();
+}</code></pre>
+
+  <p>
+    A few details from the code worth pointing out:
+  </p>
+  <ul>
+    <li><strong>RTC-capable GPIO.</strong> <code>ext0</code> only works on RTC-capable GPIOs, so the HW-484's digital output is wired to <code>GPIO 2</code>.</li>
+    <li><strong><code>INPUT_PULLDOWN</code> on the wakeup pin.</strong> The pin is configured with an internal pulldown so the line has a defined state when the sensor isn't actively driving it.</li>
+    <li><strong><code>RTC_DATA_ATTR</code> for state across cycles.</strong> <code>bootCount</code> lives in RTC slow memory and survives deep sleep, so the firmware can tell on each boot whether it's a fresh power-on or a sound-triggered wakeup.</li>
+    <li><strong>Cooldown.</strong> After transmitting, the firmware waits <code>COOLDOWN_SEC</code> (10 s) before going back to sleep, so the next wakeup isn't fired by the tail end of the same noise event.</li>
+  </ul>
+
+  <p>
+    On first boot (power-on rather than sound-triggered) the firmware opens a 5-second window where pressing the user button forces a manual recording. After that window expires it drops into the same deep-sleep state.
+  </p>
+
+  <h3>SD card adapter and SPI wiring</h3>
+
+  <p>
+    The SD card lives on a standard microSD breakout, wired to the ESP32-S3's <strong>second SPI peripheral, HSPI</strong>. The firmware instantiates a dedicated <code>SPIClass(HSPI)</code> rather than using the default <code>SPI</code> object, and passes that custom bus into <code>SD.begin()</code>.
+  </p>
+
+  <p>The four signal pins and the bus:</p>
+
+  <div class="specs">
+    <div class="spec"><div class="k">SD CS</div><div class="v">GPIO 26</div></div>
+    <div class="spec"><div class="k">SD MOSI</div><div class="v">GPIO 46</div></div>
+    <div class="spec"><div class="k">SD MISO</div><div class="v">GPIO 33</div></div>
+    <div class="spec"><div class="k">SD SCK</div><div class="v">GPIO 41</div></div>
+    <div class="spec"><div class="k">Bus</div><div class="v">HSPI (SPI2)</div></div>
+    <div class="spec"><div class="k">VCC / GND</div><div class="v">3.3 V from board</div></div>
+  </div>
+
+  <div class="codecaption">// sender.ino — bring up SD on its own SPI bus</div>
+<pre><code>SPIClass sdSPI(HSPI);
+
+// in setup():
+sdSPI.begin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
+if (!SD.begin(SD_CS_PIN, sdSPI)) Serial.println("SD Failed");</code></pre>
+
+  <p>
+    Using a separate <code>SPIClass</code> instance keeps the SD bus independent of any other SPI device on the board — useful because the Heltec V3 already has the SX1262 radio wired to its own dedicated SPI pins, and mixing the two on one bus would force a lower shared clock rate.
+  </p>
+
+  <h3>Writing audio to the card</h3>
+
+  <div class="figure">
+    <img src="breadboard-closeup.png" alt="Close-up of the breadboard showing the white I2S microphone puck and the HW-484 sound sensor module wired up to the Heltec V3 below.">
+    <div class="caption">Closer look at the breadboard — the black round thing under the white round button is the I2S mic that does the actual recording, with the HW-484 sensor (top) handling wake-up and the Heltec V3 below.</div>
+  </div>
+
+  <p>
+    The recording loop is a small pipeline: I2S DMA fills a 1024-sample buffer at the hardware level, my code drains that buffer, converts 32-bit samples to 16-bit, runs them through the ADPCM encoder, and writes the resulting nibbles to the file. The file is opened once at the start of the clip and closed at the end — I deliberately don't <code>flush()</code> mid-recording because each flush burns several ms and would stall I2S.
+  </p>
+
+  <p>
+    Filenames are chosen by scanning for the next unused index (<code>/hq1.adpcm</code>, <code>/hq2.adpcm</code>, …) so a clip is never overwritten. The first four bytes of every file are the ADPCM "starter state" — the initial predicted value and the initial step index — so a decoder doesn't need to start from zero.
+  </p>
+
+  <div class="codecaption">// sender.ino — record + write loop</div>
+<pre><code>// Pick an unused filename
+while (SD.exists("/hq" + String(fileIndex) + ".adpcm")) fileIndex++;
+sprintf(filename, "/hq%d.adpcm", fileIndex);
+
+file = SD.open(filename, FILE_WRITE);
+
+// 4-byte header: starter predicted sample + step index + padding
+file.write((uint8_t*)&amp;adpcmPredicted, 2);
+file.write((uint8_t*)&amp;adpcmIndex, 1);
+file.write((uint8_t)0);
+
+uint8_t adpcmBuffer[BUFFER_SAMPLES / 2];   // 4-bit samples, 2 per byte
+
+while (samplesSaved &lt; totalSamplesNeeded) {
+  i2s_read(I2S_NUM_0, (void*)i2sBuffer, sizeof(i2sBuffer), &amp;bytesRead, portMAX_DELAY);
+  int samplesCount = bytesRead / 4;
+
+  // 32-bit I2S word -&gt; 16-bit PCM
+  for (int i = 0; i &lt; samplesCount; i++)
+    outBuffer[i] = (int16_t)(i2sBuffer[i] &gt;&gt; 14);
+
+  // Pack two 4-bit ADPCM samples per byte
+  int adpcmCount = 0;
+  for (int i = 0; i &lt; samplesCount; i += 2) {
+    uint8_t n1 = encodeIMA(outBuffer[i]);
+    uint8_t n2 = (i + 1 &lt; samplesCount) ? encodeIMA(outBuffer[i + 1]) : 0;
+    adpcmBuffer[adpcmCount++] = (n2 &lt;&lt; 4) | n1;
+  }
+
+  file.write(adpcmBuffer, adpcmCount);
+  samplesSaved += samplesCount;
+}
+
+file.close();</code></pre>
+
+  <p>
+    A few details from the code:
+  </p>
+  <ul>
+    <li><strong>Globals for the working buffers.</strong> <code>i2sBuffer</code> (<code>int32_t[1024]</code>, 4 KB) and <code>outBuffer</code> (<code>int16_t[1024]</code>, 2 KB) are declared at file scope rather than on the stack inside <code>recordAudio()</code>. The block comment in the code calls this out as a way to avoid stack overflow.</li>
+    <li><strong>One open, one close.</strong> The file is opened once at the top of <code>recordAudio()</code> and closed at the bottom — no per-chunk <code>flush()</code> calls — so the SD library can batch writes internally.</li>
+    <li><strong>Two ADPCM samples packed per byte.</strong> <code>BUFFER_SAMPLES / 2</code> output bytes are produced for each I2S buffer, with the second nibble shifted into the high half: <code>(n2 &lt;&lt; 4) | n1</code>.</li>
+    <li><strong>Sample count tracked explicitly.</strong> The loop runs until <code>samplesSaved &gt;= SAMPLE_RATE * RECORD_TIME</code> rather than until a wall-clock timer expires, so the resulting file always contains the right number of audio samples even if a single I2S read returns short.</li>
+  </ul>
+
+  <h3>Why FSK and not LoRa-CSS?</h3>
+
+  <p>
+    The SX1262 is famous for chirp-spread-spectrum (CSS) modulation — what people usually mean by "LoRa." That mode tops out around ~20 kbps, and at that rate a ten-second voice clip takes minutes. The same chip also supports plain FSK, which trades range for speed: 300 kbps is enough to push the compressed clip across the room (and through a wall) in seconds.
+  </p>
+
+  <div class="codecaption">// sender.ino — radio init and transmit loop</div>
+<pre><code>// FSK init — fast, not long-range
+if (radio.beginFSK(915.0, 300.0, 150.0, 467.0) == RADIOLIB_ERR_NONE) {
+  radio.setOutputPower(22);                         // +22 dBm
+  radio.setDataShaping(RADIOLIB_SHAPING_0_5);
+  radio.setSyncWord((uint8_t[]){0xA5, 0xA5}, 2);
+}
+
+// header (10x) -> 250-byte chunks -> END (5x)
+String header = "START|" + String(filename) + "|" + String(file.size());
+for (int i = 0; i &lt; 10; i++) { radio.transmit(header); delay(200); }
+
+uint8_t txBuffer[250];
+while (file.available()) {
+  int n = file.read(txBuffer, 250);
+  radio.transmit(txBuffer, n);
+  delay(6);
+}
+
+for (int i = 0; i &lt; 5; i++) { radio.transmit("END"); delay(50); }
+</code></pre>
+
+  <h3>Custom ADPCM encoder</h3>
+
+  <p>
+    I didn't want to pull in a heavy library, so the sender contains a small IMA ADPCM encoder using the standard step table and index update rules. The encoder state (<code>adpcmPredicted</code>, <code>adpcmIndex</code>) is written into a 4-byte header at the top of each <code>.adpcm</code> file so a desktop decoder can reconstruct it.
+  </p>
+
+  <div class="codecaption">// sender.ino — one sample → 4 bits</div>
+<pre><code>uint8_t encodeIMA(int16_t sample) {
+  int16_t step = stepTable[adpcmIndex];
+  int16_t diff = sample - adpcmPredicted;
+  int16_t value = 0;
+  if (diff &lt; 0) { value = 8; diff = -diff; }
+
+  int16_t vpdiff = (step &gt;&gt; 3);
+  if (diff &gt;= step) { value |= 4; diff -= step; vpdiff += step; }
+  step &gt;&gt;= 1;
+  if (diff &gt;= step) { value |= 2; diff -= step; vpdiff += step; }
+  step &gt;&gt;= 1;
+  if (diff &gt;= step) { value |= 1; vpdiff += step; }
+
+  adpcmPredicted += (value &amp; 8) ? -vpdiff : vpdiff;
+  if (adpcmPredicted &gt;  32767) adpcmPredicted =  32767;
+  if (adpcmPredicted &lt; -32768) adpcmPredicted = -32768;
+
+  adpcmIndex += indexTable[value];
+  if (adpcmIndex &lt; 0)  adpcmIndex = 0;
+  if (adpcmIndex &gt; 88) adpcmIndex = 88;
+  return value &amp; 0x0F;
+}</code></pre>
+
+  <h2>Receiver</h2>
+
+  <p>
+    The receiver (<a href="./receiver.ino"><code>receiver.ino</code></a>) does very little on its own. It sits in <code>radio.receive(...)</code>, parses each packet, and re-emits the bytes over USB serial at <strong>921 600 baud</strong> — the highest stable rate I could get out of the ESP32-S3 USB-CDC — as ASCII hex:
+  </p>
+
+  <div class="codecaption">// serial output, host side</div>
+<pre><code class="language-plaintext nohighlight">### START_OF_FILE ###
+MSG: Signal - RSSI: -42.50 dBm, SNR: 9.25 dB
+DATA:a3f1009c...
+DATA:...
+### END_OF_FILE ###</code></pre>
+
+  <p>
+    It also prints a one-line throughput / RSSI status every second so I can watch the signal drift as I walk around with the sender.
+  </p>
+
+  <p>
+    I made it deliberately dumb: no buffering, no reassembly, no decoding. All of that lives on the laptop, so I can iterate on the file format without re-flashing the ESP32.
+  </p>
+
+  <h2>Host</h2>
+
+  <p>
+    <a href="./main.py"><code>main.py</code></a> opens the serial port, looks for the <code>### START_OF_FILE ###</code> / <code>### END_OF_FILE ###</code> markers, hex-decodes the <code>DATA:</code> lines in between, and writes the result as a WAV at 16 kHz, mono, 8-bit.
+  </p>
+
+  <div class="codecaption">// main.py</div>
+<pre><code class="language-python">import serial, binascii, wave
+
+OUTPUT_FILE = "hq_audio.wav"
+BAUD_RATE   = 921600
+SAMPLE_RATE = 16000
+
+def save_audio(filename, data_bytes):
+    with wave.open(filename, 'wb') as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(1)
+        wav_file.setframerate(SAMPLE_RATE)
+        wav_file.writeframes(data_bytes)
+
+def main():
+    ser = serial.Serial("/dev/cu.usbserial-0001", BAUD_RATE, timeout=1)
+    audio_data = bytearray()
+    recording  = False
+
+    while True:
+        line = ser.readline().decode('utf-8', errors='ignore').strip()
+        if not line:
+            continue
+
+        if "### START_OF_FILE ###" in line:
+            audio_data = bytearray()
+            recording  = True
+        elif "### END_OF_FILE ###" in line:
+            save_audio(OUTPUT_FILE, audio_data)
+            recording = False
+        elif line.startswith("DATA:") and recording:
+            chunk = binascii.unhexlify(line.split(":")[1])
+            audio_data.extend(chunk)</code></pre>
+
+  <h2>What Worked, What Didn't</h2>
+
+  <h4>Worked</h4>
+  <ul>
+    <li>Sound-triggered deep-sleep is rock solid. Boot from a HIGH edge on the HW-484 takes under 300 ms — fast enough to catch the tail of whatever sound woke it up.</li>
+    <li>FSK at 300 kbps is the right call here. A 10 s ADPCM clip is ~20 KB; that crosses the link in a few seconds.</li>
+    <li>Sending the START header 10× and the END footer 5× is crude but effective — a single dropped header packet doesn't kill the whole transfer.</li>
+  </ul>
+
+  <h4>Didn't, at first</h4>
+  <ul>
+    <li>I originally used <strong>LoRa-CSS modulation</strong> (the actual chirp-spread-spectrum mode the SX1262 is named for). It was incredibly slow — pushing a ten-second clip took far longer than was practical. Switching the same chip into FSK mode was the unlock; that's why <code>radio.beginFSK(...)</code> is what you see in the firmware today rather than <code>radio.begin(...)</code>.</li>
+    <li>Initial recordings sounded like a chainsaw. The cause turned out to be a <strong>dual-channel bug</strong> in the I2S configuration: the encoder was being fed stereo-interleaved data while treating it as mono, which mangled the ADPCM predictor and produced the buzzing sound. The fix is the <code>I2S_CHANNEL_FMT_ONLY_LEFT</code> line in the current <code>i2s_config</code> — it forces the driver to deliver a single mono channel.</li>
+  </ul>
+
+  <h2>What I'd Do Next</h2>
+  <ul>
+    <li>Add a CRC or rolling sequence number per packet so the laptop can detect (and request retransmits of) dropped chunks. Right now a lost data packet shows up as an audible click.</li>
+    <li>Decode ADPCM on the laptop instead of writing the raw nibbles into a WAV header that claims to be 8-bit PCM. The audio is recognizable today but distorted; a proper decoder would clean it up.</li>
+    <li>Move to two-way comms so the receiver can ACK and the sender can tighten the inter-packet <code>delay()</code>.</li>
+  </ul>
+
+  <h2>Files</h2>
+  <table>
+    <thead>
+      <tr><th>File</th><th>Role</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="./sender.ino">sender.ino</a></td><td>Heltec V3 firmware — sound wakeup, I2S record, ADPCM, FSK transmit</td></tr>
+      <tr><td><a href="./receiver.ino">receiver.ino</a></td><td>Heltec V3 firmware — FSK receive, hex over USB</td></tr>
+      <tr><td><a href="./main.py">main.py</a></td><td>Host script — serial → WAV</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Full Source</h2>
+  <p>All three files inline. Click a tab to switch.</p>
+
+  <div class="tabs">
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-tab="sender">sender.ino</button>
+      <button class="tab-btn" data-tab="receiver">receiver.ino</button>
+      <button class="tab-btn" data-tab="main">main.py</button>
+    </div>
+    <div class="tab-panel active" data-panel="sender"><pre><code id="code-sender"></code></pre></div>
+    <div class="tab-panel" data-panel="receiver"><pre><code id="code-receiver"></code></pre></div>
+    <div class="tab-panel" data-panel="main"><pre><code id="code-main"></code></pre></div>
+  </div>
+
+</div>
+
+<script type="text/plain" id="src-sender">
+#include <Arduino.h>
+#include <SD.h>
+#include <SPI.h>
+#include <driver/i2s.h>
+#include <FS.h>
+#include <RadioLib.h>
+#include <math.h>
+
+// --- PINS ---
+#define SD_CS_PIN     26
+#define SD_MOSI_PIN   46
+#define SD_MISO_PIN   33
+#define SD_SCK_PIN    41
+#define BUTTON_PIN    42
+#define LED_PIN       35
+#define I2S_BCK_PIN   4
+#define I2S_WS_PIN    5
+#define I2S_SD_PIN    6
+
+// --- LORA PINS ---
+#define LORA_NSS      8
+#define LORA_DIO1     14
+#define LORA_RST      12
+#define LORA_BUSY     13
+
+// --- HW-484 SOUND SENSOR ---
+#define HW484_AO      7   // Analog output
+#define HW484_DO      2   // Digital output (RTC GPIO for wakeup)
+
+// --- SETTINGS ---
+#define RECORD_TIME   10      // Seconds
+#define SAMPLE_RATE   16000   // 16kHz (Phone quality - faster transmission)
+#define GAIN_BOOST    1       // No gain boost
+#define BUFFER_SAMPLES 1024
+#define COOLDOWN_SEC  10      // Seconds to wait after sending before listening again
+
+SPIClass sdSPI(HSPI);
+SX1262 radio = new Module(LORA_NSS, LORA_DIO1, LORA_RST, LORA_BUSY);
+
+File file;
+int fileIndex = 1;
+char filename[32];
+unsigned long lastHW484Log = 0;
+RTC_DATA_ATTR int bootCount = 0;
+
+// Global buffers to avoid stack overflow
+int32_t i2sBuffer[BUFFER_SAMPLES];
+int16_t outBuffer[BUFFER_SAMPLES];
+
+// IMA ADPCM state
+int16_t adpcmPredicted = 0;
+int8_t adpcmIndex = 0;
+
+// IMA ADPCM step table
+const int16_t stepTable[89] = {
+  7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
+  50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130, 143, 157, 173, 190, 209, 230,
+  253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658, 724, 796, 876, 963,
+  1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327,
+  3660, 4026, 4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487,
+  12635, 13899, 15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
+};
+
+const int8_t indexTable[16] = {
+  -1, -1, -1, -1, 2, 4, 6, 8,
+  -1, -1, -1, -1, 2, 4, 6, 8
+};
+
+const i2s_config_t i2s_config = {
+  .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
+  .sample_rate = SAMPLE_RATE,
+  .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
+  .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,  // Mono
+  .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+  .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+  .dma_buf_count = 8,
+  .dma_buf_len = 1024,
+  .use_apll = false,
+  .tx_desc_auto_clear = false,
+  .fixed_mclk = 0
+};
+
+const i2s_pin_config_t pin_config = {
+  .bck_io_num = I2S_BCK_PIN,
+  .ws_io_num = I2S_WS_PIN,
+  .data_out_num = I2S_PIN_NO_CHANGE,
+  .data_in_num = I2S_SD_PIN
+};
+
+uint8_t encodeIMA(int16_t sample) {
+  int16_t step = stepTable[adpcmIndex];
+  int16_t diff = sample - adpcmPredicted;
+  int16_t value = 0;
+
+  if (diff < 0) {
+    value = 8;
+    diff = -diff;
+  }
+
+  int16_t vpdiff = (step >> 3);
+  if (diff >= step) {
+    value |= 4;
+    diff -= step;
+    vpdiff += step;
+  }
+  step >>= 1;
+  if (diff >= step) {
+    value |= 2;
+    diff -= step;
+    vpdiff += step;
+  }
+  step >>= 1;
+  if (diff >= step) {
+    value |= 1;
+    vpdiff += step;
+  }
+
+  if (value & 8)
+    adpcmPredicted -= vpdiff;
+  else
+    adpcmPredicted += vpdiff;
+
+  if (adpcmPredicted > 32767) adpcmPredicted = 32767;
+  if (adpcmPredicted < -32768) adpcmPredicted = -32768;
+
+  adpcmIndex += indexTable[value];
+  if (adpcmIndex < 0) adpcmIndex = 0;
+  if (adpcmIndex > 88) adpcmIndex = 88;
+
+  return value & 0x0F;
+}
+
+void enterDeepSleep() {
+  Serial.println("\n=== Entering Deep Sleep ===");
+  Serial.println("Will wake on loud sound (HW-484 HIGH)");
+  Serial.flush();
+  delay(100);
+
+  // Configure wakeup on sound sensor HIGH
+  esp_sleep_enable_ext0_wakeup((gpio_num_t)HW484_DO, 1);
+
+  // Enter deep sleep
+  esp_deep_sleep_start();
+}
+
+void printWakeupReason() {
+  esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
+
+  Serial.print("Boot #");
+  Serial.print(bootCount);
+  Serial.print(" - Wakeup: ");
+
+  switch(wakeup_reason) {
+    case ESP_SLEEP_WAKEUP_EXT0:
+      Serial.println("SOUND DETECTED!");
+      break;
+    case ESP_SLEEP_WAKEUP_UNDEFINED:
+    default:
+      Serial.println("Power-on or reset");
+      break;
+  }
+}
+
+void logHW484() {
+  // Take multiple readings and average for stability
+  long sum = 0;
+  for(int i = 0; i < 10; i++) {
+    sum += analogRead(HW484_AO);
+    delayMicroseconds(100);
+  }
+  int analogValue = sum / 10;
+
+  // Convert to approximate dB (relative scale, not calibrated SPL)
+  float dB = 20.0 * log10(analogValue + 1) - 20.0;
+  if (dB < 0) dB = 0;
+
+  int digitalValue = digitalRead(HW484_DO);
+
+  Serial.print("HW-484 -> ");
+  Serial.print(dB, 1);
+  Serial.print(" dB | Digital: ");
+  Serial.println(digitalValue == HIGH ? "HIGH (SOUND!)" : "LOW (quiet)");
+}
+
+void recordAudio() {
+  while (SD.exists("/hq" + String(fileIndex) + ".adpcm")) fileIndex++;
+  sprintf(filename, "/hq%d.adpcm", fileIndex);
+
+  Serial.print("Recording to: "); Serial.println(filename);
+  logHW484();
+
+  file = SD.open(filename, FILE_WRITE);
+  if (!file) { Serial.println("SD Error"); return; }
+
+  // Reset IMA ADPCM state
+  adpcmPredicted = 0;
+  adpcmIndex = 0;
+
+  // Write IMA ADPCM header (predicted value and index)
+  file.write((uint8_t*)&adpcmPredicted, 2);
+  file.write((uint8_t*)&adpcmIndex, 1);
+  file.write((uint8_t)0);  // Padding
+
+  digitalWrite(LED_PIN, HIGH);
+  unsigned long startT = millis();
+
+  unsigned long totalSamplesNeeded = SAMPLE_RATE * RECORD_TIME;
+  unsigned long samplesSaved = 0;
+  size_t bytesRead;
+  uint8_t adpcmBuffer[BUFFER_SAMPLES / 2];
+
+  while (samplesSaved < totalSamplesNeeded) {
+    i2s_read(I2S_NUM_0, (void *)i2sBuffer, sizeof(i2sBuffer), &bytesRead, portMAX_DELAY);
+
+    int samplesCount = bytesRead / 4;
+
+    // Convert to 16-bit
+    for (int i = 0; i < samplesCount; i++) {
+      outBuffer[i] = (int16_t)(i2sBuffer[i] >> 14);
+    }
+
+    // Compress to IMA ADPCM (two 4-bit samples per byte)
+    int adpcmCount = 0;
+    for (int i = 0; i < samplesCount; i += 2) {
+      uint8_t nibble1 = encodeIMA(outBuffer[i]);
+      uint8_t nibble2 = (i + 1 < samplesCount) ? encodeIMA(outBuffer[i + 1]) : 0;
+      adpcmBuffer[adpcmCount++] = (nibble2 << 4) | nibble1;
+    }
+
+    file.write(adpcmBuffer, adpcmCount);
+    samplesSaved += samplesCount;
+  }
+
+  file.close();
+  digitalWrite(LED_PIN, LOW);
+
+  unsigned long duration = millis() - startT;
+  Serial.print("Done. Actual Duration: "); Serial.print(duration); Serial.println(" ms");
+  Serial.print("Compressed size: "); Serial.print(file.size()); Serial.println(" bytes");
+  logHW484();
+}
+
+void sendFile() {
+  Serial.println("Starting LoRa...");
+  file = SD.open(filename, FILE_READ);
+  if (!file) return;
+
+  // Header - Send multiple times to ensure receiver catches it
+  String header = "START|" + String(filename) + "|" + String(file.size());
+  Serial.println("Sending START header...");
+  for(int i = 0; i < 10; i++) {
+    radio.transmit(header);
+    delay(200);
+  }
+  Serial.println("Starting data transmission...");
+  delay(500);
+
+  // Data
+  uint8_t txBuffer[250];
+  int packetCount = 0;
+  while (file.available()) {
+    int bytesRead = file.read(txBuffer, 250);
+    radio.transmit(txBuffer, bytesRead);
+    delay(6);
+
+    packetCount++;
+    if (packetCount % 100 == 0) {
+      Serial.print("Sent "); Serial.print(packetCount); Serial.println(" packets");
+    }
+  }
+
+  file.close();
+
+  // Robust Footer
+  Serial.println("Data sent. Sending Footer...");
+  delay(500);
+  for(int i = 0; i < 5; i++) {
+    radio.transmit("END");
+    delay(50);
+  }
+  Serial.println("Sent!");
+}
+
+void setup() {
+  Serial.begin(115200);
+  delay(500);
+
+  bootCount++;
+  printWakeupReason();
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(HW484_DO, INPUT_PULLDOWN);
+
+  // Configure ADC for 3.3V full scale
+  analogSetAttenuation(ADC_11db);
+
+  // FSK Mode (Maximum speed!)
+  if (radio.beginFSK(915.0, 300.0, 150.0, 467.0) == RADIOLIB_ERR_NONE) {
+    radio.setOutputPower(22);  // +22 dBm
+    radio.setDataShaping(RADIOLIB_SHAPING_0_5);
+    radio.setSyncWord((uint8_t[]){0xA5, 0xA5}, 2);
+    Serial.println("FSK 300kbps OK @ +22dBm");
+  } else {
+    Serial.println("Radio Failed");
+  }
+
+  sdSPI.begin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
+  if (!SD.begin(SD_CS_PIN, sdSPI)) Serial.println("SD Failed");
+
+  i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
+  i2s_set_pin(I2S_NUM_0, &pin_config);
+  i2s_zero_dma_buffer(I2S_NUM_0);
+
+  // Check wakeup reason
+  esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
+
+  if (wakeup_reason == ESP_SLEEP_WAKEUP_EXT0) {
+    Serial.println("Sound triggered! Recording...");
+    logHW484();
+    recordAudio();
+    sendFile();
+
+    Serial.print("Cooldown ");
+    Serial.print(COOLDOWN_SEC);
+    Serial.println("s...");
+    delay(COOLDOWN_SEC * 1000);
+
+    enterDeepSleep();
+  } else {
+    Serial.println("Ready. Press button for manual record, or will sleep in 5s...");
+    logHW484();
+  }
+}
+
+void loop() {
+  static unsigned long bootTime = millis();
+
+  // Check for button press (5 second window after boot)
+  if (millis() - bootTime < 5000) {
+    if (digitalRead(BUTTON_PIN) == LOW) {
+      delay(200);  // Debounce
+      Serial.println("\n=== BUTTON TRIGGERED ===");
+      recordAudio();
+      sendFile();
+
+      Serial.print("Cooldown ");
+      Serial.print(COOLDOWN_SEC);
+      Serial.println("s...");
+      delay(COOLDOWN_SEC * 1000);
+
+      while (digitalRead(BUTTON_PIN) == LOW);  // Wait for release
+
+      enterDeepSleep();
+    }
+    delay(100);
+  } else {
+    // 5 seconds passed, no button press - enter sleep
+    enterDeepSleep();
+  }
+}
+</script>
+
+<script type="text/plain" id="src-receiver">
+#include <Arduino.h>
+#include <RadioLib.h>
+
+// --- HELTEC V3 PINS ---
+#define LORA_NSS      8
+#define LORA_DIO1     14
+#define LORA_RST      12
+#define LORA_BUSY     13
+
+SX1262 radio = new Module(LORA_NSS, LORA_DIO1, LORA_RST, LORA_BUSY);
+
+bool receivingFile = false;
+unsigned long startTime = 0;
+unsigned long totalBytes = 0;
+unsigned long lastStatTime = 0;
+unsigned long lastPacketTime = 0;
+float lastRSSI = 0;
+float lastSNR = 0;
+
+void setup() {
+  // CRITICAL CHANGE: Increased Baud Rate to 921600
+  Serial.begin(921600);
+  delay(1000);
+  Serial.println("Receiver Initializing (High Speed Serial)...");
+
+  int state = radio.beginFSK(915.0, 300.0, 150.0, 467.0);
+  if (state == RADIOLIB_ERR_NONE) {
+    radio.setDataShaping(RADIOLIB_SHAPING_0_5);
+    radio.setSyncWord((uint8_t[]){0xA5, 0xA5}, 2);
+    Serial.println("Radio Initialized (FSK 300kbps)!");
+  } else {
+    Serial.print("Failed: "); Serial.println(state);
+    while(1);
+  }
+}
+
+void loop() {
+  uint8_t buffer[255];
+
+  // Blocking receive
+  int state = radio.receive(buffer, 255);
+
+  if (state == RADIOLIB_ERR_NONE) {
+    lastPacketTime = millis();
+    int len = radio.getPacketLength();
+    lastRSSI = radio.getRSSI();
+    lastSNR = radio.getSNR();
+
+    // Quick header check
+    if (len > 0 && buffer[0] == 'S' && buffer[1] == 'T' && buffer[2] == 'A') {
+       String str = "";
+       for(int i = 0; i < min(len, 20); i++) str += (char)buffer[i];
+       if(str.startsWith("START")) {
+         receivingFile = true;
+         startTime = millis();
+         totalBytes = 0;
+         Serial.println("### START_OF_FILE ###");
+         Serial.print("MSG: Signal - RSSI: ");
+         Serial.print(lastRSSI);
+         Serial.print(" dBm, SNR: ");
+         Serial.print(lastSNR);
+         Serial.println(" dB");
+       }
+    }
+    else if (len > 0 && buffer[0] == 'E' && buffer[1] == 'N' && buffer[2] == 'D') {
+       finishFile();
+    }
+    else {
+      if (receivingFile) {
+        // FAST PRINTING: Raw Hex
+        Serial.print("DATA:");
+        for(int i = 0; i < len; i++) {
+          if(buffer[i] < 16) Serial.print("0");
+          Serial.print(buffer[i], HEX);
+        }
+        Serial.println();
+
+        totalBytes += len;
+        // Don't print stats too often, it slows us down
+        if (millis() - lastStatTime > 1000) {
+           lastStatTime = millis();
+           Serial.print("MSG: Bytes: ");
+           Serial.print(totalBytes);
+           Serial.print(" | RSSI: ");
+           Serial.print(lastRSSI);
+           Serial.print(" dBm | SNR: ");
+           Serial.print(lastSNR);
+           Serial.println(" dB");
+        }
+      }
+    }
+  }
+
+  // Safety Timeout (2.5 seconds)
+  if (receivingFile && (millis() - lastPacketTime > 2500)) {
+    Serial.println("MSG: Timeout. Finishing.");
+    finishFile();
+  }
+}
+
+void finishFile() {
+  if (!receivingFile) return;
+  receivingFile = false;
+  unsigned long duration = millis() - startTime;
+  Serial.println("### END_OF_FILE ###");
+  Serial.print("MSG: Done! Total Bytes: "); Serial.println(totalBytes);
+  Serial.print("MSG: Final RSSI: "); Serial.print(lastRSSI);
+  Serial.print(" dBm | SNR: "); Serial.print(lastSNR); Serial.println(" dB");
+}
+</script>
+
+<script type="text/plain" id="src-main">
+import serial
+import time
+import binascii
+import wave
+
+# --- CONFIGURATION ---
+OUTPUT_FILE = "hq_audio.wav"
+BAUD_RATE = 921600   # Matches ESP32 receiver
+SAMPLE_RATE = 16000
+
+def save_audio(filename, data_bytes):
+    print(f"Saving {len(data_bytes)} bytes...")
+    with wave.open(filename, 'wb') as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(1)
+        wav_file.setframerate(SAMPLE_RATE)
+        wav_file.writeframes(data_bytes)
+    print(f"\n[SUCCESS] Saved to {filename}")
+
+def main():
+    print("--- LoRa HQ Audio Receiver (High Speed) ---")
+    port = "/dev/cu.usbserial-0001"
+
+    try:
+        ser = serial.Serial(port, BAUD_RATE, timeout=1)
+        print(f"Connected to {port} at {BAUD_RATE} baud.")
+    except Exception as e:
+        print(f"Error: {e}")
+        return
+
+    audio_data = bytearray()
+    recording = False
+    start_time = 0
+
+    while True:
+        try:
+            line = ser.readline().decode('utf-8', errors='ignore').strip()
+
+            if line:
+                if "### START_OF_FILE ###" in line:
+                    print("\n[STARTED] Receiving...")
+                    audio_data = bytearray()
+                    recording = True
+                    start_time = time.time()
+
+                elif "### END_OF_FILE ###" in line:
+                    duration = time.time() - start_time
+                    print(f"\n[DONE] Time: {duration:.2f}s")
+                    save_audio(OUTPUT_FILE, audio_data)
+                    recording = False
+
+                elif line.startswith("MSG:"):
+                    print(line)
+
+                elif line.startswith("DATA:") and recording:
+                    raw_hex = line.split(":")[1]
+                    try:
+                        chunk = binascii.unhexlify(raw_hex)
+                        audio_data.extend(chunk)
+                    except:
+                        pass
+
+        except KeyboardInterrupt:
+            break
+
+if __name__ == "__main__":
+    main()
+</script>
+
+<script>
+  // Populate the three code panels from the inline source blocks
+  var langMap = { sender: 'cpp', receiver: 'cpp', main: 'python' };
+  ['sender', 'receiver', 'main'].forEach(function(name) {
+    var src  = document.getElementById('src-' + name).textContent;
+    var dest = document.getElementById('code-' + name);
+    dest.textContent = src.replace(/^\n+|\n+$/g, '');
+    dest.classList.add('language-' + langMap[name]);
+  });
+
+  // Hint the inline cpp snippets so highlight.js doesn't have to guess
+  document.querySelectorAll('pre code').forEach(function(block) {
+    if (block.classList.length === 0) {
+      block.classList.add('language-cpp');
+    }
+  });
+
+  // Syntax highlight every code block on the page
+  if (window.hljs) {
+    document.querySelectorAll('pre code').forEach(function(block) {
+      if (!block.classList.contains('nohighlight')) {
+        hljs.highlightElement(block);
+      }
+    });
+  }
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(function(b) {
+        b.classList.toggle('active', b === btn);
+      });
+      document.querySelectorAll('.tab-panel').forEach(function(p) {
+        p.classList.toggle('active', p.dataset.panel === tab);
+      });
+    });
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
-<script src="../strapdown.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
-
 </html>
