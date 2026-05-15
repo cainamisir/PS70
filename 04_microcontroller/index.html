@@ -3,9 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PS70: Intro to Digital Fabrication</title>
+  <title>PS70 // Week 4: Microcontroller</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="../style.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .spec {
+      padding: 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-cyan);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+    }
+    .spec .k { color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 10px; margin-bottom: 4px; }
+    .spec .v { color: var(--accent-green); }
+    .schematic {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-orange);
+      padding: 20px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--text-primary);
+      white-space: pre;
+      overflow-x: auto;
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+  </style>
 </head>
 <body>
 
@@ -19,28 +52,205 @@
   </div>
 </nav>
 
-<xmp style="display:none;">
 <div class="textcontainer">
 
-<h3>Week 4: Microcontroller Programming</h3>
+  <h3>Week 4: Microcontroller Programming</h3>
 
-<p class="margin">   </p>
+  <p>
+    For this week I built a WiFi weather station on the <strong>Heltec WiFi LoRa 32 V3</strong>
+    (ESP32-S3). It pulls live weather from <a href="https://wttr.in" target="_blank">wttr.in</a>
+    and syncs the local time via NTP, showing both on the built-in OLED display. Pressing the
+    onboard PRG button toggles between <strong>Cambridge, MA</strong> and
+    <strong>Bucharest, Romania</strong> — the two cities I spend most of my time in.
+  </p>
 
-Add your content here using markdown syntax.
+  <div class="spec-grid">
+    <div class="spec"><div class="k">Board</div><div class="v">Heltec WiFi LoRa 32 V3</div></div>
+    <div class="spec"><div class="k">Chip</div><div class="v">ESP32-S3</div></div>
+    <div class="spec"><div class="k">Display</div><div class="v">128×64 SSD1306 OLED</div></div>
+    <div class="spec"><div class="k">Weather API</div><div class="v">wttr.in (no key needed)</div></div>
+    <div class="spec"><div class="k">Time source</div><div class="v">NTP pool.ntp.org</div></div>
+    <div class="spec"><div class="k">City toggle</div><div class="v">GPIO 0 PRG button</div></div>
+  </div>
 
-<p class="margin">   </p>
+  <h4 style="margin-top:2rem;">How it works</h4>
 
-<!-- You can add images like this: -->
-<!-- ![image description](./image.png) -->
+  <p>
+    On boot the board connects to WiFi, syncs UTC from <code>pool.ntp.org</code>, applies the
+    correct POSIX timezone, then fetches weather from wttr.in as JSON. ArduinoJson extracts
+    temperature (°C and °F), humidity, and the weather description. The display redraws every
+    second so the clock stays live; weather refreshes automatically every 5 minutes. The built-in
+    LED pulses white during each fetch. No <code>delay()</code> in <code>loop()</code> — all
+    timing via <code>millis()</code>.
+  </p>
 
-<!-- You can add links like this: -->
-<!-- [Link text](https://example.com) -->
+  <p>
+    The PRG button (GPIO 0, active LOW, 300 ms debounced) cycles the city, swaps the POSIX
+    timezone string so the clock immediately reflects local time there, and fires a fresh weather
+    fetch.
+  </p>
 
+  <h4 style="margin-top:2rem;">Circuit schematic</h4>
 
-</xmp>
+  <p>No external components — everything is built into the Heltec V3.</p>
+
+  <div class="schematic">Heltec WiFi LoRa 32 V3
+┌─────────────────────────────────────┐
+│                                     │
+│  [SSD1306 OLED 128×64]              │
+│   SDA ── GPIO 17  (internal)        │
+│   SCL ── GPIO 18  (internal)        │
+│   RST ── GPIO 21  (internal)        │
+│                                     │
+│  [PRG Button] ── GPIO 0 ── GND      │
+│   built-in, active LOW              │
+│                                     │
+│  [White LED] ── GPIO 35             │
+│   built-in, PWM via LEDC            │
+│                                     │
+│  [WiFi antenna] built-in            │
+│                                     │
+└─────────────────────────────────────┘
+
+No external wiring required.</div>
+
+  <h4 style="margin-top:2rem;">Display layout</h4>
+
+  <div class="schematic">┌────────────────────────┐
+│ Cambridge  MA          │  city name
+│ 18C  /  64F            │  temperature
+│ Partly Cloudy          │  condition (max 21 chars)
+│ Humidity: 62%          │  humidity
+│ 14:32                  │  local time — large font, ticks every second
+└────────────────────────┘
+
+PRG button →
+
+┌────────────────────────┐
+│ Bucharest  RO          │
+│ 22C  /  71F            │
+│ Sunny                  │
+│ Humidity: 48%          │
+│ 21:32                  │  UTC+3 in summer
+└────────────────────────┘</div>
+
+  <h4 style="margin-top:2rem;">Code</h4>
+
+  <p>Libraries: <strong>Adafruit SSD1306</strong>, <strong>Adafruit GFX</strong>, <strong>ArduinoJson v7</strong> — all via Library Manager. Fill in WiFi credentials before flashing.</p>
+
+  <pre><code class="language-cpp">// Week 4 — Weather + Time Display — Heltec WiFi LoRa 32 V3
+
+#include &lt;WiFi.h&gt;
+#include &lt;HTTPClient.h&gt;
+#include &lt;WiFiClientSecure.h&gt;
+#include &lt;ArduinoJson.h&gt;
+#include &lt;Wire.h&gt;
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_SSD1306.h&gt;
+#include &lt;time.h&gt;
+
+const char* WIFI_SSID = "YOUR_SSID";
+const char* WIFI_PASS = "YOUR_PASSWORD";
+
+struct City { const char* label; const char* wttr; const char* tz; };
+const City CITIES[] = {
+    { "Cambridge  MA", "Cambridge+MA+USA",  "EST5EDT,M3.2.0,M11.1.0"       },
+    { "Bucharest  RO", "Bucharest+Romania", "EET-2EEDT,M3.5.0/3,M10.5.0/4" }
+};
+int cityIdx = 0;
+
+static const uint8_t BUTTON_PIN = 0;
+static const uint8_t LED_PIN    = 35;
+Adafruit_SSD1306 display(128, 64, &amp;Wire, 21);
+
+struct Weather { int tempC, tempF, humidity; char desc[22]; bool valid; };
+Weather wx = {};
+unsigned long lastFetch = 0, lastDraw = 0, lastBtnTime = 0;
+bool prevBtn = HIGH;
+
+void applyTimezone() { setenv("TZ", CITIES[cityIdx].tz, 1); tzset(); }
+
+void fetchWeather() {
+    if (WiFi.status() != WL_CONNECTED) return;
+    ledcWrite(LED_PIN, 80);
+    WiFiClientSecure client; client.setInsecure();
+    HTTPClient http;
+    http.begin(client, String("https://wttr.in/") + CITIES[cityIdx].wttr + "?format=j1");
+    http.setTimeout(10000);
+    if (http.GET() == 200) {
+        JsonDocument doc;
+        if (!deserializeJson(doc, http.getStream())) {
+            auto cc = doc["current_condition"][0];
+            wx.tempC    = cc["temp_C"].as&lt;int&gt;();
+            wx.tempF    = cc["temp_F"].as&lt;int&gt;();
+            wx.humidity = cc["humidity"].as&lt;int&gt;();
+            const char* d = cc["weatherDesc"][0]["value"];
+            strncpy(wx.desc, d ? d : "---", 21); wx.desc[21] = '\0';
+            wx.valid = true;
+        }
+    }
+    http.end(); ledcWrite(LED_PIN, 0); lastFetch = millis();
+}
+
+void drawDisplay() {
+    struct tm t; bool gotTime = getLocalTime(&amp;t, 100);
+    display.clearDisplay(); display.setTextColor(SSD1306_WHITE);
+    display.setTextSize(1);
+    display.setCursor(0,  0); display.print(CITIES[cityIdx].label);
+    display.setCursor(0, 12);
+    if (wx.valid) { display.print(wx.tempC); display.print("C  /  ");
+                    display.print(wx.tempF);  display.print("F"); }
+    else            display.print("Fetching...");
+    display.setCursor(0, 24); if (wx.valid) display.print(wx.desc);
+    display.setCursor(0, 36);
+    if (wx.valid) { display.print("Humidity: "); display.print(wx.humidity); display.print("%"); }
+    display.setTextSize(2); display.setCursor(0, 48);
+    if (gotTime) { char buf[6]; strftime(buf, sizeof(buf), "%H:%M", &amp;t); display.print(buf); }
+    else           display.print("--:--");
+    display.display();
+}
+
+void setup() {
+    Serial.begin(115200);
+    Wire.begin(17, 18);
+    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+    display.clearDisplay(); display.setTextColor(SSD1306_WHITE);
+    display.setTextSize(1); display.setCursor(0, 0);
+    display.println("Connecting WiFi..."); display.display();
+    ledcAttach(LED_PIN, 5000, 8);
+    pinMode(BUTTON_PIN, INPUT_PULLUP);
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    unsigned long t0 = millis();
+    while (WiFi.status() != WL_CONNECTED &amp;&amp; millis() - t0 &lt; 15000) delay(300);
+    if (WiFi.status() == WL_CONNECTED) {
+        configTime(0, 0, "pool.ntp.org"); applyTimezone();
+        display.clearDisplay(); display.setCursor(0, 0);
+        display.println("Getting weather..."); display.display();
+        fetchWeather();
+    } else {
+        display.clearDisplay(); display.setCursor(0, 0);
+        display.println("WiFi failed."); display.display();
+    }
+}
+
+void loop() {
+    unsigned long now = millis();
+    bool btn = digitalRead(BUTTON_PIN);
+    if (btn == LOW &amp;&amp; prevBtn == HIGH &amp;&amp; (now - lastBtnTime &gt; 300)) {
+        lastBtnTime = now;
+        cityIdx = (cityIdx + 1) % 2;
+        applyTimezone(); wx.valid = false;
+        drawDisplay(); fetchWeather();
+    }
+    prevBtn = btn;
+    if (now - lastFetch &gt;= 300000UL) fetchWeather();
+    if (now - lastDraw  &gt;= 1000UL) { lastDraw = now; drawDisplay(); }
+}</code></pre>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>hljs.highlightAll();</script>
+
 </body>
-
-<script src="../strapdown.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
-
 </html>

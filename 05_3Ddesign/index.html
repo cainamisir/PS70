@@ -3,9 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PS70: Intro to Digital Fabrication</title>
+  <title>PS70 // Week 5: 3D Design</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="../style.css" rel="stylesheet">
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+  <style>
+    .video-wrap {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      max-width: 100%;
+      background: #000;
+      border-radius: 6px;
+      margin: 18px 0;
+    }
+    .video-wrap iframe,
+    .video-wrap video {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+    .img-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .img-row img {
+      flex: 1;
+      min-width: 240px;
+      max-width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
 
@@ -19,63 +52,80 @@
   </div>
 </nav>
 
-<xmp style="display:none;">
 <div class="textcontainer">
 
-<h3>Week 5: 3D Design</h3>
+  <h3>Week 5: 3D Design</h3>
 
-<p class="margin">   </p>
+  <h4>The 3D Print</h4>
 
-# The 3D print
+  <p>
+    For this week I tried to print something "in place". I was thinking about a way to communicate
+    in an analog fashion for my MIT class, and I needed a ball with holes on 3 axes. It's quite
+    hard to make via subtractive methods, so I thought — why not 3D print it. The fun part was I
+    also needed it encased so it couldn't get out, so I made a box with holes smaller than the ball.
+    Anyway, it's a fun trinket.
+  </p>
 
-For this week I tried to print something "in place"
+  <div class="video-wrap">
+    <iframe
+      src="https://a360.co/3OXUhNh"
+      allowfullscreen webkitallowfullscreen mozallowfullscreen>
+    </iframe>
+  </div>
+  <p style="text-align:center; font-size:13px; color:var(--text-muted);">
+    Interactive CAD — rotate &amp; zoom &nbsp;|&nbsp; <a href="boxwithball.stl" download>Download STL</a>
+  </p>
 
-So I was thinking about a way to communicate in an analog fashion for my MIT class, and I needed this ball with holes on 3 axes for it.
+  HOWEVER, i forgot to take a picture and the ball box is somewhere in my common room...
 
-It's quite hard to make via substractive methods, so I thought why not. Then the fun part was I also needed this encased in a way it shouldn't be able to get out - so I made a box with holes smaller than the ball.
+  <p>Some other prints I did in the class:</p>
 
-Anyway it's a fun trinket.
+  <p>This is my final project enclosure — a 3D printed compute stack that clips onto the scanner body:</p>
 
-<iframe
-    src="https://a360.co/3OXUhNh"
-    width="100%"
-    height="500"
-    frameborder="0"
-    allowfullscreen>
-</iframe>
+  <div style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; margin: 24px 0;">
+    <div style="flex:1; min-width:280px;">
+      <iframe src="https://a360.co/4dqZOVq" allowfullscreen webkitallowfullscreen mozallowfullscreen
+        style="width:100%; height:480px; border:1px solid var(--border-color); border-radius:6px; display:block;">
+      </iframe>
+    </div>
+    <div style="flex:1; min-width:280px;">
+      <img src="./IMG_9484.jpg" alt="Final project 3D printed enclosure" style="width:100%; border:1px solid var(--border-color); border-radius:6px;">
+    </div>
+  </div>
 
-<a download href='boxwithball.stl'>Download my STL file</a>
+  <p>And this camera mount for a hard hat:</p>
 
-<p class="margin">   </p>
+  <div class="img-row">
+    <img src="./IMG_8975.jpg" alt="3D printed hard hat camera mount">
+  </div>
 
-<!-- You can add images like this: -->
-<!-- ![image description](./image.png) -->
+  <hr style="border-color: var(--border-color); margin: 40px 0;">
 
-<!-- You can add links like this: -->
-<!-- [Link text](https://example.com) -->
+  <h4>The 3D Scan</h4>
 
-# The 3d scan
+  <p>
+    I scanned the debugging duck using the scanner in the lab but couldn't find the file.
+    So I went a bit crazy and tried state-of-the-art 3D scene reconstruction — I found an open
+    source model, rented a GPU, and did a full reconstruction of my controller from a phone video.
+  </p>
 
-I scanned the debugging duck using the scanner in the lab but I can't find the file somehow.
-So I decided to go a bit crazy and see the state of the art research in 3D scene reconstruction - and I got some open source model which is state of the art, rented a GPU and did the reconstruction of my controller.
+  <p>
+    No LiDAR or depth sensor — just a phone video — so any cheap device can do this. It works
+    better for large scenes than small objects, but still impressive. There's quite a bit of noise
+    so you'd want to clean it up in Blender.
+  </p>
 
-It ended up being pretty cool, and I think it's quite annoying to run all these things, but I've done it before for some older stuff like Duster. This stuff was more straightforward, and the results seem better. There's a lot of noise, so I guess you would have to clean it up in Blender. 
+  <model-viewer
+    src="controller.glb"
+    alt="3D scan of my controller"
+    auto-rotate
+    camera-controls
+    style="width:100%; height:500px; background:#1a1a2e; border-radius:8px; margin:1rem 0; display:block;">
+  </model-viewer>
 
-It's also super cool that this is just like from a video from my phone and doesn't use the lidar or anything like that, so a super cheap device can do this stuff. If you like, it's much better for the reconstruction of large scenes, like my room for example, but for objects it seems like it's struggling a bit.
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 
-</xmp>
-
-<model-viewer
-  src="controller.glb"
-  alt="3D scan of my controller"
-  auto-rotate
-  camera-controls
-  style="width: 100%; height: 500px; background: #1a1a2e; border-radius: 8px; margin: 1rem 0;"
-></model-viewer>
-
-<script src="../strapdown.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-
+</body>
 </html>
