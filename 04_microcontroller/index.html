@@ -92,7 +92,10 @@
 
   <h4 style="margin-top:2rem;">Circuit schematic</h4>
 
-  <p>No external components — everything is built into the Heltec V3.</p>
+  <p>One external LED on GPIO 6. Everything else is built into the Heltec V3.</p>
+
+  <img src="./weather-schematic.svg" alt="Weather station schematic"
+       style="width:100%; max-width:700px; display:block; margin:20px 0; border:1px solid var(--border-color); border-radius:8px;">
 
   <div class="schematic">Heltec WiFi LoRa 32 V3
 ┌─────────────────────────────────────┐
@@ -139,6 +142,7 @@ PRG button →
   <p>Libraries: <strong>Adafruit SSD1306</strong>, <strong>Adafruit GFX</strong>, <strong>ArduinoJson v7</strong> — all via Library Manager. Fill in WiFi credentials before flashing.</p>
 
   <pre><code class="language-cpp">// Week 4 — Weather + Time Display — Heltec WiFi LoRa 32 V3
+// Blue LED on GPIO 6 lights up when temp &gt; 10°C.
 
 #include &lt;WiFi.h&gt;
 #include &lt;HTTPClient.h&gt;
@@ -149,8 +153,8 @@ PRG button →
 #include &lt;Adafruit_SSD1306.h&gt;
 #include &lt;time.h&gt;
 
-const char* WIFI_SSID = "YOUR_SSID";
-const char* WIFI_PASS = "YOUR_PASSWORD";
+const char* WIFI_SSID = "MAKERSPACE";
+const char* WIFI_PASS = "12345678";
 
 struct City { const char* label; const char* wttr; const char* tz; };
 const City CITIES[] = {
@@ -159,8 +163,10 @@ const City CITIES[] = {
 };
 int cityIdx = 0;
 
-static const uint8_t BUTTON_PIN = 0;
-static const uint8_t LED_PIN    = 35;
+static const uint8_t BUTTON_PIN  = 0;   // PRG button, active LOW
+static const uint8_t LED_ONBOARD = 35;  // pulses white during fetch
+static const uint8_t LED_EXT     = 6;   // blue LED: GPIO6 → 220Ω → LED(+) → LED(-) → GND
+
 Adafruit_SSD1306 display(128, 64, &amp;Wire, 21);
 
 struct Weather { int tempC, tempF, humidity; char desc[22]; bool valid; };
@@ -170,16 +176,22 @@ bool prevBtn = HIGH;
 
 void applyTimezone() { setenv("TZ", CITIES[cityIdx].tz, 1); tzset(); }
 
+void updateTempLED() {
+    digitalWrite(LED_EXT, wx.valid &amp;&amp; wx.tempC &gt; 10 ? HIGH : LOW);
+}
+
 void fetchWeather() {
     if (WiFi.status() != WL_CONNECTED) return;
-    ledcWrite(LED_PIN, 80);
+    ledcWrite(LED_ONBOARD, 80);
     WiFiClientSecure client; client.setInsecure();
     HTTPClient http;
     http.begin(client, String("https://wttr.in/") + CITIES[cityIdx].wttr + "?format=j1");
-    http.setTimeout(10000);
+    http.setTimeout(12000);
+    http.addHeader("User-Agent", "curl/7.68.0");  // required — wttr.in blocks default UA
     if (http.GET() == 200) {
+        String body = http.getString();  // getString() more reliable than streaming on ESP32
         JsonDocument doc;
-        if (!deserializeJson(doc, http.getStream())) {
+        if (!deserializeJson(doc, body)) {
             auto cc = doc["current_condition"][0];
             wx.tempC    = cc["temp_C"].as&lt;int&gt;();
             wx.tempF    = cc["temp_F"].as&lt;int&gt;();
@@ -187,9 +199,10 @@ void fetchWeather() {
             const char* d = cc["weatherDesc"][0]["value"];
             strncpy(wx.desc, d ? d : "---", 21); wx.desc[21] = '\0';
             wx.valid = true;
+            updateTempLED();
         }
     }
-    http.end(); ledcWrite(LED_PIN, 0); lastFetch = millis();
+    http.end(); ledcWrite(LED_ONBOARD, 0); lastFetch = millis();
 }
 
 void drawDisplay() {
@@ -217,8 +230,14 @@ void setup() {
     display.clearDisplay(); display.setTextColor(SSD1306_WHITE);
     display.setTextSize(1); display.setCursor(0, 0);
     display.println("Connecting WiFi..."); display.display();
-    ledcAttach(LED_PIN, 5000, 8);
+    ledcAttach(LED_ONBOARD, 5000, 8);
     pinMode(BUTTON_PIN, INPUT_PULLUP);
+    pinMode(LED_EXT, OUTPUT);
+    // Self-test blink so you can verify wiring before WiFi connects
+    for (int i = 0; i &lt; 3; i++) {
+        digitalWrite(LED_EXT, HIGH); delay(200);
+        digitalWrite(LED_EXT, LOW);  delay(200);
+    }
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     unsigned long t0 = millis();
     while (WiFi.status() != WL_CONNECTED &amp;&amp; millis() - t0 &lt; 15000) delay(300);
@@ -240,7 +259,7 @@ void loop() {
         lastBtnTime = now;
         cityIdx = (cityIdx + 1) % 2;
         applyTimezone(); wx.valid = false;
-        drawDisplay(); fetchWeather();
+        updateTempLED(); drawDisplay(); fetchWeather();
     }
     prevBtn = btn;
     if (now - lastFetch &gt;= 300000UL) fetchWeather();

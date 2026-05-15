@@ -1,15 +1,11 @@
 // Week 4 — Weather + Time Display
 // Heltec WiFi LoRa 32 V3 (ESP32-S3)
 //
-// Shows current weather and local time for Cambridge MA or Bucharest RO.
-// Weather from wttr.in (no API key needed). Time from NTP.
-// Built-in PRG button (GPIO 0) toggles between cities.
-// Built-in LED (GPIO 35) pulses while fetching.
+// Shows weather + local time for Cambridge MA / Bucharest RO.
+// PRG button (GPIO 0) toggles cities.
+// External LED on GPIO 6 lights up when temp > 10 C.
 //
-// Libraries needed (install via Library Manager):
-//   - Adafruit SSD1306
-//   - Adafruit GFX
-//   - ArduinoJson  (v7 by Benoit Blanchon)
+// Libraries: Adafruit SSD1306, Adafruit GFX, ArduinoJson v7
 
 #include <WiFi.h>
 #include <HTTPClient.h>
@@ -20,74 +16,72 @@
 #include <Adafruit_SSD1306.h>
 #include <time.h>
 
-// ── WiFi credentials ──────────────────────────────────────────────────────────
+// ── Credentials ───────────────────────────────────────────────────────────────
 const char* WIFI_SSID = "MAKERSPACE";
 const char* WIFI_PASS = "12345678";
 
 // ── Cities ────────────────────────────────────────────────────────────────────
-struct City {
-    const char* label;   // shown on display
-    const char* wttr;    // wttr.in query string
-    const char* tz;      // POSIX timezone string
-};
-
+struct City { const char* label; const char* wttr; const char* tz; };
 const City CITIES[] = {
-    { "Cambridge  MA", "Cambridge+MA+USA",  "EST5EDT,M3.2.0,M11.1.0"        },
-    { "Bucharest  RO", "Bucharest+Romania", "EET-2EEDT,M3.5.0/3,M10.5.0/4"  }
+    { "Cambridge  MA", "Cambridge+MA+USA",  "EST5EDT,M3.2.0,M11.1.0"       },
+    { "Bucharest  RO", "Bucharest+Romania", "EET-2EEDT,M3.5.0/3,M10.5.0/4" }
 };
+int cityIdx = 0;
 
-int cityIdx = 0;  // currently displayed city
+// ── Pins ──────────────────────────────────────────────────────────────────────
+static const uint8_t BUTTON_PIN  = 0;   // PRG button, active LOW
+static const uint8_t LED_ONBOARD = 35;  // built-in white LED (pulses on fetch)
+static const uint8_t LED_EXT     = 6;   // external LED: GPIO6 → 220Ω → LED → GND
 
-// ── Hardware ──────────────────────────────────────────────────────────────────
-static const uint8_t BUTTON_PIN = 0;   // PRG/boot button — active LOW
-static const uint8_t LED_PIN    = 35;  // built-in white LED
-
-// Heltec V3 OLED: SSD1306 128x64, I2C SDA=17 SCL=18, reset GPIO 21
 Adafruit_SSD1306 display(128, 64, &Wire, 21);
 
-// ── Weather state ─────────────────────────────────────────────────────────────
-struct Weather {
-    int  tempC;
-    int  tempF;
-    int  humidity;
-    char desc[22];   // truncated to fit one OLED line
-    bool valid;
-};
-
+// ── State ─────────────────────────────────────────────────────────────────────
+struct Weather { int tempC, tempF, humidity; char desc[22]; bool valid; };
 Weather wx = {};
-
-// ── Timing ────────────────────────────────────────────────────────────────────
-unsigned long lastFetch   = 0;
-unsigned long lastDraw    = 0;
-bool          prevBtn     = HIGH;
-unsigned long lastBtnTime = 0;
-
-static const unsigned long FETCH_INTERVAL = 5UL * 60UL * 1000UL;  // 5 min
-static const unsigned long DRAW_INTERVAL  = 1000UL;                // 1 s
+unsigned long lastFetch = 0, lastDraw = 0, lastBtnTime = 0;
+bool prevBtn = HIGH;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-void applyTimezone() {
-    setenv("TZ", CITIES[cityIdx].tz, 1);
-    tzset();
+void applyTimezone() { setenv("TZ", CITIES[cityIdx].tz, 1); tzset(); }
+
+void updateTempLED() {
+    bool on = wx.valid && wx.tempC > 10;
+    Serial.printf("LED: valid=%d tempC=%d → %s\n", wx.valid, wx.tempC, on ? "ON" : "OFF");
+    digitalWrite(LED_EXT, on ? HIGH : LOW);
 }
 
 void fetchWeather() {
-    if (WiFi.status() != WL_CONNECTED) return;
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("fetch: WiFi not connected");
+        return;
+    }
 
-    ledcWrite(LED_PIN, 80);  // dim LED on during fetch
+    ledcWrite(LED_ONBOARD, 80);
 
     WiFiClientSecure client;
-    client.setInsecure();    // skip cert check — fine for a weather display
-
+    client.setInsecure();
     HTTPClient http;
     String url = String("https://wttr.in/") + CITIES[cityIdx].wttr + "?format=j1";
-    http.begin(client, url);
-    http.setTimeout(10000);
+    Serial.println("Fetching: " + url);
 
-    if (http.GET() == 200) {
+    http.begin(client, url);
+    http.setTimeout(12000);
+    http.addHeader("User-Agent", "curl/7.68.0");  // wttr.in needs a real UA
+
+    int code = http.GET();
+    Serial.println("HTTP code: " + String(code));
+
+    if (code == 200) {
+        // Read full response into a String — more reliable than streaming on ESP32
+        String body = http.getString();
+        Serial.println("Body length: " + String(body.length()));
+
         JsonDocument doc;
-        if (!deserializeJson(doc, http.getStream())) {
+        DeserializationError err = deserializeJson(doc, body);
+        if (err) {
+            Serial.println("JSON error: " + String(err.c_str()));
+        } else {
             auto cc     = doc["current_condition"][0];
             wx.tempC    = cc["temp_C"].as<int>();
             wx.tempF    = cc["temp_F"].as<int>();
@@ -96,11 +90,16 @@ void fetchWeather() {
             strncpy(wx.desc, d ? d : "---", 21);
             wx.desc[21] = '\0';
             wx.valid    = true;
+            Serial.printf("Got: %dC / %dF  %s  hum:%d%%\n",
+                          wx.tempC, wx.tempF, wx.desc, wx.humidity);
+            updateTempLED();
         }
+    } else {
+        Serial.println("HTTP error: " + String(code));
     }
 
     http.end();
-    ledcWrite(LED_PIN, 0);
+    ledcWrite(LED_ONBOARD, 0);
     lastFetch = millis();
 }
 
@@ -111,52 +110,34 @@ void drawDisplay() {
     display.clearDisplay();
     display.setTextColor(SSD1306_WHITE);
 
-    // ── Row 1: city name ─────────────────────────────────────────────────────
     display.setTextSize(1);
-    display.setCursor(0, 0);
-    display.print(CITIES[cityIdx].label);
-
-    // ── Row 2: temperature ───────────────────────────────────────────────────
+    display.setCursor(0,  0); display.print(CITIES[cityIdx].label);
     display.setCursor(0, 12);
     if (wx.valid) {
-        display.print(wx.tempC);
-        display.print("C  /  ");
-        display.print(wx.tempF);
-        display.print("F");
+        display.print(wx.tempC); display.print("C  /  ");
+        display.print(wx.tempF); display.print("F");
     } else {
         display.print("Fetching...");
     }
-
-    // ── Row 3: condition ─────────────────────────────────────────────────────
-    display.setCursor(0, 24);
-    if (wx.valid) display.print(wx.desc);
-
-    // ── Row 4: humidity ──────────────────────────────────────────────────────
+    display.setCursor(0, 24); if (wx.valid) display.print(wx.desc);
     display.setCursor(0, 36);
     if (wx.valid) {
-        display.print("Humidity: ");
-        display.print(wx.humidity);
-        display.print("%");
+        display.print("Humidity: "); display.print(wx.humidity); display.print("%");
     }
 
-    // ── Row 5: time (large) ──────────────────────────────────────────────────
     display.setTextSize(2);
     display.setCursor(0, 48);
-    if (gotTime) {
-        char buf[6];
-        strftime(buf, sizeof(buf), "%H:%M", &t);
-        display.print(buf);
-    } else {
-        display.print("--:--");
-    }
+    if (gotTime) { char buf[6]; strftime(buf, sizeof(buf), "%H:%M", &t); display.print(buf); }
+    else          display.print("--:--");
 
     display.display();
 }
 
-// ── Arduino entry points ──────────────────────────────────────────────────────
+// ── Setup / Loop ──────────────────────────────────────────────────────────────
 
 void setup() {
     Serial.begin(115200);
+    delay(500);  // give serial monitor time to connect
 
     Wire.begin(17, 18);
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -167,18 +148,27 @@ void setup() {
     display.println("Connecting WiFi...");
     display.display();
 
-    ledcAttach(LED_PIN, 5000, 8);
+    ledcAttach(LED_ONBOARD, 5000, 8);
     pinMode(BUTTON_PIN, INPUT_PULLUP);
+    pinMode(LED_EXT, OUTPUT);
+    // Self-test: blink 3 times to verify wiring
+    for (int i = 0; i < 3; i++) {
+        digitalWrite(LED_EXT, HIGH); delay(200);
+        digitalWrite(LED_EXT, LOW);  delay(200);
+    }
 
-    // Connect — blocking in setup() is fine
     WiFi.begin(WIFI_SSID, WIFI_PASS);
+    Serial.print("Connecting to " + String(WIFI_SSID));
     unsigned long t0 = millis();
     while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) {
         delay(300);
+        Serial.print(".");
     }
+    Serial.println();
 
     if (WiFi.status() == WL_CONNECTED) {
-        configTime(0, 0, "pool.ntp.org");  // sync UTC, then apply local tz
+        Serial.println("WiFi connected. IP: " + WiFi.localIP().toString());
+        configTime(0, 0, "pool.ntp.org");
         applyTimezone();
 
         display.clearDisplay();
@@ -188,10 +178,11 @@ void setup() {
 
         fetchWeather();
     } else {
+        Serial.println("WiFi failed!");
         display.clearDisplay();
         display.setCursor(0, 0);
         display.println("WiFi failed.");
-        display.println("Check credentials.");
+        display.println(WIFI_SSID);
         display.display();
     }
 }
@@ -199,24 +190,22 @@ void setup() {
 void loop() {
     unsigned long now = millis();
 
-    // ── Button: toggle city (active LOW, 300 ms debounce) ────────────────────
+    // Button toggle (active LOW, debounced)
     bool btn = digitalRead(BUTTON_PIN);
     if (btn == LOW && prevBtn == HIGH && (now - lastBtnTime > 300)) {
         lastBtnTime = now;
         cityIdx = (cityIdx + 1) % 2;
         applyTimezone();
-        wx.valid = false;   // clear stale data
-        drawDisplay();      // show "Fetching..." right away
+        wx.valid = false;
+        updateTempLED();
+        drawDisplay();
         fetchWeather();
     }
     prevBtn = btn;
 
-    // ── Refresh weather every 5 minutes ──────────────────────────────────────
-    if (now - lastFetch >= FETCH_INTERVAL) fetchWeather();
+    // Refresh weather every 5 minutes
+    if (now - lastFetch >= 300000UL) fetchWeather();
 
-    // ── Redraw every second (keeps time ticking) ──────────────────────────────
-    if (now - lastDraw >= DRAW_INTERVAL) {
-        lastDraw = now;
-        drawDisplay();
-    }
+    // Redraw every second
+    if (now - lastDraw >= 1000UL) { lastDraw = now; drawDisplay(); }
 }
