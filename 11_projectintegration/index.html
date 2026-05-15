@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PS70: Intro to Digital Fabrication</title>
+  <title>PS70 // Week 11: Project Integration</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="../style.css" rel="stylesheet">
 </head>
@@ -19,34 +19,38 @@
   </div>
 </nav>
 
-<xmp style="display:none;">
 <div class="textcontainer">
 
-<h3>Week 11: Project Integration</h3>
+  <h3>Week 11: Project Integration</h3>
 
-<p class="margin">   </p>
+  <p>This week I focused on actually getting my project to work. It was decently fun, and had a lot of issues.</p>
 
-<!-- You can add images like this: -->
-<!-- ![image description](./image.png) -->
+  <p>
+    First, I had to figure out a way to keep the stack of papers at the same height at all times,
+    OR to keep the motor relative to the stack stable. I was going to do a rack and pinion
+    mechanism, but I ended up doing something much simpler: <strong>springs!</strong>
+  </p>
 
-<!-- You can add links like this: -->
-<!-- [Link text](https://example.com) -->
+  <p>
+    I put around 8 springs on the base of the scanning station and screwed them in place,
+    with a bit of hot glue as well. This ended up working decently well!
+  </p>
 
-This week I focused on actually getting my project to work... It was decently fun, and had a lot of issues.
+  <div style="display:flex; gap:16px; flex-wrap:wrap; margin: 24px 0;">
+    <img src="../13_finalproject/IMG_9450.jpg" alt="Springs on the base of the scanning station"
+         style="flex:1; min-width:280px; max-width:100%; border:1px solid var(--border-color); border-radius:6px;">
+    <img src="./nema.png" alt="NEMA 17 stepper motor"
+         style="flex:1; min-width:280px; max-width:100%; border:1px solid var(--border-color); border-radius:6px;">
+  </div>
 
-First, I had to figure out a way to keep the stack of papers at the same height at all times, OR to keep the motor to the stack relatively stable. I was going to do a rack and pinion mechanism, but I ended up doing something much simpler: springs!
+  <p>
+    Then I had to fix my motor problem. As you know from the project demo, I had a yellow motor
+    that was not precise at all — so I switched to a <strong>NEMA 17</strong> stepper motor.
+  </p>
 
-I put around 8 springs on the base of the "Scanning" station, and then screw them in place. and a bit of hot glue as well.
+</div>
 
-This ended up working decently well! 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 
-Then, I had to fix my motor problem. As you know fromt he project demo, I had a yellow motor that was not precise at all, so I switched to a nema 17!
-
-<img src="nema.png" class="img-fluid" />
-</xmp>
 </body>
-
-<script src="../strapdown.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
-
 </html>
