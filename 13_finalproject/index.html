@@ -144,11 +144,11 @@
 
 # Motivation
 
-I read a LOT of academic papers. I always print them out, highlight with markers, and scribble in the margins — the marked-up paper is just more useful to me than the digital version. The problem is all my notes end up on dead trees while everything else (citations, search, syncing between devices) lives on my laptop.
+I read a LOT of academic papers. I always print them out, highlight with markers, and scribble in the margins — the marked-up paper is just more useful to me than the digital version. The problem is all my notes end up on paper which I lose all the time.
 
-So I built a machine that fixes this. Put your stack in the feeder, press **Auto-scan**, walk away. The original PDF on your computer gets the highlights and margin notes baked in automatically. No retyping, no manual transcription.
+So I built a machine that fixes this. Put your stack in the feeder, press **Auto-scan**, walk away. The original PDF on your computer gets the highlights and margin notes baked in automatically. 
 
-It works.
+It works? Most of the time?
 
 <figure>
   <img src="./IMG_9533.jpg" class="img-fluid" alt="Full scanner rig">
@@ -232,10 +232,10 @@ Total cycle time per page on the Pi 5 CPU is roughly **6–8 seconds** with a wa
 | [Arducam Camera Module 3 (IMX708, 12MP, M12 lens)](https://www.amazon.com/dp/B0C9PYCV9S) | Page capture | 75° diagonal FOV |
 | 15-pin ↔ 22-pin CSI ribbon | Pi 5 has the smaller 22-pin connector | |
 | [ESP32-WROOM-32 dev board](https://www.espressif.com/en/products/socs/esp32) | Wireless motor controller | Any ESP32-WROOM variant works |
-| [DRV8825 stepper driver (red)](https://www.pololu.com/product/2133) | Step/dir → coil currents | Pin-compatible with DRV8825; uses 1/32 microstepping (6400 steps/rev) at max |
-| NEMA 17 stepper motor | Drives the page-feed roller | Whatever NEMA 17 you have; tune the driver Vref to match its rated coil current |
-| 12 V power supply (≥2 A) | Motor power (VMOT) | Wall wart or bench supply |
-| USB-C power bank | ESP32 power (untethered from Pi) | Any 5 V battery |
+| [DRV8825 stepper driver (red)](https://www.pololu.com/product/2133) | Step/dir → coil currents | uses 1/32 microstepping (6400 steps/rev) at max |
+| NEMA 17 stepper motor | Drives the page-feed roller | |
+| 12 V power supply (≥2 A) | Motor power (VMOT) | |
+| USB-C power bank | ESP32 power (untethered from Pi) | Any power bank really |
 | Breadboard, hookup wire, M-F jumpers, paper stand | | |
 
 **Approximate total: $200** (Pi 5 + cooler + PSU + camera + cable ≈ $130; the ESP32 + motor + driver side ≈ $30; misc ≈ $40).
@@ -270,11 +270,11 @@ DRV8825 1A,1B,2A,2B ──▶ NEMA 17 coils  (one pair per coil — test pairing
 
 # Paper feeder mechanics
 
-The obvious problem: as you feed pages, the stack gets shorter and the top sheet drops away from the roller. I was going to do a rack and pinion to compensate... then I realized springs work way better and have zero moving parts you need to worry about.
+The obvious problem: as you feed pages, the stack gets shorter and the top sheet drops away from the roller. I was going to do a rack and pinion to compensate... then Nathan suggested springs! Springs work way better and have zero moving parts you need to worry about.
 
-I put 9 springs under a plywood platen, paper stack sits on top. As pages feed off, the springs push the platen up by exactly one sheet thickness. The roller is at a fixed height — it just always has paper to grab. It's dumb and it works great.
+I put 8 springs under a plywood platen, paper stack sits on top. As pages feed off, the springs push up by almost? one sheet thickness. The roller is at a fixed height — it just always has paper to grab. It's dumb and it works great.
 
-The roller itself is a stack of **three LEGO wheel rims** on the stepper shaft. I only had two real LEGO wheels from the lab, and with just those two the contact width wasn't wide enough — pages kept going sideways. I 3D-printed a third matching wheel, added it to the stack, skew went away. The rubber tire profile grips paper surprisingly well.
+The roller itself is a stack of **three LEGO wheel rims** on the stepper shaft. I only had two real LEGO wheels from the lab, and with just those two the contact width wasn't wide enough — pages kept going sideways. I 3D-printed a third matching rim, added it to the stack, skew went away. The rubber tire profile grips paper surprisingly well.
 
 
 
@@ -305,7 +305,12 @@ The exact step counts (8700 fwd, 3500 back) came out of tuning by hand with the 
 
 <figure style="max-width: 720px; margin: 18px 0;">
   <div class="video-wrap"><video src="./demo-short.mp4" controls playsinline preload="metadata" muted></video></div>
-  <figcaption>One page rolling — the full pattern in action: forward to roll the top sheet off, then a short backward kick to seat the next sheet cleanly under the rollers for the next cycle.</figcaption>
+  <figcaption>One page rolling — forward to roll the top sheet off, then a short backward kick to seat the next sheet under the rollers.</figcaption>
+</figure>
+
+<figure style="max-width: 720px; margin: 18px 0;">
+  <div class="video-wrap"><video src="./top-view.mp4" controls playsinline preload="metadata" muted></video></div>
+  <figcaption>Top-down view of the scanner in action.</figcaption>
 </figure>
 
 # Enclosures
@@ -322,10 +327,12 @@ The big body is mostly laser-cut — flat panels with slots/tabs that fit togeth
 
 <figure>
   <img src="./IMG_9483.jpg" class="img-fluid" alt="3D-printed compute enclosure">
-  <figcaption>The 3D-printed compute enclosure clipped onto the side of the scanner body. The Raspberry Pi 5 is visible through the front face; the white cylinder above is one of the battery packs; the fan in the foreground (held by hand) clips onto the top of this enclosure to cool the Pi.</figcaption>
+  <figcaption>The 3D-printed compute enclosure clipped onto the side of the scanner body. The Raspberry Pi 5 is visible through the front face; the white brick below is one of the battery packs; the fan in the foreground (held by hand) clips onto the top of this enclosure to cool the Pi.</figcaption>
 </figure>
 
-The compute enclosure is 3D-printed in Fusion 360. Five stacked rows top-to-bottom: **battery → ESP32 → battery → Raspberry Pi 5 → fan**. The batteries flank the ESP32 so the motor side stays power-isolated from the Pi side.
+The compute enclosure is 3D-printed and designed in Fusion 360. I had to hack so much because printing it took FOREVER and I only had a few hours... Five stacked rows top-to-bottom: **battery → ESP32 → battery → Raspberry Pi 5 → fan**. The batteries flank the ESP32 so the motor side stays power-isolated from the Pi side.
+
+Same problem with the cable I used initially for the raspberry pi. it looked much better and was held in place, but I had to get the new power supply cable and that was too chunky.
 
 It clips onto the side of the laser-cut scanner body. The nice thing is you can pull the whole compute stack off, set it on another desk, snap it back, and the camera-paper geometry is exactly the same as before.
 
@@ -474,7 +481,7 @@ tmp.write_bytes(out_bytes)
 tmp.replace(annotated_path)
 ```
 
-# On performance: latency, throttling, and the OCR-model rodeo
+# On performance: latency, throttling, and the OCR-model pain
 
 This was the messiest part of the project — and the part with the most lessons. Before any of the code on this page worked end-to-end at the speed you see in the demo, I'd cycled through several OCR models and several Pi-5 power-management hacks. The journey is worth documenting because the trade-offs are universal for anyone trying to run a vision-language model on a small computer.
 
@@ -534,7 +541,7 @@ For about half of the development time, the Pi 5 was either crashing mid-analyze
 
 **Symptom:** during analyze, the Pi would briefly stop responding to network. `ssh` would time out, `ping` would partially fail. The Pi would either recover after ~30 s or hard-reset entirely. No useful log entries — `journalctl` was non-persistent on default Pi OS install, so post-mortems were impossible.
 
-**First hypothesis: heat.** Temperature peaked at 62 °C idle and presumably much higher under load. I clipped a **random ~20 mm fan I found in the lab** (probably from a PC) over the Pi 5 SoC and wired it to the Pi's 5 V + GND GPIO pins. Crude, but idle temp dropped from 62 °C to ~37 °C and *most* of the crashes stopped. (The [official Pi 5 Active Cooler](https://www.raspberrypi.com/products/active-cooler/) does the same thing more elegantly for $5.)
+**First hypothesis: heat.** Temperature peaked at 62 °C idle and sometimes went to 85 when the OCR was running. And presumably much higher right before the crash. I clipped a **random ~20 mm fan I found in the lab** (probably from a PC) over the Pi 5 SoC and wired it to the Pi's 5 V + GND GPIO pins. Crude, but idle temp dropped from 62 °C to ~37 °C and *most* of the crashes stopped. (The [official Pi 5 Active Cooler](https://www.raspberrypi.com/products/active-cooler/) does the same thing more elegantly for $5.)
 
 **Second hypothesis: power.** I was running the Pi off a 5 V / 3 A USB-C charger. The Pi 5 actually wants 5 V / 5 A (27 W); under the 3 A supply it would brown out during CPU spikes — which look identical to thermal shutdown from the outside. The trick is that `vcgencmd get_throttled` returns `0x50000` (under-voltage + throttling occurred), which I only noticed days in.
 
@@ -568,7 +575,7 @@ pkill -f app.py
 nohup /home/vlad/ocrenv/bin/python -u app.py > /tmp/app.log 2>&1 &
 ```
 
-Back to 2.4 GHz, all 4 cores, no crashes, ~8 s per page. **The lesson:** the throttling hacks were a worthwhile band-aid while debugging, but the real fix was the right PSU. If you're building a Pi 5 project that pushes the CPU, the official supply is not optional.
+Back to 2.4 GHz, all 4 cores, no crashes, ~8 s per page (cold). **The lesson:** the throttling hacks were a worthwhile band-aid while debugging, but the real fix was the right PSU. If you're building a Pi 5 project that pushes the CPU, the official supply is not really optional.
 
 
 # Demo screenshots
@@ -580,12 +587,12 @@ Back to 2.4 GHz, all 4 cores, no crashes, ~8 s per page. **The lesson:** the thr
 
 <figure>
   <img src="./recognized.png" class="img-fluid" alt="UI during active scan">
-  <figcaption>Active scan — the "Stop scan" button is live, and the pipeline log at the bottom is ticking through each stage: motor_turn, settle, capture, match_found. The PDF on the right already has the detected highlights (blue and red outlines) stamped in from the previous page.</figcaption>
+  <figcaption>Active scan — the "Stop scan" button is live, and the pipeline log at the bottom is ticking through each stage: motor_turn, settle, capture, match_found. The PDF on the right already has the detected highlights (blue and red outlines) stamped in from the previous page, and applied them to the file!</figcaption>
 </figure>
 
 <figure>
   <img src="./debugging.png" class="img-fluid" alt="Highlights detected and stamped into PDF">
-  <figcaption>The physical page in the camera (left) and the resulting annotated PDF (right) — the yellow highlights from the paper are now highlight annotations in the PDF at the exact same locations.</figcaption>
+  <figcaption> You can see the debug boxes, with boxes around the highlights, and around every word on the page! The pic on the right is how the PDF looked after a full day of demos!</figcaption>
 </figure>
 
 # Source code
@@ -612,10 +619,8 @@ This is the section I really wish someone had written before I started...
 
 
 ### Stepper motor + the dead 12 V PSU
-- **The actual root cause of half the motor-side bugs was a dying 12 V power supply.** It killed an ESP32 outright (the chip got hot enough to burn me when I touched it) and damaged a couple of jumper wires in ways I couldn't see. Symptoms were all over the place: motor not stepping, motor buzzing without turning, ESP32 boot-looping, intermittent serial. **Kassia helped me swap the PSU and replace every wire on the motor side, and the whole thing started working immediately.** Lesson: when a setup is misbehaving in three different ways at once, suspect upstream power before you suspect any one of the symptoms.
-- **MS1/MS2/MS3 all tied HIGH** for 1/32 microstepping on DRV8825. Floating = full step = unbearable grinding noise and the motor stalls at our step rate.
-- Steppers **cannot start at high speed from rest**. At 100 µs half-period from a dead stop the motor just buzzes. I briefly added an acceleration ramp; the simpler answer was to just keep the cruise speed modest.
-
+- **The actual root cause of half the motor-side bugs was a dying 12 V power supply.** It killed an ESP32 outright (the chip got hot enough to burn me when I touched it) and damaged a couple of jumper wires in ways I couldn't see. Symptoms were all over the place: motor not stepping, motor buzzing without turning, ESP32 boot-looping, intermittent serial. **Kassia helped me swap the PSU and replace every wire on the motor side, and the whole thing started working immediately.** Lesson: never trust anything ig?
+- Check for friction. I thought I killed another motor but it stopped on the flat end on some wood from my box and couldn't turn. I made the hole bigger and it worked. Pfew.
 ### Networking
 - **mDNS** is the gift that makes Pi ↔ ESP32 ↔ Mac discovery trivial — `reader.local`, `ocresp32-motor.local` — until you hit a network with client isolation (where nothing `.local` resolves between clients). I have a hard-coded IP fallback for that case.
 
