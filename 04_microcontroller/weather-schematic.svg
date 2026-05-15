@@ -57,9 +57,6 @@
   <polygon points="388,218 388,254 420,236" fill="#3b82f622" stroke="#3b82f6" stroke-width="2"/>
   <!-- Cathode bar -->
   <line x1="420" y1="218" x2="420" y2="254" stroke="#3b82f6" stroke-width="2.5"/>
-  <!-- Light rays -->
-  <line x1="428" y1="222" x2="442" y2="208" stroke="#93c5fd" stroke-width="1.5"/>
-  <line x1="428" y1="232" x2="444" y2="220" stroke="#93c5fd" stroke-width="1.5"/>
   <!-- LED label -->
   <text x="404" y="272" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="bold">Blue LED</text>
   <text x="430" y="228" text-anchor="start" fill="#86efac" font-size="8">−  cathode</text>
