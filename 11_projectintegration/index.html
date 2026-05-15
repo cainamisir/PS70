@@ -6,6 +6,23 @@
   <title>PS70 // Week 11: Project Integration</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="../style.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    .img-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .img-row img {
+      flex: 1;
+      min-width: 260px;
+      max-width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
 
@@ -25,32 +42,123 @@
 
   <p>This week I focused on actually getting my project to work. It was decently fun, and had a lot of issues.</p>
 
+  <h4>Springs for paper height</h4>
+
   <p>
     First, I had to figure out a way to keep the stack of papers at the same height at all times,
     OR to keep the motor relative to the stack stable. I was going to do a rack and pinion
     mechanism, but I ended up doing something much simpler: <strong>springs!</strong>
+    I put around 8 springs on the base of the scanning station, screwed them in place,
+    with a bit of hot glue as well. This ended up working decently well.
   </p>
 
-  <p>
-    I put around 8 springs on the base of the scanning station and screwed them in place,
-    with a bit of hot glue as well. This ended up working decently well!
-  </p>
-
-  <div style="display:flex; gap:16px; flex-wrap:wrap; margin: 24px 0;">
-    <img src="../13_finalproject/IMG_9450.jpg" alt="Springs on the base of the scanning station"
-         style="flex:1; min-width:280px; max-width:100%; border:1px solid var(--border-color); border-radius:6px;">
-    <img src="./nema.png" alt="NEMA 17 stepper motor"
-         style="flex:1; min-width:280px; max-width:100%; border:1px solid var(--border-color); border-radius:6px;">
+  <div class="img-row">
+    <img src="../13_finalproject/IMG_9450.jpg" alt="Springs mounted on the scanning station base">
+    <img src="./IMG_9330.jpg" alt="Full scanner setup with book and roller mechanism">
   </div>
 
   <p>
-    Then I had to fix my motor problem. As you know from the project demo, I had a yellow motor
-    that was not precise at all — so I switched to a <strong>NEMA 17</strong> stepper motor.
+    Another issue: I only had <strong>2 LEGO wheels</strong> for the roller, and the contact width
+    didn't span the full page — so sheets kept travelling diagonally as they rolled. I fixed this
+    by mounting <strong>side walls on both sides</strong> of the scanning station to constrain the
+    paper and stop the skew.
   </p>
+
+  <h4>Motor driver — NEMA 17 + DRV8825</h4>
+
+  <p>
+    I had a yellow motor that was not precise at all, so I switched to a <strong>NEMA 17</strong>
+    stepper driven by a <strong>DRV8825</strong> breakout. The ESP32 sends STEP/DIR pulses over
+    GPIO 32 and 26. The driver runs at 1/32 microstepping (MS1/MS2/MS3 all HIGH) giving 6400
+    pulses per revolution — precise enough to feed exactly one page at a time. The ESP32 also
+    exposes a tiny HTTP server so the Raspberry Pi can trigger a page feed with a single
+    <code>POST /turn</code>.
+  </p>
+
+  <div class="img-row">
+    <img src="./IMG_9329.jpg" alt="ESP32 breadboard with DRV8825 motor driver and NEMA 17">
+    <img src="./nema.png" alt="NEMA 17 stepper motor">
+  </div>
+
+  <pre><code class="language-cpp">// ESP32 → DRV8825 → NEMA 17 page feeder
+// GPIO 32 = STEP,  GPIO 26 = DIR
+// MS1/MS2/MS3 tied HIGH = 1/32 microstepping (6400 steps/rev)
+
+#define STEP_PIN 32
+#define DIR_PIN  26
+
+int forwardSteps  = 8700;   // tune until exactly one page feeds
+int backwardSteps = 3500;   // short reverse kick to seat next page
+int stepDelayUs   = 100;    // half-period; smaller = faster
+
+void doSteps(long n) {
+    for (long i = 0; i &lt; n; i++) {
+        digitalWrite(STEP_PIN, LOW);  delayMicroseconds(stepDelayUs);
+        digitalWrite(STEP_PIN, HIGH); delayMicroseconds(stepDelayUs);
+    }
+}
+
+void doPageFeed() {
+    digitalWrite(DIR_PIN, HIGH); delayMicroseconds(50); doSteps(forwardSteps);
+    digitalWrite(DIR_PIN, LOW);  delayMicroseconds(50); doSteps(backwardSteps);
+}
+
+// HTTP endpoint — Raspberry Pi calls POST /turn to advance one page
+void handleTurnHttp() { doPageFeed(); server.send(200, "application/json", "{\"ok\":true}"); }</code></pre>
+
+  <h4>Camera setup — XIAO ESP32-S3 Sense</h4>
+
+  <p>
+    For the camera I used a <strong>Seeed XIAO ESP32-S3 Sense</strong> with its built-in OV2640.
+    It captures full-resolution JPEG frames (2048×1536) and POSTs them over WiFi to a Python
+    server running on the Raspberry Pi, which feeds them into the OCR pipeline. The sensor is
+    tuned specifically for printed text and highlighted passages — boosted contrast, lens
+    correction to fix vignetting at the edges, and AGC capped at 2× to limit noise.
+  </p>
+
+  <pre><code class="language-cpp">// XIAO ESP32-S3 Sense — OV2640 camera, periodic JPEG capture → POST to Pi
+#include "esp_camera.h"
+#include &lt;WiFi.h&gt;
+#include &lt;HTTPClient.h&gt;
+
+// OV2640 pin map for XIAO ESP32-S3 Sense
+#define XCLK_GPIO_NUM  10
+#define SIOD_GPIO_NUM  40
+#define SIOC_GPIO_NUM  39
+// ... (Y2–Y9, VSYNC, HREF, PCLK omitted for brevity)
+
+void initCamera() {
+    camera_config_t cfg = {};
+    cfg.frame_size    = FRAMESIZE_QXGA;    // 2048×1536
+    cfg.pixel_format  = PIXFORMAT_JPEG;
+    cfg.jpeg_quality  = 6;                 // 0–63, lower = better
+    cfg.fb_location   = CAMERA_FB_IN_PSRAM;
+    cfg.fb_count      = 2;
+    esp_camera_init(&cfg);
+
+    // Tuned for printed text + highlighted passages
+    sensor_t* s = esp_camera_sensor_get();
+    s-&gt;set_contrast(s,   1);   // sharpen text edges
+    s-&gt;set_brightness(s, 1);   // lift for paper
+    s-&gt;set_lenc(s,       1);   // lens correction — fixes edge vignetting
+    s-&gt;set_gainceiling(s, GAINCEILING_2X);  // cap noise
+}
+
+void captureAndPost() {
+    camera_fb_t* fb = esp_camera_fb_get();
+    if (!fb) return;
+    HTTPClient http;
+    http.begin(SERVER_URL "/frame");
+    http.addHeader("Content-Type", "image/jpeg");
+    http.POST(fb-&gt;buf, fb-&gt;len);
+    http.end();
+    esp_camera_fb_return(fb);
+}</code></pre>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </body>
 </html>
