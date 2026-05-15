@@ -3,9 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PS70: Intro to Digital Fabrication</title>
+  <title>PS70 // Week 8: CNC</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="../style.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    .img-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .img-row img {
+      flex: 1;
+      min-width: 260px;
+      max-width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+    .svg-preview {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 16px;
+      max-width: 400px;
+      margin: 24px auto;
+      display: block;
+    }
+  </style>
 </head>
 <body>
 
@@ -19,28 +45,74 @@
   </div>
 </nav>
 
-<xmp style="display:none;">
 <div class="textcontainer">
 
-<h3>Week 8: CNC</h3>
+  <h3>Week 8: CNC</h3>
 
-<p class="margin">   </p>
+  <p>
+    For this week I CNC engraved a map of <strong>Romania</strong> — country outline plus all
+    41 county boundaries — onto a 20 × 20 cm panel. Romania is home, so it felt like the right
+    thing to make.
+  </p>
 
-Add your content here using markdown syntax.
+  <h4>Design</h4>
 
-<p class="margin">   </p>
+  <p>
+    Rather than drawing the map by hand, I wrote a Python script that pulls the administrative
+    boundaries directly from <strong>OpenStreetMap</strong> and <strong>Natural Earth</strong>
+    data and renders them to SVG at the exact panel size. The county polygons come from Natural
+    Earth's Admin-1 dataset — the generalization level is perfect for engraving (clean lines,
+    no over-detail). The script dissolves all counties into one shape for the country outline,
+    then plots the county boundaries on top at a thinner stroke weight.
+  </p>
 
-<!-- You can add images like this: -->
-<!-- ![image description](./image.png) -->
+  <img src="./romania.svg" alt="Romania CNC design — country outline + 41 counties"
+       class="svg-preview">
 
-<!-- You can add links like this: -->
-<!-- [Link text](https://example.com) -->
+  <pre><code class="language-python">"""
+Fetch admin boundaries from OpenStreetMap / Natural Earth
+and render to SVG for CNC engraving.
 
+Output: white background, black lines — open directly in VCarve / Shaper app.
+Panel size: 20 × 20 cm
+"""
+import geopandas as gpd
+import matplotlib.pyplot as plt
 
-</xmp>
+PANEL_IN = 20.0 / 2.54   # 20 cm panel
+
+def romania():
+    url = "https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_1_states_provinces.zip"
+    admin1 = gpd.read_file(url)
+    counties = admin1[admin1["admin"] == "Romania"].copy()
+
+    # Dissolve all counties into one shape for the outer border
+    country = counties.dissolve()
+
+    fig, ax = plt.subplots(figsize=(PANEL_IN, PANEL_IN), dpi=300)
+    ax.set_facecolor("white")
+    counties.boundary.plot(ax=ax, color="black", linewidth=0.5)   # county lines
+    country.boundary.plot(ax=ax, color="black", linewidth=1.4)    # outer border
+    ax.set_aspect("equal")
+    ax.set_axis_off()
+    fig.savefig("romania.svg", format="svg", bbox_inches="tight", pad_inches=0)
+
+romania()</code></pre>
+
+  <h4>CNC process</h4>
+
+  <p>
+    The SVG was opened directly in the Shaper app and used as the toolpath source. The outer
+    border was cut at a deeper pass to make the country outline more prominent than the county
+    boundaries, which were engraved at a shallower depth with a finer stroke.
+  </p>
+
+  <!-- photos go here once added -->
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>hljs.highlightAll();</script>
+
 </body>
-
-<script src="../strapdown.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
-
 </html>
