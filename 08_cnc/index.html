@@ -50,9 +50,10 @@
   <h3>Week 8: CNC</h3>
 
   <p>
-    For this week I CNC engraved a map of <strong>Romania</strong> — country outline plus all
-    41 county boundaries — onto a 20 × 20 cm panel. Romania is home, so it felt like the right
-    thing to make.
+    For this week I milled a map into MDF and vacuum formed it. The script I wrote can generate
+    both Bucharest (city outline + 6 sectors) and Romania (country + 41 counties). I tried
+    Bucharest first, but decided Romania would look cooler — more shapes inside means more
+    interesting relief in the mold and more detail visible in the vacuum form.
   </p>
 
   <h4>Design</h4>
@@ -99,15 +100,25 @@ def romania():
 
 romania()</code></pre>
 
-  <h4>CNC process</h4>
+  <h4>CNC milling + vacuum forming</h4>
 
   <p>
-    The SVG was opened directly in the Shaper app and used as the toolpath source. The outer
-    border was cut at a deeper pass to make the country outline more prominent than the county
-    boundaries, which were engraved at a shallower depth with a finer stroke.
+    The SVG was milled into <strong>MDF</strong> using the <strong>SRM-20</strong> as a 2.5D mold —
+    the country outline is cut proud of the surface, and the county boundaries are carved as
+    channels within the Romania shape. The depth difference between the outer border and the
+    internal county lines gives the mold its relief.
   </p>
 
-  <!-- photos go here once added -->
+  <p>
+    The MDF mold was then used to <strong>vacuum form</strong> a sheet of clear plastic over it,
+    pulling the plastic tight into every county channel. The result is a transparent Romania with
+    all 41 county boundaries visible as raised ridges.
+  </p>
+
+  <div class="img-row">
+    <img src="./IMG_9523.jpg" alt="CNC milled MDF mold — Romania with county channels">
+    <img src="./IMG_9524.jpg" alt="Vacuum formed clear plastic result">
+  </div>
 
 </div>
 
