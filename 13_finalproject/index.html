@@ -152,7 +152,7 @@ It works.
 
 <figure>
   <img src="./IMG_9485.jpg" class="img-fluid" alt="Assembled rig">
-  <figcaption>Bottom-up view of the assembled rig: the laser-cut scanner body, the CSI ribbon to the camera, the page-feed wheel on the right, and the 3D-printed compute enclosure with the Pi 5 inside (the fan I clipped on top is being held to the side here for the shot).</figcaption>
+  <figcaption>Bottom-up view of the assembled rig: the laser-cut scanner body, the CSI ribbon to the camera, the page-feed wheel on the bottom, and the 3D-printed compute enclosure with the Pi 5 inside (the fan I clipped on top is being held to the side here for the shot).</figcaption>
 </figure>
 
 # What it does, end-to-end
@@ -244,7 +244,7 @@ Total cycle time per page on the Pi 5 CPU is roughly **6–8 seconds** with a wa
 
 # Wiring
 
-## ESP32 ↔ DRV8825 ↔ NEMA 17
+## ESP32 ↔ red motor driver ↔ NEMA 17
 
 ```
 ESP32 GPIO 32  ──▶  DRV8825 STEP
@@ -264,7 +264,7 @@ DRV8825 1A,1B,2A,2B ──▶ NEMA 17 coils  (one pair per coil — test pairing
 
 <figure>
   <img src="./IMG_9449.jpg" class="img-fluid" alt="ESP32 + DRV8825 wiring">
-  <figcaption>The ESP32-WROOM-32 (right) and the red DRV8825 driver (left, with heatsink) on a breadboard. Yellow + blue + red wires fan out to the motor coils; the thinner jumpers go to STEP / DIR / VDD / MS pins.</figcaption>
+  <figcaption>The ESP32-WROOM-32 (right) and the red motor driver (left, with heatsink) on a breadboard. Yellow + blue + red wires fan out to the motor coils; the thinner jumpers go to STEP / DIR / VDD / MS pins.</figcaption>
 </figure>
 
 ### Pin-choice landmines for ESP32-WROOM-32
@@ -632,7 +632,7 @@ This is the section I really wish someone had written before I started...
 ### ESP32 pin disasters
 - **GPIO 35 is input-only** on ESP32-WROOM-32. `digitalWrite(35, ...)` is silently ignored — no error, just nothing happens. Stepper DIR pin had to move to GPIO 26.
 - **GPIO 0** held LOW at boot = the chip enters download mode and waits for a flash. Mine kept landing there because I'd accidentally left a jumper on it.
-- The DRV8825's **SLP and RST pins must be bridged together** (or both pulled HIGH). If they float LOW the driver looks alive (LED on, current chops audibly) but never actually steps.
+- The red motor driver's **SLP and RST pins must be bridged together** (or both pulled HIGH). If they float LOW the driver looks alive (LED on, current chops audibly) but never actually steps.
 
 ### Stepper motor + the dead 12 V PSU
 - **The actual root cause of half the motor-side bugs was a dying 12 V power supply.** It killed an ESP32 outright (the chip got hot enough to burn me when I touched it) and damaged a couple of jumper wires in ways I couldn't see. Symptoms were all over the place: motor not stepping, motor buzzing without turning, ESP32 boot-looping, intermittent serial. **Kassia helped me swap the PSU and replace every wire on the motor side, and the whole thing started working immediately.** Lesson: when a setup is misbehaving in three different ways at once, suspect upstream power before you suspect any one of the symptoms.
