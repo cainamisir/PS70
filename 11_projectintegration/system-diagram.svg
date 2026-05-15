@@ -1,84 +1,77 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="280"
-     viewBox="0 0 760 280" font-family="'Courier New', monospace">
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="280"
+     viewBox="0 0 780 280" font-family="'Courier New', monospace">
 
-  <rect width="760" height="280" fill="#0f172a" rx="12"/>
+  <rect width="780" height="280" fill="#0f172a" rx="12"/>
 
-  <text x="380" y="22" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="bold">
+  <text x="390" y="22" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="bold">
     Integration Week — System Architecture
   </text>
 
-  <!-- ── Row 1: hardware nodes ── -->
+  <!-- ── NEMA 17 ── x=16 w=100 -->
+  <rect x="16" y="42" width="100" height="68" rx="8" fill="#052e16" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="66" y="63"  text-anchor="middle" fill="#4ade80" font-size="10" font-weight="bold">NEMA 17</text>
+  <text x="66" y="78"  text-anchor="middle" fill="#86efac" font-size="8">stepper motor</text>
+  <text x="66" y="91"  text-anchor="middle" fill="#86efac" font-size="8">feeds pages</text>
+  <text x="66" y="103" text-anchor="middle" fill="#64748b" font-size="7">springs below</text>
 
-  <!-- NEMA 17 -->
-  <rect x="16" y="40" width="100" height="70" rx="8" fill="#052e16" stroke="#4ade80" stroke-width="1.5"/>
-  <text x="66" y="62"  text-anchor="middle" fill="#4ade80"  font-size="10" font-weight="bold">NEMA 17</text>
-  <text x="66" y="77"  text-anchor="middle" fill="#86efac"  font-size="8">stepper motor</text>
-  <text x="66" y="90"  text-anchor="middle" fill="#86efac"  font-size="8">feeds pages</text>
-  <text x="66" y="103" text-anchor="middle" fill="#64748b"  font-size="7">springs underneath</text>
+  <!-- arrow: ESP32 → NEMA  (gap = 65px, midpoint x=148) -->
+  <line x1="181" y1="76" x2="120" y2="76" stroke="#4ade80" stroke-width="2"/>
+  <polygon points="120,71 108,76 120,81" fill="#4ade80"/>
+  <text x="148" y="68" text-anchor="middle" fill="#86efac" font-size="8">STEP / DIR</text>
 
-  <!-- arrow ESP32 → NEMA (left-pointing) -->
-  <line x1="160" y1="75" x2="120" y2="75" stroke="#4ade80" stroke-width="2"/>
-  <polygon points="120,70 108,75 120,80" fill="#4ade80"/>
-  <text x="140" y="68" text-anchor="middle" fill="#86efac" font-size="8">STEP/DIR</text>
-  <text x="140" y="80" text-anchor="middle" fill="#86efac" font-size="7">GPIO 32/26</text>
+  <!-- ── ESP32 + DRV8825 ── x=181 w=130 -->
+  <rect x="181" y="42" width="130" height="68" rx="8" fill="#0f2a1e" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="246" y="63"  text-anchor="middle" fill="#4ade80" font-size="10" font-weight="bold">ESP32</text>
+  <text x="246" y="77"  text-anchor="middle" fill="#86efac" font-size="8">+ DRV8825 driver</text>
+  <text x="246" y="90"  text-anchor="middle" fill="#86efac" font-size="8">1/32 microstepping</text>
+  <text x="246" y="102" text-anchor="middle" fill="#60a5fa" font-size="7">HTTP /turn endpoint</text>
 
-  <!-- ESP32 + DRV8825 -->
-  <rect x="160" y="40" width="130" height="70" rx="8" fill="#0f2a1e" stroke="#4ade80" stroke-width="1.5"/>
-  <text x="225" y="60"  text-anchor="middle" fill="#4ade80"  font-size="10" font-weight="bold">ESP32</text>
-  <text x="225" y="74"  text-anchor="middle" fill="#86efac"  font-size="8">+ DRV8825 driver</text>
-  <text x="225" y="87"  text-anchor="middle" fill="#86efac"  font-size="8">1/32 microstepping</text>
-  <text x="225" y="100" text-anchor="middle" fill="#60a5fa"  font-size="7">HTTP POST /turn</text>
+  <!-- dashed trigger arrow: ESP32 → Camera  (gap=35px, midpoint x=329) -->
+  <line x1="311" y1="76" x2="347" y2="76" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="347,71 359,76 347,81" fill="#64748b"/>
+  <text x="329" y="68" text-anchor="middle" fill="#64748b" font-size="7">trigger</text>
 
-  <!-- dashed trigger arrow ESP32 → Camera -->
-  <line x1="290" y1="75" x2="330" y2="75" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <polygon points="330,70 342,75 330,80" fill="#64748b"/>
-  <text x="310" y="68" text-anchor="middle" fill="#64748b" font-size="7">trigger</text>
+  <!-- ── XIAO ESP32-S3 Camera ── x=359 w=130 -->
+  <rect x="359" y="42" width="130" height="68" rx="8" fill="#071527" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="424" y="63"  text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="bold">XIAO ESP32-S3</text>
+  <text x="424" y="77"  text-anchor="middle" fill="#93c5fd" font-size="8">OV2640 camera</text>
+  <text x="424" y="90"  text-anchor="middle" fill="#93c5fd" font-size="8">2048 × 1536 JPEG</text>
+  <text x="424" y="102" text-anchor="middle" fill="#60a5fa" font-size="7">WiFi POST /frame</text>
 
-  <!-- XIAO ESP32-S3 Cam -->
-  <rect x="342" y="40" width="130" height="70" rx="8" fill="#071527" stroke="#38bdf8" stroke-width="1.5"/>
-  <text x="407" y="60"  text-anchor="middle" fill="#38bdf8"  font-size="10" font-weight="bold">XIAO ESP32-S3</text>
-  <text x="407" y="74"  text-anchor="middle" fill="#93c5fd"  font-size="8">OV2640 camera</text>
-  <text x="407" y="87"  text-anchor="middle" fill="#93c5fd"  font-size="8">2048 × 1536 JPEG</text>
-  <text x="407" y="100" text-anchor="middle" fill="#60a5fa"  font-size="7">WiFi POST /frame</text>
+  <!-- arrow: Camera → Laptop  (gap=50px, midpoint x=514) -->
+  <line x1="489" y1="76" x2="539" y2="76" stroke="#38bdf8" stroke-width="2" stroke-dasharray="5,3"/>
+  <polygon points="539,71 551,76 539,81" fill="#38bdf8"/>
+  <text x="514" y="68" text-anchor="middle" fill="#93c5fd" font-size="8">WiFi  JPEG</text>
 
-  <!-- arrow Camera → Laptop (WiFi) -->
-  <line x1="472" y1="75" x2="512" y2="75" stroke="#38bdf8" stroke-width="2" stroke-dasharray="5,3"/>
-  <polygon points="512,70 524,75 512,80" fill="#38bdf8"/>
-  <text x="493" y="68" text-anchor="middle" fill="#93c5fd" font-size="8">WiFi</text>
-  <text x="493" y="80" text-anchor="middle" fill="#93c5fd" font-size="7">JPEG bytes</text>
+  <!-- ── Laptop ── x=551 w=120 -->
+  <rect x="551" y="42" width="120" height="68" rx="8" fill="#1e293b" stroke="#f97316" stroke-width="1.5"/>
+  <text x="611" y="63"  text-anchor="middle" fill="#f97316" font-size="10" font-weight="bold">Laptop</text>
+  <text x="611" y="77"  text-anchor="middle" fill="#fdba74" font-size="8">Python server</text>
+  <text x="611" y="90"  text-anchor="middle" fill="#fdba74" font-size="8">receives frames</text>
+  <text x="611" y="102" text-anchor="middle" fill="#fdba74" font-size="8">calls Claude API</text>
 
-  <!-- Laptop -->
-  <rect x="524" y="40" width="120" height="70" rx="8" fill="#1e293b" stroke="#f97316" stroke-width="1.5"/>
-  <text x="584" y="60"  text-anchor="middle" fill="#f97316"  font-size="10" font-weight="bold">Laptop</text>
-  <text x="584" y="74"  text-anchor="middle" fill="#fdba74"  font-size="8">Python server</text>
-  <text x="584" y="87"  text-anchor="middle" fill="#fdba74"  font-size="8">receives frames</text>
-  <text x="584" y="100" text-anchor="middle" fill="#fdba74"  font-size="8">calls Claude API</text>
+  <!-- arrow: Laptop → Claude  (gap=36px, midpoint x=689) -->
+  <line x1="671" y1="76" x2="705" y2="76" stroke="#f97316" stroke-width="2"/>
+  <polygon points="705,71 717,76 705,81" fill="#f97316"/>
+  <text x="689" y="68" text-anchor="middle" fill="#fdba74" font-size="7">HTTPS</text>
 
-  <!-- arrow Laptop → Claude -->
-  <line x1="644" y1="75" x2="672" y2="75" stroke="#f97316" stroke-width="2"/>
-  <polygon points="672,70 684,75 672,80" fill="#f97316"/>
-  <text x="658" y="68" text-anchor="middle" fill="#fdba74" font-size="7">HTTPS</text>
+  <!-- ── Claude ── x=717 w=48 -->
+  <rect x="717" y="42" width="48" height="68" rx="8" fill="#2d1b4e" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="741" y="63"  text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="bold">Claude</text>
+  <text x="741" y="77"  text-anchor="middle" fill="#c4b5fd" font-size="8">vision</text>
+  <text x="741" y="90"  text-anchor="middle" fill="#c4b5fd" font-size="8">API</text>
 
-  <!-- Claude -->
-  <rect x="684" y="40" width="64" height="70" rx="8" fill="#2d1b4e" stroke="#a78bfa" stroke-width="1.5"/>
-  <text x="716" y="63"  text-anchor="middle" fill="#a78bfa"  font-size="10" font-weight="bold">Claude</text>
-  <text x="716" y="77"  text-anchor="middle" fill="#c4b5fd"  font-size="8">vision API</text>
-  <text x="716" y="90"  text-anchor="middle" fill="#c4b5fd"  font-size="8">structured</text>
-  <text x="716" y="103" text-anchor="middle" fill="#c4b5fd"  font-size="8">output</text>
+  <!-- return arrow: Claude → Laptop (down then left) -->
+  <line x1="741" y1="110" x2="741" y2="148" stroke="#a78bfa" stroke-width="1.5"/>
+  <line x1="741" y1="148" x2="611" y2="148" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="611,143 599,148 611,153" fill="#a78bfa"/>
 
-  <!-- ── Row 2: output ── -->
-
-  <!-- down arrow from Claude -->
-  <line x1="716" y1="110" x2="716" y2="150" stroke="#a78bfa" stroke-width="1.5"/>
-  <line x1="716" y1="150" x2="584" y2="150" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <polygon points="584,145 572,150 584,155" fill="#a78bfa"/>
-
-  <!-- PageAnalysis output box -->
-  <rect x="160" y="160" width="530" height="100" rx="8" fill="#1c1917" stroke="#fbbf24" stroke-width="1.5"/>
-  <text x="425" y="182" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="bold">PageAnalysis — structured response from Claude</text>
-  <text x="180" y="202" fill="#d6d3d1" font-size="9">✦  is_paper_page        — skip blurry shots, fingers, blank surfaces</text>
-  <text x="180" y="218" fill="#d6d3d1" font-size="9">✦  page_number          — integer if printed on the page</text>
-  <text x="180" y="234" fill="#d6d3d1" font-size="9">✦  highlights           — verbatim text + colour (yellow / pink / green …)</text>
-  <text x="180" y="250" fill="#d6d3d1" font-size="9">✦  handwritten_notes    — transcribed margin annotations</text>
+  <!-- ── PageAnalysis output box ── -->
+  <rect x="181" y="160" width="560" height="100" rx="8" fill="#1c1917" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="461" y="180" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="bold">PageAnalysis — structured response</text>
+  <text x="200" y="200" fill="#d6d3d1" font-size="9">✦  is_paper_page     — skip blurry shots, fingers, blank surfaces</text>
+  <text x="200" y="216" fill="#d6d3d1" font-size="9">✦  page_number       — integer if printed on the page</text>
+  <text x="200" y="232" fill="#d6d3d1" font-size="9">✦  highlights        — verbatim text + colour (yellow / pink / green …)</text>
+  <text x="200" y="248" fill="#d6d3d1" font-size="9">✦  handwritten_notes — transcribed margin annotations</text>
 
 </svg>
