@@ -489,26 +489,9 @@ This was the messiest part of the project — and the part with the most lessons
 
 ### Why Florence-2 fell off
 
-Florence-2 was supposed to be the upgrade. It's a small vision-language model with a dedicated `<OCR>` task token; on a desktop GPU it crushes TrOCR. On the Pi 5 CPU, it took **30 seconds per handwriting crop** even with greedy decoding and `max_new_tokens=64`. With 2–3 handwriting regions per page, that's a full minute of OCR per page on top of everything else.
+Florence-2 worked in the end — but it took **30 seconds per handwriting crop** on the Pi 5 CPU. With 2–3 regions per page that's basically a minute of OCR per page, which was way too slow. It also had a bunch of compatibility issues with newer `transformers` releases that required pinning versions and patching cached files. Not worth it.
 
-Worse, it doesn't play nice with `torch.quantization.quantize_dynamic`. The error I got was a weirdly-typo'd `OCR: quantization failed: unknown architecure` (sic — the missing "t" is a clue the message comes from Florence-2's bundled modeling code, not from torch itself). Per-Linear-module quantization with try/except also bailed silently. Without quantization, no speedup, so the 30-second per-crop number is the floor on this hardware.
-
-Florence-2 also has compatibility issues with newer `transformers` releases. Loading it raised:
-
-```
-AttributeError: 'Florence2LanguageConfig' object has no attribute 'forced_bos_token_id'
-```
-
-I patched that line by replacing `self.forced_bos_token_id` with `getattr(self, 'forced_bos_token_id', None)` in the cached `configuration_florence2.py`, only to hit the next:
-
-```
-AttributeError: RobertaTokenizer has no attribute additional_special_tokens.
-                Did you mean: 'add_special_tokens'?
-```
-
-At that point it was clearly going to be a game of whack-a-mole with each transformers release, so I pinned `transformers==4.45.2` and Florence-2 finally loaded. That fixed it. The 30 s/crop latency did not.
-
-**Decision: revert to TrOCR-small and make it as fast as possible.**
+**Reverted to TrOCR-small and made it as fast as possible.**
 
 ### Making TrOCR fast
 
