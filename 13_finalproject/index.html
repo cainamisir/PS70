@@ -151,8 +151,8 @@ So I built a machine that fixes this. Put your stack in the feeder, press **Auto
 It works.
 
 <figure>
-  <img src="./IMG_9485.jpg" class="img-fluid" alt="Assembled rig">
-  <figcaption>Bottom-up view of the assembled rig: the laser-cut scanner body, the CSI ribbon to the camera, the page-feed wheel on the bottom, and the 3D-printed compute enclosure with the Pi 5 inside (the fan I clipped on top is being held to the side here for the shot).</figcaption>
+  <img src="./IMG_9533.jpg" class="img-fluid" alt="Full scanner rig">
+  <figcaption>The full scanner — laser-cut plywood body with the LEGO wheel roller in the middle, NEMA 17 at the front, and the 3D-printed compute enclosure clipped to the back with the Pi, fan, and batteries.</figcaption>
 </figure>
 
 # What it does, end-to-end
@@ -267,14 +267,6 @@ DRV8825 1A,1B,2A,2B ──▶ NEMA 17 coils  (one pair per coil — test pairing
   <figcaption>The ESP32-WROOM-32 (right) and the red motor driver (left, with heatsink) on a breadboard. Yellow + blue + red wires fan out to the motor coils; the thinner jumpers go to STEP / DIR / VDD / MS pins.</figcaption>
 </figure>
 
-### Pin-choice landmines for ESP32-WROOM-32
-
-| Pin range | Why to avoid |
-|---|---|
-| **GPIO 0, 2, 5, 12, 15** | Strapping pins — driving them wrong at boot can prevent the chip from starting. |
-| **GPIO 6–11** | Wired to on-board SPI flash. Don't touch. |
-| **GPIO 34, 35, 36, 39** | **Input-only.** `digitalWrite(35, HIGH)` is silently ignored. Hit this exact bug once with the DIR pin assigned to GPIO 35 — silent failure, hard to debug. |
-| Safe outputs | 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33 |
 
 
 # Paper feeder mechanics
@@ -337,6 +329,17 @@ The big body is mostly laser-cut — flat panels with slots/tabs that fit togeth
 The compute enclosure is 3D-printed in Fusion 360. Five stacked rows top-to-bottom: **battery → ESP32 → battery → Raspberry Pi 5 → fan**. The batteries flank the ESP32 so the motor side stays power-isolated from the Pi side.
 
 It clips onto the side of the laser-cut scanner body. The nice thing is you can pull the whole compute stack off, set it on another desk, snap it back, and the camera-paper geometry is exactly the same as before.
+
+<div style="display:flex; gap:16px; flex-wrap:wrap; margin:20px 0;">
+  <figure style="flex:1; min-width:260px; margin:0;">
+    <img src="./IMG_9525.jpg" class="img-fluid" alt="Compute enclosure front">
+    <figcaption>Front: fan (left), Pi 5 with CSI ribbon, battery pack, and the ESP32 breadboard clipped to the side.</figcaption>
+  </figure>
+  <figure style="flex:1; min-width:260px; margin:0;">
+    <img src="./IMG_9534.jpg" class="img-fluid" alt="Compute enclosure back">
+    <figcaption>Back: the 12V barrel connector and USB-C charger wires coming out of the enclosure.</figcaption>
+  </figure>
+</div>
 
 The CAD model for the compute enclosure is live below (Fusion 360 viewer — rotate, zoom, explode).
 
@@ -587,18 +590,18 @@ Back to 2.4 GHz, all 4 cores, no crashes, ~8 s per page. **The lesson:** the thr
 # Demo screenshots
 
 <figure>
-  <img src="./screenshot-ui-running.png" class="img-fluid" alt="UI mid-scan">
-  <figcaption>PLACEHOLDER: full UI screenshot during an auto-scan — live camera (left), annotated PDF render (right), timing log with per-stage events, highlight pills and handwriting OCR results below.</figcaption>
+  <img src="./pre-scan.png" class="img-fluid" alt="UI idle state">
+  <figcaption>The UI in idle state — paper library across the top (each card is an ingested PDF), live camera on the left with a handwritten paper in view, and the unedited PDF on the right. The green "Auto-scan whole paper" button starts the loop.</figcaption>
 </figure>
 
 <figure>
-  <img src="./screenshot-debug-overlay.png" class="img-fluid" alt="Debug overlay">
-  <figcaption>PLACEHOLDER: the debug overlay — orange word boxes (every printed word's known position), colored outlines (detected highlights), red boxes (handwriting regions), green page-bounds rectangle.</figcaption>
+  <img src="./recognized.png" class="img-fluid" alt="UI during active scan">
+  <figcaption>Active scan — the "Stop scan" button is live, and the pipeline log at the bottom is ticking through each stage: motor_turn, settle, capture, match_found. The PDF on the right already has the detected highlights (blue and red outlines) stamped in from the previous page.</figcaption>
 </figure>
 
 <figure>
-  <img src="./screenshot-highlights.png" class="img-fluid" alt="Before / after">
-  <figcaption>PLACEHOLDER: a side-by-side — physical page with blue + red highlights and a hand-written margin note, next to the annotated PDF in Preview showing the same highlights and the OCR'd text inserted at the margin location.</figcaption>
+  <img src="./debugging.png" class="img-fluid" alt="Highlights detected and stamped into PDF">
+  <figcaption>The physical page in the camera (left) and the resulting annotated PDF (right) — the yellow highlights from the paper are now highlight annotations in the PDF at the exact same locations.</figcaption>
 </figure>
 
 # Source code
@@ -608,12 +611,6 @@ All five files used in the project, with syntax highlighting. Click a tab to swi
 <div id="source-tabs-mount"></div>
 
 The UI template (`ocr-notes/templates/index.html`) is ~600 lines of HTML + CSS + vanilla JS — mostly markup, included in the `index.html` tab above. All code for the project is on this page; nothing is hosted externally.
-
-File locations on my machine, for reference:
-
-- Pi-side Python (`app.py`, `pipeline.py`, `source.py`): `/Users/vlad/Projects/rpi-flash/ocr-notes/`
-- ESP32 firmware: `/Users/vlad/Projects/ocresp32/firmware/motor/motor.ino`
-- Mac sync watcher: `/Users/vlad/Projects/rpi-flash/sync.py`
 
 # Lessons learned
 
@@ -629,23 +626,14 @@ This is the section I really wish someone had written before I started...
 - Continuous AF (`AfMode=Continuous`) is what made it actually focus.
 - 75° diagonal FOV is **narrower than most webcams**. The camera needs ~20 cm clearance above an A4 page; the [wide variant](https://www.arducam.com/arducam-12mp-imx708-120-dfov-wide-angle-fixed-focus-hdr-mipi-camera-module-for-raspberry-pi.html) (102°) would let the rig be shorter.
 
-### ESP32 pin disasters
-- **GPIO 35 is input-only** on ESP32-WROOM-32. `digitalWrite(35, ...)` is silently ignored — no error, just nothing happens. Stepper DIR pin had to move to GPIO 26.
-- **GPIO 0** held LOW at boot = the chip enters download mode and waits for a flash. Mine kept landing there because I'd accidentally left a jumper on it.
-- The red motor driver's **SLP and RST pins must be bridged together** (or both pulled HIGH). If they float LOW the driver looks alive (LED on, current chops audibly) but never actually steps.
 
 ### Stepper motor + the dead 12 V PSU
 - **The actual root cause of half the motor-side bugs was a dying 12 V power supply.** It killed an ESP32 outright (the chip got hot enough to burn me when I touched it) and damaged a couple of jumper wires in ways I couldn't see. Symptoms were all over the place: motor not stepping, motor buzzing without turning, ESP32 boot-looping, intermittent serial. **Kassia helped me swap the PSU and replace every wire on the motor side, and the whole thing started working immediately.** Lesson: when a setup is misbehaving in three different ways at once, suspect upstream power before you suspect any one of the symptoms.
 - **MS1/MS2/MS3 all tied HIGH** for 1/32 microstepping on DRV8825. Floating = full step = unbearable grinding noise and the motor stalls at our step rate.
 - Steppers **cannot start at high speed from rest**. At 100 µs half-period from a dead stop the motor just buzzes. I briefly added an acceleration ramp; the simpler answer was to just keep the cruise speed modest.
 
-### Python / model environment
-- Pi OS Bookworm/Trixie's system Python is PEP 668 externally-managed. `pip install` needs `--break-system-packages` or a venv. I used a venv with `--system-site-packages` so apt-installed cv2 / Picamera2 / NumPy are inherited and only `torch` + `transformers` get pip-installed on top.
-- I tried `microsoft/Florence-2-base` first but its bundled `configuration_florence2.py` is incompatible with newer transformers releases (`AttributeError: 'Florence2LanguageConfig' object has no attribute 'forced_bos_token_id'`) — and each monkey-patch revealed the next issue. **Settled on TrOCR-small + int8 quantization:** smaller, runs at the speed budget, no architectural drama.
-
 ### Networking
 - **mDNS** is the gift that makes Pi ↔ ESP32 ↔ Mac discovery trivial — `reader.local`, `ocresp32-motor.local` — until you hit a network with client isolation (where nothing `.local` resolves between clients). I have a hard-coded IP fallback for that case.
-- Picked an **uncommon port (51917)** for the ESP32 web server so randos on shared/public WiFi can't trigger page turns by hitting `:80`.
 
 ### File sync race conditions
 - The Pi serves the annotated PDF, the Mac polls every 2 s, **validates** that the bytes start with `%PDF-` and end with `%%EOF` within the last 1 KB, and only then atomically replaces the local file. Without these checks, a single Pi crash mid-write would corrupt my source-of-truth PDFs.
@@ -669,15 +657,10 @@ This is the section I really wish someone had written before I started...
 - **A purpose-built page feeder** — the spring-loaded platen + roller works but a proper friction-feed mechanism (like the one in a cheap document scanner) would be more compact and more reliable.
 - **Wide-FOV camera module** — Camera Module 3 Wide (102° diagonal) would let the rig be much smaller.
 - **Multi-paper batch mode.** Today the stop condition is "blank page = done"; for stacks separated by blank sheets I'd want to keep going and produce a separate annotated PDF per paper.
-- **Voice-note annotations.** Mic on the Pi + Whisper-tiny → spoken margin notes typed into the PDF at the cursor position.
 
 # Code locations
 
-All code is embedded on this page in the tabs above. The local paths on my machine, for reference:
-
-- **Pi:** `/Users/vlad/Projects/rpi-flash/ocr-notes/` (deployed to `vlad@reader.local:~/ocr-notes/`)
-- **ESP32:** `/Users/vlad/Projects/ocresp32/firmware/motor/motor.ino`
-- **Mac sync:** `/Users/vlad/Projects/rpi-flash/sync.py`
+All code is embedded on this page in the tabs above.
 
 
 
