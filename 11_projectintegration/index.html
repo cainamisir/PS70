@@ -109,11 +109,11 @@ void handleTurnHttp() { doPageFeed(); server.send(200, "application/json", "{\"o
   <h4>Camera setup — XIAO ESP32-S3 Sense</h4>
 
   <p>
-    For the camera I used a <strong>Seeed XIAO ESP32-S3 Sense</strong> with its built-in OV2640.
-    It captures full-resolution JPEG frames (2048×1536) and POSTs them over WiFi to a Python
-    server running on the Raspberry Pi, which feeds them into the OCR pipeline. The sensor is
-    tuned specifically for printed text and highlighted passages — boosted contrast, lens
-    correction to fix vignetting at the edges, and AGC capped at 2× to limit noise.
+    For the camera I used a <strong>Seeed XIAO ESP32-S3 Sense</strong> — an ESP32-S3 with a
+    built-in OV2640 camera module. At this stage there was no Raspberry Pi; the camera captured
+    JPEG frames and POSTed them directly to <strong>Claude's API</strong> for OCR. The sensor
+    is tuned for printed text and highlighted passages — boosted contrast, lens correction to
+    fix vignetting at the edges, and AGC capped at 2× to limit noise.
   </p>
 
   <pre><code class="language-cpp">// XIAO ESP32-S3 Sense — OV2640 camera, periodic JPEG capture → POST to Pi
