@@ -106,6 +106,19 @@ void doPageFeed() {
 // HTTP endpoint — Raspberry Pi calls POST /turn to advance one page
 void handleTurnHttp() { doPageFeed(); server.send(200, "application/json", "{\"ok\":true}"); }</code></pre>
 
+  <h4>The double-page problem</h4>
+
+  <p>
+    The trickiest mechanical issue this week: sometimes the roller would grab <strong>two pages at
+    once</strong>, and instead of the second page feeding on top, it would slide
+    <strong>underneath the first one</strong>. This happened because the forward stroke had enough
+    friction to pull two sheets together, and the short backward kick wasn't always enough to
+    separate them cleanly before the next cycle. The springs help by keeping the paper stack
+    pressed up consistently, but the root fix was tuning <code>backwardSteps</code> and
+    <code>stepDelayUs</code> until the reverse motion was sharp enough to break the static
+    friction between sheets without overshooting.
+  </p>
+
   <h4>System overview</h4>
 
   <img src="./system-diagram.svg" alt="Integration week system diagram"
