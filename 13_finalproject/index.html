@@ -144,9 +144,9 @@
 
 # Motivation
 
-I read a lot of academic papers and I always print them out, highlight with markers, and scribble in the margins. The marked-up paper is more useful to me than the digital one — but my notes live on dead trees while everything else (citations, search, sync between devices) lives on my laptop.
+I read a LOT of academic papers. I always print them out, highlight with markers, and scribble in the margins — the marked-up paper is just more useful to me than the digital version. The problem is all my notes end up on dead trees while everything else (citations, search, syncing between devices) lives on my laptop.
 
-I wanted a machine that closes the loop: **feed it a marked-up paper, and the original PDF on my computer gets the same highlights and the same margin notes baked in, automatically.** No retyping, no scanning to a separate doc, no manual transcription. Place the stack of papers in the feeder, press **Auto-scan**, walk away.
+So I built a machine that fixes this. Put your stack in the feeder, press **Auto-scan**, walk away. The original PDF on your computer gets the highlights and margin notes baked in automatically. No retyping, no manual transcription.
 
 It works.
 
@@ -279,15 +279,11 @@ DRV8825 1A,1B,2A,2B ──▶ NEMA 17 coils  (one pair per coil — test pairing
 
 # Paper feeder mechanics
 
-The page-feed motor + roller can't actually hold a stack of papers up at the right height by itself — as the stack gets shorter (we've fed several pages through), the top sheet drops and stops making contact with the drive roller.
+The obvious problem: as you feed pages, the stack gets shorter and the top sheet drops away from the roller. I was going to do a rack and pinion to compensate... then I realized springs work way better and have zero moving parts you need to worry about.
 
-The fix I used is dumb and effective: a **set of springs underneath the paper stack**, with the stack resting on a flat platen. The springs push the platen (and the whole paper stack) upward against an overhead stop. As the top sheet feeds away, the stack thins, the springs decompress and push the platen up by the thickness of that sheet, and the new top page lands at the same height as the previous one. Constant top-of-stack height with no electronics, no encoders, and almost no friction.
+I put 9 springs under a plywood platen, paper stack sits on top. As pages feed off, the springs push the platen up by exactly one sheet thickness. The roller is at a fixed height — it just always has paper to grab. It's dumb and it works great.
 
-The roller is positioned just below that fixed top height. Each `turn` from the ESP32 drives the roller; the top sheet rolls off, and the spring-loaded platen pops the next sheet up into place. The 3-second `settle_ms` wait in the auto-scan loop is enough time for the spring/paper system to come to rest after a feed.
-
-The "roller" itself is a stack of **three LEGO wheel rims** on the stepper shaft. Two were real LEGO wheels we had in the lab. With only those two, the contact width didn't span the full sheet — pages tended to skew and travel diagonally as they rolled. I 3D-printed a third matching wheel and added it to the stack so the roller covered the full page width, and the skew went away. The rubber tire profile on the LEGO rim grips paper surprisingly well.
-
-The whole assembly is rough-and-ready — a properly-designed page-feeder mechanism would be the obvious next upgrade — but with the spring force tuned (enough to lift the current stack, not so much that the roller can't peel a sheet off), it's been working well enough.
+The roller itself is a stack of **three LEGO wheel rims** on the stepper shaft. I only had two real LEGO wheels from the lab, and with just those two the contact width wasn't wide enough — pages kept going sideways. I 3D-printed a third matching wheel, added it to the stack, skew went away. The rubber tire profile grips paper surprisingly well.
 
 
 
@@ -298,7 +294,7 @@ The whole assembly is rough-and-ready — a properly-designed page-feeder mechan
 
 ## The page-feed pattern (and the short backward kick)
 
-Tuning the page-feed command took a lot of trial and error. The trick I landed on: drive the roller **forward** to roll the top sheet off, then drive it **backward** for a shorter distance. The forward stroke does the actual page advance; the backward stroke pushes the next sheet (which the grippy roller tends to grab partially along with the top one) back down under the stack instead of leaving it caught above.
+Tuning this took forever... The trick I landed on: drive forward to roll the top sheet off, then a short reverse kick. The forward stroke does the actual page advance; the backward stroke pushes the second sheet (which the roller tends to grab partially) back under the stack instead of leaving it stuck above.
 
 The fix is the two-phase pattern that's hard-coded in the firmware:
 
@@ -323,11 +319,11 @@ The exact step counts (8700 fwd, 3500 back) came out of tuning by hand with the 
 
 # Enclosures
 
-There are two enclosures in this build, made very differently.
+There are two enclosures, made very differently.
 
 ## The main scanner enclosure (laser-cut + bandsaw)
 
-The big body that holds the paper feeder, the spring-loaded platen, the camera mount, and the slot the compute stack clips into is **mostly laser-cut from sheet stock** — flat panels with slots/tabs that join into a rigid box. A few extra pieces were **cut on the bandsaw** later as I was iterating on the design: it was faster to grab some stock and bandsaw an adjustment than to redraw the cut file and re-run the laser. The whole thing is rigid enough that the paper-camera geometry stays consistent across moves, which is the point.
+The big body is mostly laser-cut — flat panels with slots/tabs that fit together into a rigid box. A few pieces I cut on the bandsaw later as I was iterating, because it was way faster than redrawing in CAD and re-running the laser every time. The important thing is it's rigid enough that the camera-to-paper geometry doesn't shift around.
 
 
 
@@ -338,9 +334,9 @@ The big body that holds the paper feeder, the spring-loaded platen, the camera m
   <figcaption>The 3D-printed compute enclosure clipped onto the side of the scanner body. The Raspberry Pi 5 is visible through the front face; the white cylinder above is one of the battery packs; the fan in the foreground (held by hand) clips onto the top of this enclosure to cool the Pi.</figcaption>
 </figure>
 
-Separate from the main body, the **electronics live in a small 3D-printed enclosure** I designed in Fusion 360. Five stacked rows, top-to-bottom: **battery → ESP32 → battery → Raspberry Pi 5 → fan**. The two batteries flank the ESP32 so the motor side stays power-isolated from the Pi side; the Pi 5 sits below with its fan exhausting downward.
+The compute enclosure is 3D-printed in Fusion 360. Five stacked rows top-to-bottom: **battery → ESP32 → battery → Raspberry Pi 5 → fan**. The batteries flank the ESP32 so the motor side stays power-isolated from the Pi side.
 
-The compute enclosure **clips onto the side of the main laser-cut scanner body**, so power, compute, motor, and camera all move together as one rigid unit — pull it off, set it down on another desk, snap it back on, and the geometry between the camera and the paper feeder is preserved.
+It clips onto the side of the laser-cut scanner body. The nice thing is you can pull the whole compute stack off, set it on another desk, snap it back, and the camera-paper geometry is exactly the same as before.
 
 The CAD model for the compute enclosure is live below (Fusion 360 viewer — rotate, zoom, explode).
 
@@ -621,7 +617,7 @@ File locations on my machine, for reference:
 
 # Lessons learned
 
-This is the section I wish someone had written before I started.
+This is the section I really wish someone had written before I started...
 
 ### Power
 - A Raspberry Pi 5 needs **5 V / 5 A** sustained. Phone chargers, generic 5 V/2 A wall warts, and most laptop USB-C ports will brown out during CPU + camera + encode spikes. The kernel just resets, nothing in the log. Once I switched to the official 27 W PSU all the random "crashes" stopped instantly.
