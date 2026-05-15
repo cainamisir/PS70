@@ -50,21 +50,15 @@
   <h3>Week 8: CNC</h3>
 
   <p>
-    For this week I milled a map into MDF and vacuum formed it. The script I wrote can generate
-    both Bucharest (city outline + 6 sectors) and Romania (country + 41 counties). I tried
-    Bucharest first, but decided Romania would look cooler — more shapes inside means more
-    interesting relief in the mold and more detail visible in the vacuum form.
+    For this week I wanted to make a map. I initially did Bucharest (city + 6 sectors) but then
+    I thought Romania would look way cooler because it has SO many more shapes inside... and I
+    was right.
   </p>
 
-  <h4>Design</h4>
-
   <p>
-    Rather than drawing the map by hand, I wrote a Python script that pulls the administrative
-    boundaries directly from <strong>OpenStreetMap</strong> and <strong>Natural Earth</strong>
-    data and renders them to SVG at the exact panel size. The county polygons come from Natural
-    Earth's Admin-1 dataset — the generalization level is perfect for engraving (clean lines,
-    no over-detail). The script dissolves all counties into one shape for the country outline,
-    then plots the county boundaries on top at a thinner stroke weight.
+    Instead of drawing it by hand I wrote a Python script that pulls the county boundaries straight
+    from Natural Earth data and spits out an SVG at the exact panel size. Open it in VCarve,
+    done!
   </p>
 
   <img src="./romania.svg" alt="Romania CNC design — country outline + 41 counties"
@@ -100,23 +94,22 @@ def romania():
 
 romania()</code></pre>
 
-  <h4>CNC milling + vacuum forming</h4>
+  <h4>Milling + vacuum forming</h4>
 
   <p>
-    The SVG was milled into <strong>MDF</strong> using the <strong>ShopBot</strong> —
-    the country outline is cut proud of the surface, and the county boundaries are carved as
-    channels within the Romania shape. The depth difference between the outer border and the
-    internal county lines gives the mold its relief.
+    I milled the map into MDF on the ShopBot — the county borders come out as channels and the
+    country outline is cut deeper so it reads as the dominant edge. Took a while to get the depths
+    right so both levels were actually visible.
   </p>
 
   <p>
-    The MDF mold was then used to <strong>vacuum form</strong> a sheet of clear plastic over it,
-    pulling the plastic tight into every county channel. The result is a transparent Romania with
-    all 41 county boundaries visible as raised ridges.
+    Then I vacuum formed a sheet of clear plastic over it. The plastic pulls into every channel
+    and you end up with this transparent Romania where you can see all 41 counties as raised
+    ridges. It looks really cool honestly!
   </p>
 
   <div class="img-row">
-    <img src="./IMG_9523.jpg" alt="CNC milled MDF mold — Romania with county channels">
+    <img src="./IMG_9523.jpg" alt="CNC milled MDF mold">
     <img src="./IMG_9524.jpg" alt="Vacuum formed clear plastic result">
   </div>
 
