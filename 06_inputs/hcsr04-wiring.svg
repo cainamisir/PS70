@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="450"
+     viewBox="0 0 720 450" font-family="'Courier New', monospace">
+
+  <!-- Background -->
+  <rect width="720" height="450" fill="#0f172a" rx="12"/>
+
+  <!-- Title -->
+  <text x="360" y="30" text-anchor="middle" fill="#cbd5e1"
+        font-size="14" font-weight="bold">HC-SR04 Wiring — Heltec WiFi LoRa 32 V3</text>
+
+  <!-- ═══════════════════ Heltec V3 Board ═══════════════════ -->
+  <rect x="20" y="50" width="140" height="310" rx="10"
+        fill="#052e16" stroke="#4ade80" stroke-width="2"/>
+  <text x="90" y="75" text-anchor="middle" fill="#4ade80"
+        font-size="12" font-weight="bold">Heltec V3</text>
+  <text x="90" y="90" text-anchor="middle" fill="#86efac" font-size="9">ESP32-S3</text>
+
+  <!-- Chip silkscreen -->
+  <rect x="38" y="102" width="104" height="58" rx="4"
+        fill="#14532d" stroke="#4ade80" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="90" y="134" text-anchor="middle" fill="#4ade80" font-size="9">ESP32-S3</text>
+
+  <!-- OLED decoration -->
+  <rect x="38" y="170" width="104" height="55" rx="4"
+        fill="#0a1f15" stroke="#4ade80" stroke-width="1"/>
+  <text x="90" y="201" text-anchor="middle" fill="#4ade80" font-size="8">OLED</text>
+
+  <!-- Heltec pin connectors (right side) -->
+  <!-- 5V -->
+  <rect x="153" y="143" width="17" height="14" rx="3" fill="#1c1917" stroke="#ef4444" stroke-width="1.5"/>
+  <circle cx="170" cy="150" r="4" fill="#ef4444"/>
+  <text x="145" y="154" text-anchor="end" fill="#ef4444" font-size="11">5V</text>
+
+  <!-- GND -->
+  <rect x="153" y="188" width="17" height="14" rx="3" fill="#1c1917" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="170" cy="195" r="4" fill="#94a3b8"/>
+  <text x="145" y="199" text-anchor="end" fill="#94a3b8" font-size="11">GND</text>
+
+  <!-- GPIO 4 -->
+  <rect x="153" y="238" width="17" height="14" rx="3" fill="#1c1917" stroke="#4ade80" stroke-width="1.5"/>
+  <circle cx="170" cy="245" r="4" fill="#4ade80"/>
+  <text x="145" y="249" text-anchor="end" fill="#4ade80" font-size="11">GPIO 4</text>
+
+  <!-- GPIO 5 -->
+  <rect x="153" y="288" width="17" height="14" rx="3" fill="#1c1917" stroke="#60a5fa" stroke-width="1.5"/>
+  <circle cx="170" cy="295" r="4" fill="#60a5fa"/>
+  <text x="145" y="299" text-anchor="end" fill="#60a5fa" font-size="11">GPIO 5</text>
+
+
+  <!-- ═══════════════════ HC-SR04 ═══════════════════ -->
+  <rect x="540" y="100" width="162" height="215" rx="10"
+        fill="#0c1a35" stroke="#38bdf8" stroke-width="2"/>
+  <text x="621" y="125" text-anchor="middle" fill="#38bdf8"
+        font-size="12" font-weight="bold">HC-SR04</text>
+
+  <!-- Ultrasonic transducers -->
+  <circle cx="580" cy="210" r="30" fill="#071527" stroke="#38bdf8" stroke-width="1.5"/>
+  <circle cx="580" cy="210" r="20" fill="none" stroke="#38bdf8" stroke-width="1" stroke-dasharray="3,2"/>
+  <circle cx="580" cy="210" r="9"  fill="#071527" stroke="#38bdf8" stroke-width="1.5"/>
+
+  <circle cx="660" cy="210" r="30" fill="#071527" stroke="#38bdf8" stroke-width="1.5"/>
+  <circle cx="660" cy="210" r="20" fill="none" stroke="#38bdf8" stroke-width="1" stroke-dasharray="3,2"/>
+  <circle cx="660" cy="210" r="9"  fill="#071527" stroke="#38bdf8" stroke-width="1.5"/>
+
+  <!-- HC-SR04 pins (left side) -->
+  <!-- VCC -->
+  <rect x="540" y="143" width="17" height="14" rx="3" fill="#1c1917" stroke="#ef4444" stroke-width="1.5"/>
+  <circle cx="540" cy="150" r="4" fill="#ef4444"/>
+  <text x="565" y="154" fill="#ef4444" font-size="11">VCC</text>
+
+  <!-- GND -->
+  <rect x="540" y="188" width="17" height="14" rx="3" fill="#1c1917" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="540" cy="195" r="4" fill="#94a3b8"/>
+  <text x="565" y="199" fill="#94a3b8" font-size="11">GND</text>
+
+  <!-- TRIG -->
+  <rect x="540" y="238" width="17" height="14" rx="3" fill="#1c1917" stroke="#4ade80" stroke-width="1.5"/>
+  <circle cx="540" cy="245" r="4" fill="#4ade80"/>
+  <text x="565" y="249" fill="#4ade80" font-size="11">TRIG</text>
+
+  <!-- ECHO -->
+  <rect x="540" y="288" width="17" height="14" rx="3" fill="#1c1917" stroke="#f97316" stroke-width="1.5"/>
+  <circle cx="540" cy="295" r="4" fill="#f97316"/>
+  <text x="565" y="299" fill="#f97316" font-size="11">ECHO</text>
+
+
+  <!-- ═══════════════════ Wires ═══════════════════ -->
+
+  <!-- 5V → VCC  (red, straight) -->
+  <line x1="170" y1="150" x2="540" y2="150" stroke="#ef4444" stroke-width="2.5"/>
+
+  <!-- GND → GND  (gray, straight) -->
+  <line x1="170" y1="195" x2="540" y2="195" stroke="#94a3b8" stroke-width="2.5"/>
+
+  <!-- GPIO 4 → TRIG  (green, straight — no resistor needed) -->
+  <line x1="170" y1="245" x2="540" y2="245" stroke="#4ade80" stroke-width="2.5"/>
+  <text x="355" y="239" text-anchor="middle" fill="#86efac" font-size="9">direct — no resistor</text>
+
+  <!-- GPIO 5 ──[1kΩ]──┬── ECHO   (voltage divider) -->
+  <!--                 [2kΩ]                         -->
+  <!--                  │                            -->
+  <!--                 GND                           -->
+
+  <!-- wire: GPIO5 → 1kΩ -->
+  <line x1="170" y1="295" x2="325" y2="295" stroke="#60a5fa" stroke-width="2.5"/>
+
+  <!-- 1kΩ resistor body -->
+  <rect x="325" y="283" width="68" height="24" rx="5"
+        fill="#1c1917" stroke="#fbbf24" stroke-width="2"/>
+  <!-- zigzag decoration inside resistor -->
+  <polyline points="333,295 340,285 347,305 354,285 361,305 368,285 375,295 381,295"
+            fill="none" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="393" y="290" fill="#fbbf24" font-size="9" font-weight="bold">1 kΩ</text>
+
+  <!-- wire: 1kΩ → junction -->
+  <line x1="393" y1="295" x2="430" y2="295" stroke="#94a3b8" stroke-width="2.5"/>
+
+  <!-- junction dot -->
+  <circle cx="430" cy="295" r="5.5" fill="#fbbf24"/>
+
+  <!-- wire: junction → ECHO -->
+  <line x1="430" y1="295" x2="540" y2="295" stroke="#f97316" stroke-width="2.5"/>
+
+  <!-- wire: junction → 2kΩ (going down) -->
+  <line x1="430" y1="300" x2="430" y2="340" stroke="#94a3b8" stroke-width="2.5"/>
+
+  <!-- 2kΩ resistor body (vertical) -->
+  <rect x="418" y="340" width="24" height="62" rx="5"
+        fill="#1c1917" stroke="#fbbf24" stroke-width="2"/>
+  <!-- zigzag inside -->
+  <polyline points="430,348 420,354 440,361 420,368 440,375 420,382 430,388"
+            fill="none" stroke="#fbbf24" stroke-width="1.2"/>
+
+  <!-- 2kΩ label (right side of vertical resistor) -->
+  <text x="448" y="368" fill="#fbbf24" font-size="9" font-weight="bold">2 kΩ</text>
+
+  <!-- wire: 2kΩ → GND symbol -->
+  <line x1="430" y1="402" x2="430" y2="415" stroke="#94a3b8" stroke-width="2.5"/>
+
+  <!-- GND symbol -->
+  <line x1="410" y1="415" x2="450" y2="415" stroke="#94a3b8" stroke-width="2.5"/>
+  <line x1="416" y1="422" x2="444" y2="422" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="423" y1="429" x2="437" y2="429" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="430" y="443" text-anchor="middle" fill="#64748b" font-size="9">GND</text>
+
+  <!-- Voltage divider annotation -->
+  <text x="262" y="322" fill="#fbbf24" font-size="9">5V → 3.3V</text>
+  <text x="262" y="333" fill="#fbbf24" font-size="9">voltage divider</text>
+
+  <!-- Footnote -->
+  <text x="360" y="443" text-anchor="middle" fill="#475569" font-size="9">
+    ★  5V pin active only when Heltec is powered via USB
+  </text>
+
+</svg>

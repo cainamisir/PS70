@@ -3,9 +3,87 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PS70: Intro to Digital Fabrication</title>
+  <title>PS70 // Week 6: Inputs</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="../style.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .figure {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .figure img, .figure svg {
+      max-width: 100%;
+      display: block;
+      margin: 0 auto;
+      border: 1px solid var(--border-color);
+    }
+    .calib-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      margin: 20px 0;
+    }
+    .calib-table th {
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 11px;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+    .calib-table td {
+      padding: 8px 14px;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+    .calib-table tr:last-child td {
+      color: var(--accent-orange);
+    }
+    .wiring-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      margin: 20px 0;
+    }
+    .wiring-table th {
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 11px;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+    .wiring-table td {
+      padding: 8px 14px;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+    .equation {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--bg-secondary);
+      border-left: 3px solid var(--accent-cyan);
+      padding: 14px 20px;
+      margin: 20px 0;
+      color: var(--accent-cyan);
+      font-size: 15px;
+    }
+    .chart-wrap {
+      max-width: 620px;
+      margin: 30px auto;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+    }
+  </style>
 </head>
 <body>
 
@@ -19,33 +97,302 @@
   </div>
 </nav>
 
-<xmp style="display:none;">
 <div class="textcontainer">
 
-<h3>Week 6: Inputs</h3>
+  <h3>Week 6: Inputs</h3>
 
-<p class="margin">   </p>
+  <p>Worked on this with Aadit, David and Darwin.</p>
 
-Worked on this with Aadit, David and Darwin, forgot to link the page.
+  <iframe src="https://aaditsaluja.github.io/ps70/06_inputs/index.html" width="100%" height="600px" style="border:1px solid var(--border-color); margin: 20px 0;"></iframe>
 
+  <p>Also did the Oblometer in class!</p>
 
-<p class="margin">   </p>
+  <iframe src="https://rubyeye7.github.io/PS70/06_inputs/index.html" width="100%" height="600px" style="border:1px solid var(--border-color); margin: 20px 0;"></iframe>
 
-<!-- You can add images like this: -->
-<!-- ![image description](./image.png) -->
+  <hr style="border-color: var(--border-color); margin: 40px 0;">
 
-<!-- You can add links like this: -->
-<!-- [Link text](https://example.com) -->
+  <h3>HC-SR04 Ultrasonic Distance Sensor</h3>
 
-<iframe src="https://aaditsaluja.github.io/ps70/06_inputs/index.html" width="100%" height="600px"></iframe>
+  <p>
+    For my individual sensor work I calibrated an <strong>HC-SR04</strong> ultrasonic distance sensor
+    wired to a <strong>Heltec WiFi LoRa 32 V3</strong> (ESP32-S3). The sensor measures distance by
+    sending a 40 kHz ultrasonic pulse and timing how long the echo takes to return. Distance is
+    calculated as:
+  </p>
 
-Also did the Oblometer in class!
+  <div class="equation">distance = pulse_duration &times; (speed_of_sound / 2)</div>
 
-<iframe src="https://rubyeye7.github.io/PS70/06_inputs/index.html" width="100%" height="600px"></iframe>
-</xmp>
+  <p>
+    The firmware uses a pin interrupt to time the echo with microsecond precision and
+    <code>millis()</code> for non-blocking triggering — no <code>delay()</code> anywhere.
+    The sensor class uses C++ class structure with <code>volatile</code> shared variables
+    between the ISR and main loop.
+  </p>
+
+  <h4 style="margin-top: 2rem;">Wiring</h4>
+
+  <p>
+    The HC-SR04 runs on 5V. Both TRIG and ECHO are connected directly to the ESP32-S3 GPIO pins.
+    TRIG works fine at 3.3V logic. ECHO technically outputs 5V, but in practice the ESP32-S3
+    tolerates it for short sessions.
+  </p>
+
+  <table class="wiring-table">
+    <thead>
+      <tr><th>HC-SR04 pin</th><th>Heltec V3 pin</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>VCC</td><td>5V</td><td>Active only when powered via USB</td></tr>
+      <tr><td>GND</td><td>GND</td><td></td></tr>
+      <tr><td>TRIG</td><td>GPIO 4</td><td>Direct</td></tr>
+      <tr><td>ECHO</td><td>GPIO 5</td><td>Direct</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="margin-top: 2rem;">Calibration</h4>
+
+  <p>
+    I put the sensor against my laptop and used a ruler to measure distance until one of my bricks from the networking assignment.
+    Then I measured at eight known distances. The raw formula assumes a fixed speed of sound
+    (343 m/s at 20 &deg;C).
+  </p>
+
+  <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin: 24px 0;">
+    <img src="./pic1.png" alt="HC-SR04 calibration setup close-up" style="max-width:320px; width:100%; border:1px solid var(--border-color);">
+    <img src="./pic2.png" alt="HC-SR04 calibration setup with ruler" style="max-width:320px; width:100%; border:1px solid var(--border-color);">
+  </div>
+
+  <table class="calib-table">
+    <thead>
+      <tr>
+        <th>Actual (cm)</th>
+        <th>Raw reading (cm)</th>
+        <th>Error (cm)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>5</td><td>5.5</td><td>+0.5</td></tr>
+      <tr><td>10</td><td>9.1</td><td>&minus;0.9</td></tr>
+      <tr><td>15</td><td>14.1</td><td>&minus;0.9</td></tr>
+      <tr><td>20</td><td>19.0</td><td>&minus;1.0</td></tr>
+      <tr><td>30</td><td>28.4</td><td>&minus;1.6</td></tr>
+      <tr><td>40</td><td>38.3</td><td>&minus;1.7</td></tr>
+      <tr><td>50</td><td>48.4</td><td>&minus;1.6</td></tr>
+      <tr><td>75</td><td>61.2</td><td>&minus;13.8</td></tr>
+    </tbody>
+  </table>
+
+  <div class="chart-wrap">
+    <canvas id="calibChart"></canvas>
+  </div>
+
+  <h4 style="margin-top: 2rem;">After Calibration</h4>
+
+  <p>
+    After applying the linear correction (<code>actual ≈ 1.023 × raw + 0.68</code>),
+    the error dropped to <strong>±0.1 cm</strong> across the reliable range.
+  </p>
+
+  <div style="text-align:center; margin: 24px 0;">
+    <img src="./calibrated.png" alt="Calibrated sensor reading" style="max-width:400px; width:100%; border:1px solid var(--border-color);">
+  </div>
+
+  <h4 style="margin-top: 2rem;">Firmware</h4>
+
+  <pre><code class="language-cpp">// HC-SR04 Ultrasonic Distance Sensor — Heltec WiFi LoRa 32 V3
+// No delay() anywhere. millis() paces the trigger; echo pin ISR times the pulse.
+
+#include &lt;Wire.h&gt;
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_SSD1306.h&gt;
+
+// Heltec V3 OLED: SSD1306 128x64, I2C on SDA=17 SCL=18, reset on GPIO 21
+Adafruit_SSD1306 display(128, 64, &amp;Wire, 21);
+
+static const uint8_t TRIG_PIN = 4;
+static const uint8_t ECHO_PIN = 5;
+static const uint8_t LED_PIN  = 35;
+
+void IRAM_ATTR globalEchoISR();
+
+class HCSR04 {
+public:
+    static constexpr float CM_PER_US = 0.01717f;
+
+    HCSR04(uint8_t trig, uint8_t echo, uint8_t led)
+        : _trig(trig), _echo(echo), _led(led),
+          _pulseStart(0), _pulseDuration(0), _triggerTime(0),
+          _measuring(false), _newData(false), _distanceCm(-1.0f) {}
+
+    void begin() {
+        pinMode(_trig, OUTPUT);
+        pinMode(_echo, INPUT);
+        digitalWrite(_trig, LOW);
+        ledcAttach(_led, 5000, 8);
+        attachInterrupt(digitalPinToInterrupt(_echo), globalEchoISR, CHANGE);
+    }
+
+    void trigger() {
+        if (_measuring &amp;&amp; (micros() - _triggerTime &gt; 30000))
+            _measuring = false;
+        if (_measuring) return;
+        _measuring = true;
+        _triggerTime = micros();
+        digitalWrite(_trig, HIGH);
+        delayMicroseconds(10);
+        digitalWrite(_trig, LOW);
+    }
+
+    void IRAM_ATTR echoHandler() {
+        if (digitalRead(_echo) == HIGH) {
+            _pulseStart = micros();
+        } else {
+            _pulseDuration = micros() - _pulseStart;
+            _measuring = false;
+            _newData = true;
+        }
+    }
+
+    bool update() {
+        if (!_newData) return false;
+        _newData = false;
+        float raw = _pulseDuration * CM_PER_US;
+        if (raw &gt;= 2.0f &amp;&amp; raw &lt;= 400.0f) {
+            _distanceCm = 1.023f * raw + 0.68f;  // calibration fit
+            int brightness = constrain(map((long)_distanceCm, 2, 50, 255, 0), 0, 255);
+            ledcWrite(_led, brightness);
+            return true;
+        }
+        return false;
+    }
+
+    float getDistanceCm() const { return _distanceCm; }
+
+private:
+    uint8_t _trig, _echo, _led;
+    volatile unsigned long _pulseStart, _pulseDuration, _triggerTime;
+    volatile bool _measuring, _newData;
+    float _distanceCm;
+};
+
+HCSR04 sensor(TRIG_PIN, ECHO_PIN, LED_PIN);
+void IRAM_ATTR globalEchoISR() { sensor.echoHandler(); }
+
+void setup() {
+    Serial.begin(115200);
+    Wire.begin(17, 18);
+    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+    display.clearDisplay();
+    display.setTextColor(SSD1306_WHITE);
+    display.setTextSize(2);
+    display.setCursor(0, 0);
+    display.println("HC-SR04");
+    display.println("ready");
+    display.display();
+    sensor.begin();
+}
+
+void loop() {
+    static unsigned long lastTrigger = 0;
+    if (millis() - lastTrigger &gt;= 100) {
+        lastTrigger = millis();
+        sensor.trigger();
+    }
+    if (sensor.update()) {
+        float d = sensor.getDistanceCm();
+        display.clearDisplay();
+        display.setTextSize(1);
+        display.setCursor(0, 0);
+        display.println("Distance:");
+        display.setTextSize(3);
+        display.setCursor(0, 16);
+        display.print(d, 1);
+        display.println(" cm");
+        display.display();
+        Serial.print("Distance_cm\t");
+        Serial.println(d, 1);
+    }
+}</code></pre>
+
+  <h4 style="margin-top: 2rem;">Discussion</h4>
+
+  <p>
+    The sensor is <strong>nearly linear from 10–50 cm</strong>, but with a consistent ~1.5 cm
+    underestimate. A linear regression on that range gives:
+  </p>
+
+  <div class="equation">actual &asymp; 1.023 &times; raw + 0.68</div>
+
+  <p>
+    This correction is applied in the firmware. The slope &gt;1 reflects that the room temperature
+    was above the assumed 20 &deg;C — warmer air makes sound travel faster, so the echo returns
+    sooner and the sensor underestimates distance. The intercept (+0.68 cm) accounts for a small
+    fixed timing offset in the sensor hardware. After applying the calibration, the error was
+    <strong>&plusmn;0.1 cm across all measured distances</strong>.
+  </p>
+
+  <p>
+    The <strong>75 cm reading (61.2 cm measured) is a significant outlier</strong> — an 18% error.
+    At that range the ultrasonic beam spreads wide enough to pick up reflections from the table
+    surface and nearby walls rather than the intended target. This non-linearity makes the HC-SR04
+    unreliable beyond ~50 cm in a cluttered environment and shows that the relationship between
+    pulse duration and actual distance is not perfectly linear across the full range.
+  </p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script>
+(function () {
+  const actual   = [5, 10, 15, 20, 30, 40, 50, 75];
+  const measured = [5.5, 9.1, 14.1, 19.0, 28.4, 38.3, 48.4, 61.2];
+  const calibrated = measured.map(r => +(1.023 * r + 0.68).toFixed(1));
+  const ideal = actual.map(v => ({ x: v, y: v }));
+
+  new Chart(document.getElementById('calibChart'), {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'Raw reading',
+          data: actual.map((a, i) => ({ x: a, y: measured[i] })),
+          backgroundColor: '#ef4444',
+          borderColor: '#ef444499',
+          pointRadius: 6,
+          showLine: true,
+          tension: 0.2,
+        },
+        {
+          label: 'After calibration',
+          data: actual.map((a, i) => ({ x: a, y: calibrated[i] })),
+          backgroundColor: '#22c55e',
+          borderColor: '#22c55e99',
+          pointRadius: 6,
+          showLine: true,
+          tension: 0.2,
+        },
+        {
+          label: 'Ideal (y = x)',
+          data: ideal,
+          type: 'line',
+          borderColor: '#94a3b8',
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        x: { title: { display: true, text: 'Actual distance (cm)' } },
+        y: { title: { display: true, text: 'Sensor reading (cm)' } }
+      }
+    }
+  });
+})();
+</script>
+
 </body>
-
-<script src="../strapdown.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
-
 </html>
