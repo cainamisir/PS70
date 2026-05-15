@@ -73,6 +73,9 @@
     <div class="spec"><div class="k">City toggle</div><div class="v">GPIO 0 PRG button</div></div>
   </div>
 
+  <video src="./demo.mp4" controls playsinline preload="metadata"
+         style="width:100%; max-width:600px; display:block; margin:24px auto; border:1px solid var(--border-color); border-radius:6px;"></video>
+
   <h4 style="margin-top:2rem;">How it works</h4>
 
   <p>
@@ -92,7 +95,7 @@
 
   <h4 style="margin-top:2rem;">Circuit schematic</h4>
 
-  <p>One external blue LED and a 220Ω resistor wired to GPIO 6. Everything else is built into the Heltec V3.</p>
+  <p>One external white LED and a 220Ω resistor wired to GPIO 6. Everything else is built into the Heltec V3.</p>
 
   <img src="./weather-schematic.svg" alt="Weather station schematic"
        style="width:100%; max-width:700px; display:block; margin:20px 0; border:1px solid var(--border-color); border-radius:8px;">
@@ -142,7 +145,7 @@ PRG button →
   <p>Libraries: <strong>Adafruit SSD1306</strong>, <strong>Adafruit GFX</strong>, <strong>ArduinoJson v7</strong> — all via Library Manager. Fill in WiFi credentials before flashing.</p>
 
   <pre><code class="language-cpp">// Week 4 — Weather + Time Display — Heltec WiFi LoRa 32 V3
-// Blue LED on GPIO 6 lights up when temp &gt; 10°C.
+// White LED on GPIO 6 lights up when temp &gt; 10°C.
 
 #include &lt;WiFi.h&gt;
 #include &lt;HTTPClient.h&gt;

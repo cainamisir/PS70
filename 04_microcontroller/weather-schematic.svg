@@ -54,11 +54,11 @@
 
   <!-- ═══ LED symbol ═══ -->
   <!-- Triangle (anode left, tip right) -->
-  <polygon points="388,218 388,254 420,236" fill="#3b82f622" stroke="#3b82f6" stroke-width="2"/>
+  <polygon points="388,218 388,254 420,236" fill="#e2e8f022" stroke="#e2e8f0" stroke-width="2"/>
   <!-- Cathode bar -->
-  <line x1="420" y1="218" x2="420" y2="254" stroke="#3b82f6" stroke-width="2.5"/>
+  <line x1="420" y1="218" x2="420" y2="254" stroke="#e2e8f0" stroke-width="2.5"/>
   <!-- LED label -->
-  <text x="404" y="272" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="bold">Blue LED</text>
+  <text x="404" y="272" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="bold">White LED</text>
   <text x="430" y="228" text-anchor="start" fill="#86efac" font-size="8">−  cathode</text>
 
   <!-- wire: LED cathode → right → down to GND rail -->
@@ -95,7 +95,7 @@
 
   <!-- Footnote -->
   <text x="370" y="345" text-anchor="middle" fill="#475569" font-size="9">
-    Blue LED on GPIO 6 lights when temperature &gt; 10°C
+    White LED on GPIO 6 lights when temperature &gt; 10°C
   </text>
 
 </svg>
