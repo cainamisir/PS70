@@ -139,7 +139,7 @@
 # Demo
 
 <div class="video-wrap">
-  <video src="./demo.mp4" controls playsinline preload="metadata"></video>
+  <video src="./demo.mp4" controls playsinline preload="metadata" muted></video>
 </div>
 
 # Motivation
@@ -285,9 +285,9 @@ The fix I used is dumb and effective: a **set of springs underneath the paper st
 
 The roller is positioned just below that fixed top height. Each `turn` from the ESP32 drives the roller; the top sheet rolls off, and the spring-loaded platen pops the next sheet up into place. The 3-second `settle_ms` wait in the auto-scan loop is enough time for the spring/paper system to come to rest after a feed.
 
-The "roller" itself is a stack of **three LEGO wheel rims** mounted on the stepper shaft. Two were real LEGO parts I had lying around; the third I 3D-printed to match — easiest way to extend the roller width to span the full page. The rubber tire profile on the LEGO rim grips paper *very* well, way better than I expected. Cheap, fast, and effective enough that I never bothered swapping them for a "proper" roller.
+The "roller" itself is a stack of **three LEGO wheel rims** on the stepper shaft. Two were real LEGO wheels we had in the lab. With only those two, the contact width didn't span the full sheet — pages tended to skew and travel diagonally as they rolled. I 3D-printed a third matching wheel and added it to the stack so the roller covered the full page width, and the skew went away. The rubber tire profile on the LEGO rim grips paper surprisingly well.
 
-The whole assembly is rough-and-ready — a printed page-feeder mechanism would be the obvious next upgrade — but with the springs tuned (just enough force to lift the current stack, not so much that the roller can't peel a sheet off), it's been completely reliable for stacks of ≤20 sheets.
+The whole assembly is rough-and-ready — a properly-designed page-feeder mechanism would be the obvious next upgrade — but with the spring force tuned (enough to lift the current stack, not so much that the roller can't peel a sheet off), it's been working well enough.
 
 
 
@@ -298,7 +298,7 @@ The whole assembly is rough-and-ready — a printed page-feeder mechanism would 
 
 ## The page-feed pattern (and the short backward kick)
 
-Tuning the actual stepper command per page took longer than I expected. The naïve approach — "spin the roller forward by N steps until exactly one page comes out" — almost worked, but the LEGO-rim roller is grippy enough that it would consistently pull the **next** sheet partially out from under the top one too. By the time the top page rolled off, the second page was already a few millimeters out and would end up positioned diagonally for the next capture.
+Tuning the page-feed command took a lot of trial and error. The trick I landed on: drive the roller **forward** to roll the top sheet off, then drive it **backward** for a shorter distance. The forward stroke does the actual page advance; the backward stroke pushes the next sheet (which the grippy roller tends to grab partially along with the top one) back down under the stack instead of leaving it caught above.
 
 The fix is the two-phase pattern that's hard-coded in the firmware:
 
@@ -314,10 +314,10 @@ void doPageFeed() {
 }
 ```
 
-The exact numbers (8700 fwd, 3500 back) were tuned empirically using the serial commands (`turn 200`, `turn 500`, etc.) until each `turn` reliably advanced exactly one page and left the next page squared up against the roller's bottom edge. Without the backward kick, ~30% of feeds would carry two sheets through; with it, the failure rate dropped to nearly zero.
+The exact step counts (8700 fwd, 3500 back) came out of tuning by hand with the serial commands (`turn N`, `dir 0|1`, `speed N`) until each `turn` reliably advanced one page and left the stack ready for the next cycle.
 
 <figure style="max-width: 720px; margin: 18px 0;">
-  <div class="video-wrap"><video src="./demo-short.mp4" controls playsinline preload="metadata"></video></div>
+  <div class="video-wrap"><video src="./demo-short.mp4" controls playsinline preload="metadata" muted></video></div>
   <figcaption>One page rolling — the full pattern in action: forward to roll the top sheet off, then a short backward kick to seat the next sheet cleanly under the rollers for the next cycle.</figcaption>
 </figure>
 
@@ -543,7 +543,7 @@ To debug all of the above I built a live per-stage timing log into the auto-scan
 [ 8.27s  +0.17s] page_done   — page #1 annotated
 ```
 
-Once I could see each stage's actual cost, the optimization targets were obvious — and I went from ~67 s total down to ~8 s.
+Once I could see each stage's actual cost, the optimization targets were obvious — match-stage caching, lock-on-first-paper, OCR cache, etc. cut the dominant per-page cost substantially.
 
 ## The Pi-5 throttling saga
 
@@ -571,7 +571,7 @@ sudo systemd-tmpfiles --create --prefix /var/log/journal
 sudo systemctl restart systemd-journald
 ```
 
-Combined, those three got the peak current draw down by maybe 70%. The crashes stopped — but **analyze time went from ~8 s to ~30+ s per page**, because the OCR is exactly the kind of workload that benefits from running on all 4 cores at full clock.
+Combined, those three knocked peak current draw down enough that the crashes stopped — but analyze got significantly slower, because the OCR step is exactly the kind of workload that benefits from running on all four cores at full clock.
 
 Once the proper 27 W supply showed up, **I reversed every one of those throttles**:
 
