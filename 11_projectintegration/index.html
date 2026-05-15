@@ -111,12 +111,11 @@ void handleTurnHttp() { doPageFeed(); server.send(200, "application/json", "{\"o
   <p>
     The trickiest mechanical issue this week: sometimes the roller would grab <strong>two pages at
     once</strong>, and instead of the second page feeding on top, it would slide
-    <strong>underneath the first one</strong>. This happened because the forward stroke had enough
-    friction to pull two sheets together, and the short backward kick wasn't always enough to
-    separate them cleanly before the next cycle. The springs help by keeping the paper stack
-    pressed up consistently, but the root fix was tuning <code>backwardSteps</code> and
-    <code>stepDelayUs</code> until the reverse motion was sharp enough to break the static
-    friction between sheets without overshooting.
+    <strong>underneath the first one</strong>. At this stage I was still controlling the motor
+    entirely via <strong>manual serial commands</strong> — typing <code>turn</code> into the
+    Serial Monitor to advance one page at a time — so there was no automated fix yet. The problem
+    was left open; the backward-kick solution came later as a dedicated bugfix once the full
+    pipeline was running.
   </p>
 
   <h4>System overview</h4>
